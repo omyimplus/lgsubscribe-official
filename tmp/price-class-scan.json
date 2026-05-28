@@ -1,0 +1,296 @@
+{
+  "timestamp": "2026-05-28T09:22:10.581Z",
+  "hasPriceRendered": true,
+  "totalCardsByAnchor": 18,
+  "cardsWithAnyPriceClass": 18,
+  "rows": [
+    {
+      "href": "/th/tv-soundbars/oled-evo/oled77c6psa/lgsubscribe",
+      "title": "ทีวี 77\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED77C6PSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿999",
+        "baseNumber": 999,
+        "fullRaw": "฿1,999",
+        "fullNumber": 1999,
+        "noteSnippet": "฿999฿1,999"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/oled-evo/oled77c6psa/lgsubscribe#pdp-review",
+      "title": "ทีวี 77\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED77C6PSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿999",
+        "baseNumber": 999,
+        "fullRaw": "฿1,999",
+        "fullNumber": 1999,
+        "noteSnippet": "฿999฿1,999"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/oled-evo/oled77c6psa/lgsubscribe",
+      "title": "ทีวี 77\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED77C6PSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿999",
+        "baseNumber": 999,
+        "fullRaw": "฿1,999",
+        "fullNumber": 1999,
+        "noteSnippet": "฿999฿1,999"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/55qned80bsa/lgsubscribe",
+      "title": "ทีวี 55\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 55QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿274",
+        "baseNumber": 274,
+        "fullRaw": "฿549",
+        "fullNumber": 549,
+        "noteSnippet": "฿274฿549"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/55qned80bsa/lgsubscribe#pdp-review",
+      "title": "ทีวี 55\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 55QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿274",
+        "baseNumber": 274,
+        "fullRaw": "฿549",
+        "fullNumber": 549,
+        "noteSnippet": "฿274฿549"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/55qned80bsa/lgsubscribe",
+      "title": "ทีวี 55\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 55QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿274",
+        "baseNumber": 274,
+        "fullRaw": "฿549",
+        "fullNumber": 549,
+        "noteSnippet": "฿274฿549"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/85qned80bsa/lgsubscribe",
+      "title": "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 85QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿674",
+        "baseNumber": 674,
+        "fullRaw": "฿1,349",
+        "fullNumber": 1349,
+        "noteSnippet": "฿674฿1,349"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/85qned80bsa/lgsubscribe#pdp-review",
+      "title": "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 85QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿674",
+        "baseNumber": 674,
+        "fullRaw": "฿1,349",
+        "fullNumber": 1349,
+        "noteSnippet": "฿674฿1,349"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/85qned80bsa/lgsubscribe",
+      "title": "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 85QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿674",
+        "baseNumber": 674,
+        "fullRaw": "฿1,349",
+        "fullNumber": 1349,
+        "noteSnippet": "฿674฿1,349"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/nano-4k-uhd/43nu855bppa/lgsubscribe",
+      "title": "ทีวี 43\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 43NU855BPSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿149",
+        "baseNumber": 149,
+        "fullRaw": "฿299",
+        "fullNumber": 299,
+        "noteSnippet": "฿149฿299"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/nano-4k-uhd/43nu855bppa/lgsubscribe#pdp-review",
+      "title": "ทีวี 43\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 43NU855BPSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿149",
+        "baseNumber": 149,
+        "fullRaw": "฿299",
+        "fullNumber": 299,
+        "noteSnippet": "฿149฿299"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/nano-4k-uhd/43nu855bppa/lgsubscribe",
+      "title": "ทีวี 43\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 43NU855BPSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿149",
+        "baseNumber": 149,
+        "fullRaw": "฿299",
+        "fullNumber": 299,
+        "noteSnippet": "฿149฿299"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/65qned80bsa/lgsubscribe",
+      "title": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 65QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿324",
+        "baseNumber": 324,
+        "fullRaw": "฿649",
+        "fullNumber": 649,
+        "noteSnippet": "฿324฿649"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/65qned80bsa/lgsubscribe#pdp-review",
+      "title": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 65QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿324",
+        "baseNumber": 324,
+        "fullRaw": "฿649",
+        "fullNumber": 649,
+        "noteSnippet": "฿324฿649"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/qned-evo/65qned80bsa/lgsubscribe",
+      "title": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 65QNED80BSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿324",
+        "baseNumber": 324,
+        "fullRaw": "฿649",
+        "fullNumber": 649,
+        "noteSnippet": "฿324฿649"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/nano-4k-uhd/65nu855bpsa/lgsubscribe",
+      "title": "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU855BPSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿249",
+        "baseNumber": 249,
+        "fullRaw": "฿499",
+        "fullNumber": 499,
+        "noteSnippet": "฿249฿499"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/nano-4k-uhd/65nu855bpsa/lgsubscribe#pdp-review",
+      "title": "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU855BPSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿249",
+        "baseNumber": 249,
+        "fullRaw": "฿499",
+        "fullNumber": 499,
+        "noteSnippet": "฿249฿499"
+      }
+    },
+    {
+      "href": "/th/tv-soundbars/nano-4k-uhd/65nu855bpsa/lgsubscribe",
+      "title": "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU855BPSA",
+      "classesFound": {
+        "neoPrice": true,
+        "cellPrice": true,
+        "cellAfterDel": true
+      },
+      "extracted": {
+        "baseRaw": "฿249",
+        "baseNumber": 249,
+        "fullRaw": "฿499",
+        "fullNumber": 499,
+        "noteSnippet": "฿249฿499"
+      }
+    }
+  ]
+}

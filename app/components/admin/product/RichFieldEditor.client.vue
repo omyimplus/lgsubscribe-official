@@ -1,0 +1,103 @@
+<script setup lang="ts">
+import { QuillEditor } from '@vueup/vue-quill'
+import 'quill/dist/quill.snow.css'
+
+const props = defineProps<{
+  modelValue: string
+  placeholder?: string
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
+
+const editorRef = ref<InstanceType<typeof QuillEditor> | null>(null)
+const content = ref(props.modelValue ?? '')
+const uploading = ref(false)
+const hiddenFileInput = ref<HTMLInputElement | null>(null)
+const uploadKind = ref<'image' | 'video'>('image')
+
+watch(() => props.modelValue, (value) => {
+  content.value = value ?? ''
+})
+
+watch(content, (value) => {
+  emit('update:modelValue', value)
+})
+
+const toolbar = [
+  ['bold', 'italic', 'underline'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  [{ header: [2, 3, false] }],
+  ['link', 'clean'],
+]
+
+function triggerUpload(kind: 'image' | 'video') {
+  uploadKind.value = kind
+  if (!hiddenFileInput.value) return
+  hiddenFileInput.value.accept = kind === 'image' ? 'image/*' : 'video/*'
+  hiddenFileInput.value.click()
+}
+
+async function onPickFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  uploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await $fetch<{ url: string, type: 'image' | 'video' }>('/api/editor/upload-media', {
+      method: 'POST',
+      body: fd,
+    })
+
+    const quill = editorRef.value?.getQuill()
+    if (!quill) return
+    const range = quill.getSelection(true)
+    const at = range?.index ?? quill.getLength()
+    quill.insertEmbed(at, uploadKind.value === 'video' ? 'video' : 'image', res.url, 'user')
+    quill.setSelection(at + 1, 0)
+  }
+  finally {
+    uploading.value = false
+    input.value = ''
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-3">
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+        :disabled="uploading"
+        @click="triggerUpload('image')"
+      >
+        {{ uploading && uploadKind === 'image' ? 'กำลังอัปโหลดรูป...' : 'แทรกรูป' }}
+      </button>
+      <button
+        type="button"
+        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+        :disabled="uploading"
+        @click="triggerUpload('video')"
+      >
+        {{ uploading && uploadKind === 'video' ? 'กำลังอัปโหลดวิดีโอ...' : 'แทรกวิดีโอ' }}
+      </button>
+      <p class="text-xs text-gray-400">ไฟล์ถูกเก็บไว้ที่ `public/uploads/editor` (localhost)</p>
+    </div>
+
+    <input ref="hiddenFileInput" type="file" class="hidden" @change="onPickFile">
+
+    <QuillEditor
+      ref="editorRef"
+      v-model:content="content"
+      content-type="html"
+      theme="snow"
+      :toolbar="toolbar"
+      :placeholder="placeholder ?? 'พิมพ์ข้อมูลที่นี่...'"
+    />
+  </div>
+</template>

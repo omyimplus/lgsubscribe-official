@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-05-28T08:23:57.432Z",
+  "routes": {
+    "retrieveProductList": {
+      "statusCode": 200,
+      "bodyBytes": 27378,
+      "topLevelKeys": [
+        "code",
+        "status",
+        "message",
+        "productLists"
+      ],
+      "files": {
+        "headers": "tmp/retrieveProductList.headers.txt",
+        "body": "tmp/retrieveProductList.body.json",
+        "status": "tmp/retrieveProductList.status.txt"
+      }
+    },
+    "coveo": {
+      "statusCode": 401,
+      "bodyBytes": 136,
+      "topLevelKeys": [
+        "statusCode",
+        "message",
+        "type"
+      ],
+      "files": {
+        "headers": "tmp/coveo.headers.txt",
+        "body": "tmp/coveo.body.json",
+        "status": "tmp/coveo.status.txt"
+      }
+    }
+  }
+}

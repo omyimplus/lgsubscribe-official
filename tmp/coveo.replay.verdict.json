@@ -1,0 +1,9 @@
+{
+  "capture_status_seen_in_browser": null,
+  "replay_status": null,
+  "replay_has_results": false,
+  "replay_result_count": 0,
+  "conclusion": "fail",
+  "short_reason": "No in-page Coveo POST request observed within timeout.",
+  "excluded_headers_for_replay": []
+}

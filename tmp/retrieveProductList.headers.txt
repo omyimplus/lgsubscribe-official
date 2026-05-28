@@ -1,0 +1,12 @@
+HTTP/2 200 
+content-type: application/json
+content-length: 27378
+expires: Thu, 28 May 2026 08:23:46 GMT
+cache-control: max-age=0, no-cache, no-store
+pragma: no-cache
+date: Thu, 28 May 2026 08:23:46 GMT
+server-timing: cdn-cache; desc=MISS
+server-timing: edge; dur=207
+server-timing: origin; dur=156
+server-timing: ak_p; desc="1779956626013_1856247175_4257557966_36383_22298_20_27_15";dur=1
+

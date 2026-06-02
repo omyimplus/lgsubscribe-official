@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { CustomerProfile } from '~~/shared/types/customer'
 
-definePageMeta({ layout: 'default' })
+definePageMeta({
+  layout: 'default',
+  breadcrumb: [{ label: 'บัญชีของฉัน' }],
+})
 
 const router = useRouter()
 const { $supabase } = useNuxtApp()
@@ -82,19 +85,13 @@ async function saveProfile() {
   }
 }
 
-async function logout() {
-  await $supabase.auth.signOut()
-  await router.push('/')
-}
-
 onMounted(loadProfile)
 </script>
 
 <template>
-  <main class="mx-auto min-h-screen w-full max-w-2xl px-4 py-10">
+  <main class="mx-auto w-full max-w-2xl px-4 py-10">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-gray-900">บัญชีของฉัน</h1>
-      <button type="button" class="text-sm text-gray-500 hover:text-red-600" @click="logout">ออกจากระบบ</button>
     </div>
 
     <div v-if="loading" class="mt-6 rounded-xl bg-white p-6 text-sm text-gray-500 shadow-sm">

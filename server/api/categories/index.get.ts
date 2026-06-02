@@ -12,7 +12,7 @@ export default defineEventHandler(async () => {
       )
     `)
     .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false })
+    .order('name', { ascending: true })
 
   if (error) throw createError({ statusCode: 500, message: error.message })
   return data

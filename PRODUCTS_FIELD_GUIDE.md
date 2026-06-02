@@ -90,9 +90,9 @@
 - ข้อความโปรโมชัน -> `headline`
 - ราคาโปรโมชัน/เดือน -> `base_price` หรือ `discounted_price` ตามเงื่อนไขธุรกิจ
 - ราคาเต็ม (ถ้ามี) -> `full_price`
-- คุณลักษณะที่สำคัญ -> `key_features`
-- คุณสมบัติ -> `features`
-- สเปค -> `specifications`
+- คุณลักษณะที่สำคัญ -> `key_features` (outer HTML ของ `ul#keyFeatureList` — ไม่รวมลิงก์ "เพิ่มเติม")
+- คุณสมบัติ -> `features` (inner HTML ทั้งก้อนของ `#pdp-overview-section` — รวมข้อความและ markup ภายใน)
+- สเปค -> `specifications` (inner HTML ทั้งก้อนของ `#pdp-specs-section`)
 - รายละเอียดเนื้อหาอื่น -> `description`
 - FAQ -> `faq_html`
 
@@ -117,8 +117,8 @@
 
 - รายละเอียดสินค้า -> `description`
 - คุณลักษณะที่สำคัญ -> `key_features`
-- คุณสมบัติ -> `features`
-- สเปค -> `specifications`
+- คุณสมบัติ -> `features` (inner HTML ทั้งก้อนของ `#pdp-overview-section` — รวมข้อความและ markup ภายใน)
+- สเปค -> `specifications` (inner HTML ทั้งก้อนของ `#pdp-specs-section`)
 - FAQ แบบ html ยกทั้งก้อน -> `faq_html`
 
 ---
@@ -129,14 +129,16 @@
 - `POST /api/products` -> create product
 - `GET /api/products/:id` -> get product
 - `PATCH /api/products/:id` -> update product
-- `DELETE /api/products/:id` -> delete product
+- `DELETE /api/products/:id` -> delete product + ลบไฟล์รูป/วิดีโอใน Supabase ที่อ้างอิงจากสินค้านั้น
+- `DELETE /api/products` -> ลบสินค้าทั้งหมด + ลบไฟล์ media ใน Storage ที่อ้างอิงจาก products
 - `POST /api/products/upload-image` -> upload single image to Supabase Storage
-- `POST /api/editor/upload-media` -> upload media for rich editor (localhost)
+- `POST /api/editor/upload-media` -> upload รูป/วิดีโอสำหรับ rich editor ไป Supabase `product-images/editor/images|videos/…` (public URL)
 - `GET /api/public/products` -> published products for frontend
-- `POST /api/admin/import/tvs-draft` -> import ทีวี 3 รายการเป็น draft (ทดสอบ)
 - `GET /api/admin/import/overview` -> ดู draft batch และรายการใน import
-- `POST /api/admin/import/confirm` -> ยืนยันแทนที่ products ด้วย import draft
-- `DELETE /api/admin/import/drafts` -> ลบดราฟ import ทั้งหมด
+- `GET /api/admin/import/catalog` -> สแกนรายการ LG (sku, ชื่อ) เทียบกับ products
+- `POST /api/admin/import/tvs-draft` -> import detail เข้า draft (`skus[]` | `importAll` | `testLimit`)
+- `POST /api/admin/import/confirm` -> นำขึ้น products แบบ merge ตาม SKU (ไม่ลบทั้งหมด; สินค้าเดิมไม่ทับ HTML content)
+- `DELETE /api/admin/import/drafts` -> ลบดราฟ import ทั้งหมด + ลบรูป mirror ใน Storage (`product-images/lg-import/{batchId}/…`) ยกเว้น path ที่ `products` ยังใช้อยู่
 
 ---
 
@@ -144,9 +146,14 @@
 
 - บังคับ normalize URL รูปให้เป็น public URL ที่ใช้งานได้จริงก่อนบันทึก
 - ถ้าดึงรูปได้หลายรูป ให้เก็บครบใน `image_urls` และตั้งรูปแรกเป็น `image_url`
+- รูปจาก LG ที่ import จะ mirror เข้า Supabase `product-images` ก่อนบันทึก (แปลงเป็น WebP + resize)
+- วิดีโอใน HTML (`<video>` / `<source>`) จะ mirror ไป `lg-import/{batchId}/{sku}/videos/…` (สูงสุด 8 ไฟล์, ≤25MB/ไฟล์)
 - ถ้า section ใดไม่พบ ให้เก็บ `null` (ห้ามเดาเนื้อหา)
 - คงค่า `sku` เป็น unique key หลักในการกันข้อมูลซ้ำ
-- ค่า markdown/list จากหน้าเว็บสามารถเก็บเป็น plain text แบบขึ้นบรรทัดใหม่ใน `key_features`, `features`, `specifications`
+- `key_features`: ดึงจาก `ul#keyFeatureList` บน PDP (รายการครบใน HTML โดยไม่ต้องกด "เพิ่มเติม"); fallback ใช้ section หลังหัวข้อ "คุณลักษณะที่สำคัญ" ถ้าไม่พบ element นี้
+- `features`: inner HTML ของ `#pdp-overview-section`; fallback ใช้ section หลังหัวข้อ "คุณสมบัติ"
+- `specifications`: inner HTML ของ `#pdp-specs-section`; fallback ใช้ section หลังหัวข้อ "สเปค"/"ข้อมูลจำเพาะ"
+- ก่อนบันทึก DB: รัน `sanitizeLgHtml` ตัด class/id/data-* ของ LG (ดู `LG_HTML_SANITIZE.md`)
 
 ---
 

@@ -60,6 +60,10 @@ async function onPickFile(event: Event) {
     quill.insertEmbed(at, uploadKind.value === 'video' ? 'video' : 'image', res.url, 'user')
     quill.setSelection(at + 1, 0)
   }
+  catch (err: unknown) {
+    const e = err as { data?: { message?: string }, message?: string }
+    window.alert(e?.data?.message ?? e?.message ?? 'อัปโหลดไม่สำเร็จ')
+  }
   finally {
     uploading.value = false
     input.value = ''
@@ -86,7 +90,9 @@ async function onPickFile(event: Event) {
       >
         {{ uploading && uploadKind === 'video' ? 'กำลังอัปโหลดวิดีโอ...' : 'แทรกวิดีโอ' }}
       </button>
-      <p class="text-xs text-gray-400">ไฟล์ถูกเก็บไว้ที่ `public/uploads/editor` (localhost)</p>
+      <p class="text-xs text-gray-400">
+        อัปโหลดไป Supabase Storage · รูป ≤8MB · วิดีโอ ≤25MB (MP4, WebM, MOV)
+      </p>
     </div>
 
     <input ref="hiddenFileInput" type="file" class="hidden" @change="onPickFile">

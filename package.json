@@ -10,20 +10,28 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "verify:catalog": "node scripts/verify-tv-catalog.mjs",
+    "test:pdp-images": "tsx scripts/test-pdp-images.mjs",
+    "test:categories": "tsx scripts/test-all-category-samples.mjs"
   },
   "dependencies": {
     "@nuxt/icon": "^2.2.2",
     "@supabase/supabase-js": "^2.106.2",
     "@tailwindcss/vite": "^4.3.0",
+    "@tinymce/tinymce-vue": "^6.3.0",
     "@vueup/vue-quill": "^1.2.0",
+    "node-html-parser": "^7.1.0",
     "nuxt": "^4.4.6",
     "playwright": "^1.60.0",
     "quill": "^2.0.3",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
+    "tinymce": "^8.5.1",
     "vue": "^3.5.34",
     "vue-router": "^5.0.7",
-    "ws": "^8.21.0"
+    "ws": "^8.21.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/ws": "^8.18.1"

@@ -5,6 +5,7 @@ const { signOut } = useAuth()
 const pageTitles: Record<string, string> = {
   '/admin': 'Dashboard',
   '/admin/products': 'สินค้า',
+  '/admin/product-groups': 'กลุ่มสินค้า',
   '/admin/categories': 'หมวดหมู่',
   '/admin/tags': 'Tags',
   '/admin/customers': 'ลูกค้า',
@@ -22,15 +23,22 @@ const currentTitle = computed(() => {
   if (/^\/admin\/products\/[^/]+\/detail\/[^/]+$/.test(route.path)) {
     return 'แก้ไขรายละเอียดภายใน'
   }
+  if (/^\/admin\/import-items\/[^/]+\/detail\/[^/]+$/.test(route.path)) {
+    return 'แก้ไขรายละเอียด Import Draft'
+  }
   if (/^\/admin\/import-items\/[^/]+$/.test(route.path)) {
     return 'ตรวจรายละเอียด Import Draft'
+  }
+  if (route.path === '/admin/promotions') return 'โปรโมชั่น'
+  if (/^\/admin\/promotions\/[^/]+$/.test(route.path)) {
+    return 'แก้ไขโปรโมชั่น'
   }
   return pageTitles[route.path] ?? 'Backend Office'
 })
 </script>
 
 <template>
-  <div class="flex h-screen overflow-hidden bg-slate-100">
+  <div class="admin-app flex h-screen overflow-hidden bg-slate-100">
     <AdminSidebar @logout="signOut" />
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
       <AdminHeader :title="currentTitle" />

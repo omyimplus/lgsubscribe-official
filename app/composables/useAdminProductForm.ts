@@ -1,6 +1,7 @@
 import type { Category } from '~~/shared/types/category'
 import type { Product, ProductInput } from '~~/shared/types/product'
 import type { Tag } from '~~/shared/types/tag'
+import { categoriesForMain as listCategoriesForMain, defaultCategoryId, sortMainCategories } from '~~/shared/utils/categoryDisplay'
 
 export function useAdminProductForm(productId?: string) {
   const router = useRouter()
@@ -10,12 +11,13 @@ export function useAdminProductForm(productId?: string) {
   const { data: mainCategories } = useFetch<import('~~/shared/types/main-category').MainCategory[]>('/api/main-categories', { default: () => [] })
   const { data: allTags } = useFetch<Tag[]>('/api/tags', { default: () => [] })
 
-  const { data: product, pending: loadingProduct } = useFetch<Product>(
+  const { data: product, pending: loadingProduct, refresh } = useFetch<Product>(
     () => (productId ? `/api/products/${productId}` : ''),
     {
       key: `admin-product-${productId ?? 'new'}`,
       immediate: !!productId,
       watch: [() => productId],
+      server: false,
     },
   )
 
@@ -39,10 +41,6 @@ export function useAdminProductForm(productId?: string) {
     purchase_only_url: '',
     discount_type: null,
     discount_value: null,
-    service_self_clean: false,
-    service_technician: false,
-    service_months: null,
-    installment_months: null,
     warranty_years: null,
     status: 'draft',
     sort_order: 0,
@@ -68,8 +66,10 @@ export function useAdminProductForm(productId?: string) {
   )
 
   function categoriesForMain(mainId: string) {
-    return (categories.value ?? []).filter(c => c.main_category_id === mainId)
+    return listCategoriesForMain(categories.value ?? [], mainId)
   }
+
+  const sortedMainCategories = computed(() => sortMainCategories(mainCategories.value ?? []))
 
   watch(product, (p) => {
     if (!p) return
@@ -94,10 +94,6 @@ export function useAdminProductForm(productId?: string) {
     form.purchase_only_url = p.purchase_only_url ?? ''
     form.discount_type = p.discount_type
     form.discount_value = p.discount_value != null ? Number(p.discount_value) : null
-    form.service_self_clean = p.service_self_clean
-    form.service_technician = p.service_technician
-    form.service_months = p.service_months
-    form.installment_months = p.installment_months
     form.warranty_years = p.warranty_years
     form.status = p.status
     form.sort_order = p.sort_order
@@ -105,9 +101,10 @@ export function useAdminProductForm(productId?: string) {
     form.tag_ids = p.tags?.map(t => t.id) ?? []
   }, { immediate: true })
 
-  watch(categories, (list) => {
-    if (!isEdit.value && list?.length && !form.category_id) {
-      form.category_id = list[0].id
+  watch([categories, mainCategories], () => {
+    if (!isEdit.value && !form.category_id) {
+      const id = defaultCategoryId(mainCategories.value ?? [], categories.value ?? [])
+      if (id) form.category_id = id
     }
   }, { immediate: true })
 
@@ -199,10 +196,6 @@ export function useAdminProductForm(productId?: string) {
       purchase_only_url: form.purchase_only_url?.trim() || null,
       discount_type: form.discount_type || null,
       discount_value: form.discount_value != null ? Number(form.discount_value) : null,
-      service_self_clean: form.service_self_clean,
-      service_technician: form.service_technician,
-      service_months: form.service_months,
-      installment_months: form.installment_months,
       warranty_years: form.warranty_years,
       status: form.status,
       sort_order: form.sort_order,
@@ -229,8 +222,10 @@ export function useAdminProductForm(productId?: string) {
       }
 
       if (isEdit.value && productId) {
-        await $fetch(`/api/products/${productId}`, { method: 'PATCH', body: payload })
-        await router.push('/admin/products')
+        const updated = await $fetch<Product>(`/api/products/${productId}`, { method: 'PATCH', body: payload })
+        product.value = updated
+        await refresh()
+        return true
       }
       else {
         const created = await $fetch<Product>('/api/products', { method: 'POST', body: payload })
@@ -252,10 +247,12 @@ export function useAdminProductForm(productId?: string) {
     saving.value = true
     formError.value = ''
     try {
-      await $fetch(`/api/products/${productId}`, {
+      const updated = await $fetch<Product>(`/api/products/${productId}`, {
         method: 'PATCH',
         body: { [field]: form[field] || null },
       })
+      product.value = updated
+      form[field] = updated[field] ?? ''
       return true
     }
     catch (err: any) {
@@ -280,6 +277,7 @@ export function useAdminProductForm(productId?: string) {
     pricingPreview,
     categories,
     mainCategories,
+    sortedMainCategories,
     allTags,
     loadingProduct,
     product,

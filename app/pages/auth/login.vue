@@ -1,7 +1,11 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
+definePageMeta({
+  layout: 'default',
+  breadcrumb: [{ label: 'เข้าสู่ระบบ' }],
+})
 
 const router = useRouter()
+const route = useRoute()
 const { $supabase } = useNuxtApp()
 
 const form = reactive({
@@ -21,7 +25,7 @@ async function handleLogin() {
     })
     if (signInError) throw signInError
 
-    await router.push('/account')
+    await router.push(typeof route.query.redirect === 'string' ? route.query.redirect : '/account')
   }
   catch (err: any) {
     error.value = err?.message ?? 'เข้าสู่ระบบไม่สำเร็จ'
@@ -33,7 +37,7 @@ async function handleLogin() {
 </script>
 
 <template>
-  <main class="mx-auto min-h-screen w-full max-w-md px-4 py-10">
+  <main class="mx-auto w-full max-w-md px-4 py-10">
     <NuxtLink to="/" class="text-sm text-gray-500 hover:text-red-600">← กลับหน้าแรก</NuxtLink>
     <h1 class="mt-4 text-2xl font-bold text-gray-900">เข้าสู่ระบบลูกค้า</h1>
 

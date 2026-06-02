@@ -3,7 +3,7 @@ definePageMeta({ layout: 'default' })
 </script>
 
 <template>
-  <main class="flex min-h-screen flex-col items-center justify-center p-8">
+  <main class="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center p-8">
     <div class="text-center">
       <h1 class="text-5xl font-bold text-gray-900">LG Subscribe</h1>
       <p class="mt-4 text-lg text-gray-500">สมัครใช้เครื่องใช้ไฟฟ้า LG แบบรายเดือน</p>
@@ -15,16 +15,10 @@ definePageMeta({ layout: 'default' })
           ดูสินค้าทั้งหมด
         </NuxtLink>
         <NuxtLink
-          to="/auth/register"
+          to="/promotions"
           class="rounded-full border border-gray-300 bg-white px-8 py-3 text-sm font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition-colors"
         >
-          สมัครสมาชิก
-        </NuxtLink>
-        <NuxtLink
-          to="/auth/login"
-          class="rounded-full border border-gray-300 bg-white px-8 py-3 text-sm font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition-colors"
-        >
-          เข้าสู่ระบบ
+          โปรโมชั่น
         </NuxtLink>
       </div>
     </div>

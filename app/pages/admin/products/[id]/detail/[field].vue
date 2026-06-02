@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRODUCT_FORM_KEY } from '~/components/admin/product/form-context'
 import { useAdminProductForm } from '~/composables/useAdminProductForm'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -28,12 +29,23 @@ if (!isDetailField(fieldParam)) {
 
 const field = computed(() => fieldParam as DetailField)
 const formCtx = useAdminProductForm(id)
-const content = ref('')
-const isFaqField = computed(() => field.value === 'faq_html')
+provide(PRODUCT_FORM_KEY, formCtx)
 
-watch(() => formCtx.form[field.value] as string, (value) => {
-  content.value = value || ''
-}, { immediate: true })
+const content = ref('')
+const editorReady = ref(false)
+
+watch(
+  () => [formCtx.loadingProduct.value, formCtx.form[field.value]] as const,
+  ([loading, html]) => {
+    if (loading) {
+      editorReady.value = false
+      return
+    }
+    content.value = html || ''
+    editorReady.value = true
+  },
+  { immediate: true },
+)
 
 async function saveContent() {
   formCtx.form[field.value] = content.value
@@ -45,42 +57,46 @@ async function saveContent() {
 </script>
 
 <template>
-  <div class="pb-24">
+  <div class="pb-8">
     <div v-if="formCtx.loadingProduct.value" class="py-20 text-center text-gray-400">
       กำลังโหลด...
     </div>
 
     <template v-else-if="formCtx.product.value">
       <div class="mb-6">
-        <NuxtLink :to="`/admin/products/${id}`" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600">
+        <NuxtLink
+          :to="`/admin/products/${id}`"
+          class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600"
+        >
           <Icon name="heroicons:arrow-left" class="h-4 w-4" />
           กลับหน้าแก้ไขสินค้า
         </NuxtLink>
       </div>
 
       <AdminPageHeader
-        :title="`แก้ไข ${labels[field]}`"
+        :title="`ตรวจ/แก้ไข ${labels[field]}`"
         :description="`${formCtx.product.value.name} • SKU: ${formCtx.product.value.sku}`"
       />
 
       <section class="mt-6 rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">
-        <AdminProductRichFieldEditor
+        <AdminImportHtmlFieldEditor
+          v-if="editorReady"
+          :key="`${id}-${field}`"
           v-model="content"
-          :placeholder="`กรอก ${labels[field]}...`"
+          :placeholder="`แก้ไข HTML ${labels[field]}...`"
         />
 
-        <div v-if="isFaqField" class="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
-          <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Preview FAQ</p>
-          <div class="prose prose-sm max-w-none text-gray-700" v-html="content || '<p>-</p>'" />
-        </div>
+        <p v-else class="py-12 text-center text-sm text-gray-400">
+          กำลังเตรียม editor...
+        </p>
 
         <p v-if="formCtx.formError.value" class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
           {{ formCtx.formError.value }}
         </p>
       </section>
 
-      <div class="sticky bottom-0 -mx-4 mt-6 border-t border-gray-200 bg-white/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div class="flex items-center justify-end gap-3">
+      <div class="mt-6 rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
+        <div class="flex flex-wrap items-center justify-end gap-3">
           <NuxtLink
             :to="`/admin/products/${id}`"
             class="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
@@ -90,7 +106,7 @@ async function saveContent() {
           <button
             type="button"
             class="rounded-xl bg-red-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-            :disabled="formCtx.saving.value"
+            :disabled="formCtx.saving.value || !editorReady"
             @click="saveContent"
           >
             {{ formCtx.saving.value ? 'กำลังบันทึก...' : 'บันทึก' }}

@@ -82,8 +82,11 @@ begin
     raise exception 'batch not found or not draft';
   end if;
 
-  delete from public.product_tags;
-  delete from public.products;
+  delete from public.product_tags
+  where product_id in (select id from public.products);
+
+  delete from public.products
+  where id is not null;
 
   insert into public.products (
     category_id,

@@ -28,3 +28,17 @@ export async function getAuthUserFromEvent(event: H3Event): Promise<User> {
 
   return data.user
 }
+
+/** คืน user ถ้ามี Bearer token — ไม่ throw ถ้าไม่ login */
+export async function getOptionalAuthUserFromEvent(event: H3Event): Promise<User | null> {
+  const authHeader = getHeader(event, 'authorization')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : ''
+  if (!token) return null
+
+  try {
+    return await getAuthUserFromEvent(event)
+  }
+  catch {
+    return null
+  }
+}

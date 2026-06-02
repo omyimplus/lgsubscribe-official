@@ -1,35 +1,120 @@
-const TVS_LIST_URL = 'https://www.lg.com/th/subscription/tvs/?ec_model_status_code=ACTIVE'
-const COVEO_SEARCH_URL = 'https://lgcorporationproduction0fxcu0qx.org.coveo.com/rest/search/v2?organizationId=lgcorporationproduction0fxcu0qx'
-const COVEO_SEARCH_PAYLOAD = {
-  locale: 'th-TH',
-  tab: 'CT52000129',
-  firstResult: 0,
-  numberOfResults: 24,
-  aq: '@ec_locale_code=="TH" AND  @ec_category_id=="CT52000129"',
-  searchHub: 'TH-B2C-Subscribe-Listing',
-}
-const RETRIEVE_PRODUCT_LIST_URL = 'https://www.lg.com/ncms/asia/api/v1/proxy/retrieveProductList?locale=TH'
-const RETRIEVE_PRODUCT_LIST_PAYLOAD = {
-  bizType: 'B2C',
-  isMember: 'Y',
-  productList: [
-    {
-      skuList: 'OLED65C6PSA.ATM.EATH.TH.C,65QNED80BSA.ATM.EATH.TH.C,65NU855BPSA.ATM.EATH.TH.C,55QNED80BSA.ATM.EATH.TH.C,43NU855BPSA.ATM.EATH.TH.C,85QNED80BSA.ATM.EATH.TH.C',
-    },
-  ],
-  subscribeProduct: 'N',
-  pageType: 'PLP',
-} as const
+import type { Page } from 'playwright'
+import { sanitizeImportedDetailFields } from './sanitizeLgHtml'
+import {
+  scrapeTvPlpVariants,
+  variantGroupKeyFromDetailUrl,
+  type DomCardRaw,
+} from './lgListCardDomScrape'
+import {
+  enrichDomRowsFromApi,
+  fetchRetrieveProductListInPage,
+  fullSkusForRetrieveRequest,
+} from './lgRetrieveProductList'
+import { hasVisibleCardPricesFn } from './lgListCardDomScrape'
+import { extractPdpImageUrls } from './lgPdpImages'
+import { createImportLogger, type ImportLogger } from './lgImportLog'
+import {
+  buildVariantCardName,
+  LG_SUBSCRIPTION_PAGE_SIZE,
+  LG_TV_LIST_URL,
+  resolveLgProductSku,
+  subscriptionListPageUrl,
+} from './lgSubscriptionSources'
+
+const TVS_LIST_URL = LG_TV_LIST_URL
 const PRICE_RENDER_MAX_RETRIES = 3
 const PRICE_RENDER_WAIT_TIMEOUT_MS = 60000
+/** สูงสุด ~25 หน้า × 9 การ์ด/หน้า (LG ใช้ firstResult) */
+const MAX_PLP_PAGES = 25
+
+/** UA ใกล้เคียง Chrome จริงบน Mac — อย่าใส่ sec-ch-ua คนละเวอร์ชันกับ browser จริง */
+const LG_STEALTH_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+
+const LG_STEALTH_LAUNCH_ARGS = [
+  '--disable-blink-features=AutomationControlled',
+  '--no-sandbox',
+  '--window-size=1366,900',
+]
+
+const PLP_CARD_SELECTOR = 'li.c-product-list__item.neo-card'
+
+/** ปิด cookie banner — หลังคลิก LG มักรีเรนเดอร์ list เป็น 0 การ์ดชั่วคราว */
+async function dismissLgCookieBanner(page: Page, log: ImportLogger) {
+  for (const label of ['ยอมรับทั้งหมด', 'Reject All', 'Accept all']) {
+    const btn = page.getByRole('button', { name: label }).first()
+    if (await btn.isVisible().catch(() => false)) {
+      log.info(`cookie banner — clicking "${label}"`)
+      await btn.click().catch(() => {})
+      await page.waitForLoadState('domcontentloaded').catch(() => {})
+      await page.waitForTimeout(800)
+      return true
+    }
+  }
+  return false
+}
+
+/** รอการ์ด PLP โหลด — ถ้าเพิ่งปิด cookie ต้องรอรอบที่สอง */
+async function waitForPlpProductCards(
+  page: Page,
+  log: ImportLogger,
+  label: string,
+  options?: { tryDismissCookie?: boolean, fastEmpty?: boolean },
+) {
+  const poll = async (timeoutMs: number) => {
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      const count = await page.locator(PLP_CARD_SELECTOR).count()
+      if (count > 0) return count
+      await page.waitForTimeout(1000)
+    }
+    return page.locator(PLP_CARD_SELECTOR).count()
+  }
+
+  const firstWaitMs = options?.fastEmpty ? 12_000 : 45_000
+  const afterCookieWaitMs = options?.fastEmpty ? 18_000 : 60_000
+
+  let count = await poll(firstWaitMs)
+  if (options?.tryDismissCookie) {
+    const clicked = await dismissLgCookieBanner(page, log)
+    if (clicked) {
+      log.info(`${label} — re-wait product cards after cookie`)
+      count = await poll(afterCookieWaitMs)
+    }
+  }
+  return count
+}
+
+type PlpNavigateResult = {
+  status: 'ok' | 'empty' | 'denied'
+  cardCount: number
+}
+
+/** LG/Akamai มัก block bundled Chromium — ต้องใช้ Chrome จริง (channel: chrome) ก่อน */
+async function launchLgBrowser(log: ImportLogger) {
+  const { chromium } = await import('playwright')
+  const headless = process.env.LG_SCRAPE_HEADFUL !== '1'
+  try {
+    const browser = await chromium.launch({ headless, channel: 'chrome', args: LG_STEALTH_LAUNCH_ARGS })
+    log.info(`browser: system Chrome (${headless ? 'headless' : 'headed'})`)
+    return browser
+  }
+  catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    log.warn(`Chrome channel unavailable (${message}) — trying bundled Chromium`)
+    return chromium.launch({ headless, args: LG_STEALTH_LAUNCH_ARGS })
+  }
+}
 
 function isValidTvDetailUrl(url: string) {
-  // Keep only real PDP subscription URLs, e.g.
-  // /th/tv-soundbars/oled-evo/oled77c6psa/lgsubscribe
+  // PDP subscription เช่น /th/tv-soundbars/oled-evo/oled77c6psa/lgsubscribe (ความลึก path อาจ > 3)
   if (!url.includes('/lgsubscribe')) return false
   if (url.includes('/subscription/tvs/lgsubscribe')) return false
-  const m = url.match(/^https:\/\/www\.lg\.com\/th\/([^/]+)\/([^/]+)\/([^/]+)\/lgsubscribe\/?$/i)
-  return Boolean(m)
+  const m = url.match(/^https:\/\/www\.lg\.com\/th\/(.+?)\/lgsubscribe\/?$/i)
+  if (!m?.[1]) return false
+  const segments = m[1].split('/').filter(Boolean)
+  // อย่างน้อย category + model slug เช่น tv-soundbars/65qned80bsa
+  return segments.length >= 2
 }
 
 function decodeHtml(value: string) {
@@ -105,13 +190,13 @@ function collectUrlLikeValues(node: Record<string, unknown>) {
     .map(normalizeUrl)
 }
 
-function normalizeModelKey(url: string) {
+export function normalizeModelKeyFromUrl(url: string) {
   const normalized = normalizeUrl(url)
   const matched = normalized.match(/\/([^/]+)\/lgsubscribe\/?$/i)
   return matched?.[1]?.toUpperCase() ?? null
 }
 
-type TvListCard = {
+export type TvListCard = {
   source_url: string
   model_key: string | null
   name: string | null
@@ -122,11 +207,11 @@ type TvListCard = {
   subscription_note: string | null
   purchase_only_label: string | null
   purchase_only_url: string | null
-}
-
-type MappedWithKeys = {
-  card: TvListCard | null
-  usedKeys: string[]
+  lg_model_id?: string | null
+  variant_label?: string | null
+  variant_group_key?: string | null
+  /** PDP ร่วมของทุกขนาดจอในการ์ดเดียวกัน */
+  shared_detail_url?: string | null
 }
 
 function pickTextByHints(values: string[], hints: string[]) {
@@ -145,9 +230,17 @@ function toLgSubscribeUrl(rawUrl: string | null | undefined) {
 
 function mapRawCard(raw: any): TvListCard | null {
   const detailHref = String(raw?.detailUrl || raw?.url || raw?.href || '').trim()
+  const modelCandidate = resolveLgProductSku(
+    raw?.lgModelId ? String(raw.lgModelId) : null,
+    raw?.sku ?? raw?.modelName,
+  ) || null
   const sourceUrl = toLgSubscribeUrl(detailHref)
   if (!sourceUrl || !isValidTvDetailUrl(sourceUrl)) return null
-  const modelCandidate = String(raw?.sku || raw?.modelName || '').trim().toUpperCase() || null
+  const sharedDetailHref = String(raw?.sharedDetailUrl || '').trim()
+  const sharedDetailUrl = sharedDetailHref ? toLgSubscribeUrl(sharedDetailHref) : null
+  const groupKey = String(raw?.variantGroupKey || '').trim()
+    || variantGroupKeyFromDetailUrl(sharedDetailUrl || sourceUrl)
+    || null
 
   const normalizedRaw = asRecord(raw)
   const looseTextPool = collectStringValues(normalizedRaw)
@@ -189,8 +282,12 @@ function mapRawCard(raw: any): TvListCard | null {
 
   return {
     source_url: sourceUrl,
-    model_key: modelCandidate || normalizeModelKey(sourceUrl),
-    name: raw?.name ? String(raw.name).trim() : null,
+    model_key: modelCandidate || normalizeModelKeyFromUrl(sourceUrl),
+    name: buildVariantCardName(
+      raw?.name ? String(raw.name).trim() : null,
+      raw?.variantLabel ? String(raw.variantLabel).trim() : null,
+      modelCandidate || '',
+    ) || null,
     headline: raw?.headline ? String(raw.headline).trim() : inferredHeadline,
     base_price: parseNumberLoose(raw?.discountedPrice ?? raw?.monthlyPrice ?? raw?.basePrice ?? raw?.base_price),
     full_price: parseNumberLoose(raw?.fullPrice ?? raw?.originalPrice ?? raw?.full_price),
@@ -208,240 +305,112 @@ function mapRawCard(raw: any): TvListCard | null {
     purchase_only_url: raw?.purchaseOnlyUrl
       ? normalizeUrl(String(raw.purchaseOnlyUrl).trim())
       : inferredPurchaseUrl,
+    lg_model_id: raw?.lgModelId ? String(raw.lgModelId).trim() : null,
+    variant_label: raw?.variantLabel ? String(raw.variantLabel).trim() : null,
+    variant_group_key: groupKey,
+    shared_detail_url: sharedDetailUrl && isValidTvDetailUrl(sharedDetailUrl) ? sharedDetailUrl : null,
   }
+}
+
+const BROWSER_LIKE_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+
+function pdpFetchHeaders(detailUrl: string) {
+  const pathMatch = detailUrl.match(/\/th\/([^/]+)/i)
+  const segment = pathMatch?.[1] ?? 'subscription'
+  return {
+    'user-agent': BROWSER_LIKE_UA,
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'accept-language': 'th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7',
+    'referer': `https://www.lg.com/th/subscription/${segment}/`,
+  }
+}
+
+/** ดึง HTML หน้า PDP — ใช้ fetch มาตรฐาน (รันได้ทั้งใน Nuxt และสคริปต์ tsx) */
+async function fetchPdpHtml(detailUrl: string) {
+  const res = await fetch(detailUrl, {
+    redirect: 'follow',
+    headers: pdpFetchHeaders(detailUrl),
+  })
+  if (!res.ok) {
+    const err = new Error(`HTTP ${res.status}`) as Error & { status?: number }
+    err.status = res.status
+    throw err
+  }
+  return res.text()
+}
+
+/** ตรวจว่าเปิดหน้า PDP ได้ (ข้าม URL 404 ของบางขนาดจอ) — UA เบราว์เซอร์จริงกัน LG block */
+export async function probeTvDetailUrl(detailUrl: string) {
+  for (const method of ['HEAD', 'GET'] as const) {
+    try {
+      const res = await fetch(detailUrl, {
+        method,
+        redirect: 'follow',
+        headers: pdpFetchHeaders(detailUrl),
+      })
+      if (res.ok) return true
+      // 404/410 = ไม่มีจริง; 403/405/timeout = อาจโดน block → ลอง GET ต่อ
+      if (res.status === 404 || res.status === 410) return false
+    }
+    catch {
+      // network/timeout → ลอง method ถัดไป
+    }
+  }
+  return false
+}
+
+export async function resolveGroupDetailUrl(
+  cards: TvListCard[],
+  log?: ImportLogger,
+) {
+  const candidates = [...new Set(
+    [
+      ...cards.map(c => c.shared_detail_url),
+      ...cards.map(c => c.source_url),
+    ]
+      .filter((url): url is string => Boolean(url && isValidTvDetailUrl(url))),
+  )]
+
+  for (const url of candidates) {
+    if (await probeTvDetailUrl(url)) {
+      log?.info(`group ${cards[0]?.variant_group_key ?? '?'} detail URL ok: ${url}`)
+      return url
+    }
+    log?.warn(`group ${cards[0]?.variant_group_key ?? '?'} detail URL not available (404?): ${url}`)
+  }
+
+  const skus = cards.map(c => c.model_key).filter(Boolean).join(', ')
+  throw new Error(`ไม่พบหน้ารายละเอียดที่เปิดได้สำหรับกลุ่มสินค้า (${skus})`)
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' ? value as Record<string, unknown> : {}
 }
 
-function pickStringWithKeys(source: Record<string, unknown>, candidates: string[]) {
-  for (const key of candidates) {
-    const v = source[key]
-    if (typeof v === 'string' && v.trim()) {
-      return { value: v.trim(), key }
-    }
-  }
-  return { value: null, key: null }
+export type LgPlpScrapeOptions = {
+  /** path สำหรับ retrieveProductList (default ตาม lgSlug หรือ tvs) */
+  listPath?: string
+  lgSlug?: string
+  /** หมวดไม่มีสินค้า → คืน [] ไม่ throw (default true) */
+  allowEmpty?: boolean
 }
 
-function pickNumberWithKeys(source: Record<string, unknown>, candidates: string[]) {
-  for (const key of candidates) {
-    const n = parseNumberLoose(source[key] as any)
-    if (n !== null) return { value: n, key }
-  }
-  return { value: null, key: null }
-}
+/** PLP: DOM เป็นหลัก (การ์ด + swatch) แล้ว enrich ชื่อจาก retrieveProductList — ไม่ merge Coveo */
+export async function collectTvListCardsWithBrowser(
+  limit = 3,
+  listUrl: string = TVS_LIST_URL,
+  scrapeOptions?: LgPlpScrapeOptions,
+): Promise<TvListCard[]> {
+  const log = createImportLogger('plp-browser')
+  const totalStart = Date.now()
+  log.step(`launch browser limit=${limit}`)
 
-function pickNumberByKeyPattern(source: Record<string, unknown>, patterns: RegExp[]) {
-  const keys = Object.keys(source)
-  for (const key of keys) {
-    if (!patterns.some(pattern => pattern.test(key))) continue
-    const parsed = parseNumberLoose(source[key] as any)
-    if (parsed !== null) return { value: parsed, key }
-  }
-  return { value: null, key: null }
-}
-
-function mapCoveoResult(rawResult: Record<string, unknown>): MappedWithKeys {
-  const raw = asRecord(rawResult.raw)
-  const modelCandidates = [
-    raw.ec_sku,
-    raw.ec_partnumber,
-    raw.ec_model_name,
-    raw.model_key,
-    raw.modelName,
-  ]
-    .filter(v => typeof v === 'string')
-    .map(v => String(v).trim().toUpperCase())
-    .filter(Boolean)
-  const modelKey = modelCandidates[0] ?? null
-
-  const urlPick = pickStringWithKeys(raw, [
-    'ec_product_url',
-    'ec_url',
-    'ec_uri',
-    'product_url',
-    'url',
-  ])
-  const sourceUrl = toLgSubscribeUrl(urlPick.value)
-
-  const titlePick = pickStringWithKeys(rawResult, ['title'])
-  const rawTitlePick = pickStringWithKeys(raw, ['ec_name', 'ec_product_name', 'ec_title', 'ec_model_name'])
-  const headlinePick = pickStringWithKeys(raw, ['ec_promo_text', 'ec_promotion_text', 'ec_headline'])
-  const subNotePick = pickStringWithKeys(raw, ['ec_subscription_note', 'ec_promo_subtext', 'ec_price_text'])
-  const purchaseOnlyLabelPick = pickStringWithKeys(raw, ['ec_purchase_only_label', 'ec_buy_label', 'ec_cta_label'])
-  const purchaseOnlyUrlPick = pickStringWithKeys(raw, ['ec_purchase_only_url', 'ec_buy_url', 'ec_cta_url'])
-  const looseTexts = collectStringValues(raw)
-  const inferredHeadline = pickByRegex(looseTexts, [
-    /ยิ่งซับมาก\s*ยิ่งลดมาก!?/i,
-    /(?:promo|promotion|โปร).*(?:subscription|subscribe|เดือน|month)/i,
-  ])
-  const inferredSubNote = pickByRegex(looseTexts, [
-    /(?:ส่วนลด|สิทธิพิเศษ|เฉพาะ).*?(?:12|เดือน|month|subscribe|subscription)/i,
-    /12\s*(?:เดือน|month)/i,
-  ])
-  const inferredPurchaseLabel = pickByRegex(looseTexts, [
-    /ซื้อขาด/i,
-    /ซื้อ(?:เลย|ทันที)/i,
-    /(?:buy\s*now|purchase\s*only|shop\s*now)/i,
-  ])
-  const inferredPurchaseUrl = collectUrlLikeValues(raw).find(url => !url.includes('/lgsubscribe')) || null
-
-  const basePricePick = pickNumberWithKeys(raw, [
-    'ec_sale_price',
-    'ec_promo_price',
-    'ec_subscription_price',
-    'ec_monthly_price',
-    'ec_price',
-    'ec_discounted_price',
-  ])
-  const fullPricePick = pickNumberWithKeys(raw, [
-    'ec_full_price',
-    'ec_original_price',
-    'ec_list_price',
-    'ec_msrp',
-    'ec_regular_price',
-  ])
-  const basePricePatternPick = basePricePick.value !== null
-    ? { value: null, key: null }
-    : pickNumberByKeyPattern(raw, [
-        /(?:^|_)(?:sub(?:scribe|scription)?|monthly|rent|rental|discount|sale|promo|final|offer|member|best)(?:_|$)/i,
-        /(?:^|_)(?:price|amount|fee)(?:_|$)/i,
-      ])
-  const fullPricePatternPick = fullPricePick.value !== null
-    ? { value: null, key: null }
-    : pickNumberByKeyPattern(raw, [
-        /(?:^|_)(?:full|original|list|regular|before|normal|was|crossed|msrp)(?:_|$)/i,
-      ])
-  const warrantyPick = pickNumberWithKeys(raw, ['ec_warranty_years', 'ec_warranty'])
-
-  const card: TvListCard = {
-    source_url: sourceUrl,
-    model_key: modelKey || normalizeModelKey(sourceUrl),
-    name: titlePick.value || rawTitlePick.value || null,
-    headline: headlinePick.value || inferredHeadline || null,
-    base_price: basePricePick.value ?? basePricePatternPick.value,
-    full_price: fullPricePick.value ?? fullPricePatternPick.value,
-    warranty_years: warrantyPick.value ?? extractWarrantyYears(`${subNotePick.value ?? ''} ${headlinePick.value ?? ''} ${looseTexts.join(' ')}`),
-    subscription_note: subNotePick.value || inferredSubNote || null,
-    purchase_only_label: purchaseOnlyLabelPick.value || inferredPurchaseLabel || null,
-    purchase_only_url: purchaseOnlyUrlPick.value ? normalizeUrl(purchaseOnlyUrlPick.value) : inferredPurchaseUrl,
-  }
-
-  const usedKeys = [
-    urlPick.key,
-    titlePick.key ? `result.${titlePick.key}` : null,
-    rawTitlePick.key,
-    headlinePick.key,
-    subNotePick.key,
-    purchaseOnlyLabelPick.key,
-    purchaseOnlyUrlPick.key,
-    basePricePick.key,
-    basePricePatternPick.key,
-    fullPricePick.key,
-    fullPricePatternPick.key,
-    warrantyPick.key,
-  ].filter(Boolean) as string[]
-
-  if (!card.source_url && !card.model_key) {
-    return { card: null, usedKeys }
-  }
-  return { card, usedKeys }
-}
-
-function extractPriceKeys(raw: Record<string, unknown>) {
-  return Object.keys(raw)
-    .filter(key => /(price|msrp|monthly|amount|subscription|rental|fee|cost)/i.test(key))
-    .sort((a, b) => a.localeCompare(b))
-}
-
-function mapRetrieveProductListItem(raw: Record<string, unknown>): TvListCard | null {
-  const modelUrlPath = typeof raw.modelUrlPath === 'string' ? raw.modelUrlPath.trim() : ''
-  const sourceUrl = modelUrlPath
-    ? normalizeUrl(`${modelUrlPath.replace(/\/$/, '')}/lgsubscribe`)
-    : ''
-  if (!sourceUrl || !isValidTvDetailUrl(sourceUrl)) return null
-
-  const modelName = typeof raw.modelName === 'string' ? raw.modelName.trim() : ''
-  const userFriendlyName = typeof raw.userFriendlyName === 'string' ? raw.userFriendlyName.trim() : ''
-  const promotionText = typeof raw.promotionText === 'string' ? raw.promotionText.trim() : ''
-  const promotionLinkUrl = typeof raw.promotionLinkUrl === 'string' ? raw.promotionLinkUrl.trim() : ''
-  const externalBuyUrl = typeof raw.wtbExternalLinkUrl === 'string' ? raw.wtbExternalLinkUrl.trim() : ''
-  const purchaseOnlyUrl = normalizeUrl(promotionLinkUrl || externalBuyUrl || '')
-  const priceCandidates = [
-    raw.monthlyPrice,
-    raw.subscriptionPrice,
-    raw.discountPrice,
-    raw.salePrice,
-    raw.sellingPrice,
-    raw.finalPrice,
-    raw.price,
-  ]
-  const fullPriceCandidates = [
-    raw.fullPrice,
-    raw.originalPrice,
-    raw.listPrice,
-    raw.beforeDiscountPrice,
-    raw.msrp,
-  ]
-
-  const stringValues = collectStringValues(raw)
-  const inferredHeadline = pickByRegex(stringValues, [
-    /ยิ่งซับมาก\s*ยิ่งลดมาก!?/i,
-    /(?:promo|promotion|โปร).*(?:subscription|subscribe|เดือน|month)/i,
-  ])
-  const inferredSubNote = pickByRegex(stringValues, [
-    /(?:ส่วนลด|สิทธิพิเศษ|เฉพาะ).*?(?:12|เดือน|month|subscribe|subscription)/i,
-    /12\s*(?:เดือน|month)/i,
-  ])
-  const inferredPurchaseLabel = pickByRegex(stringValues, [
-    /ซื้อขาด/i,
-    /ซื้อ(?:เลย|ทันที)/i,
-    /(?:buy\s*now|purchase\s*only|shop\s*now)/i,
-  ])
-  const inferredPurchaseUrl = collectUrlLikeValues(raw).find(url => !url.includes('/lgsubscribe')) || null
-  const patternBasePrice = pickNumberByKeyPattern(raw, [
-    /(?:^|_)(?:sub(?:scribe|scription)?|monthly|rent|rental|discount|sale|promo|final|offer|member|best)(?:_|$)/i,
-    /(?:^|_)(?:price|amount|fee)(?:_|$)/i,
-  ]).value
-  const patternFullPrice = pickNumberByKeyPattern(raw, [
-    /(?:^|_)(?:full|original|list|regular|before|normal|was|crossed|msrp)(?:_|$)/i,
-  ]).value
-
-  return {
-    source_url: sourceUrl,
-    model_key: modelName || normalizeModelKey(sourceUrl),
-    name: userFriendlyName || modelName || null,
-    headline: promotionText || inferredHeadline || null,
-    base_price: normalizePrice(priceCandidates.map(v => parseNumberLoose(v as any)).find(v => v !== null) ?? patternBasePrice ?? null),
-    full_price: normalizePrice(fullPriceCandidates.map(v => parseNumberLoose(v as any)).find(v => v !== null) ?? patternFullPrice ?? null),
-    warranty_years: extractWarrantyYears(`${promotionText} ${userFriendlyName} ${stringValues.join(' ')}`),
-    subscription_note: inferredSubNote,
-    purchase_only_label: raw.buyNowUseFlag === 'Y' ? 'ซื้อขาด' : inferredPurchaseLabel,
-    purchase_only_url: purchaseOnlyUrl || inferredPurchaseUrl || null,
-  }
-}
-
-async function collectTvListCardsWithBrowser(limit = 3): Promise<TvListCard[]> {
-  const { chromium } = await import('playwright')
-  let browser
-  try {
-    browser = await chromium.launch({
-      headless: true,
-      args: ['--disable-blink-features=AutomationControlled'],
-    })
-  }
-  catch {
-    browser = await chromium.launch({
-      headless: true,
-      channel: 'chrome',
-      args: ['--disable-blink-features=AutomationControlled'],
-    })
-  }
+  const browser = await launchLgBrowser(log)
+  log.done('launch browser')
 
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
+    userAgent: LG_STEALTH_UA,
     locale: 'th-TH',
     timezoneId: 'Asia/Bangkok',
     viewport: { width: 1366, height: 900 },
@@ -453,373 +422,250 @@ async function collectTvListCardsWithBrowser(limit = 3): Promise<TvListCard[]> {
     Object.defineProperty(navigator, 'webdriver', { get: () => false })
     Object.defineProperty(navigator, 'languages', { get: () => ['th-TH', 'th', 'en-US', 'en'] })
     Object.defineProperty(navigator, 'platform', { get: () => 'MacIntel' })
-    ;(window as any).chrome = (window as any).chrome || { runtime: {} }
+    ;(window as unknown as { chrome?: { runtime: Record<string, unknown> } }).chrome = { runtime: {} }
   })
   const page = await context.newPage()
-  const networkCards: TvListCard[] = []
-  const discoveredPriceKeys = new Set<string>()
-  const discoveredCoveoKeys = new Set<string>()
+  let cookieBannerHandled = false
+
+  /** ตรวจหน้า Access Denied (Akamai) — title/เนื้อหา */
+  const detectAccessDenied = async () => {
+    try {
+      const title = (await page.title().catch(() => '')) || ''
+      if (/access denied|denied|forbidden|pardon our interruption/i.test(title)) return true
+      const bodyText = await page.evaluate(() => document.body?.innerText?.slice(0, 600) || '').catch(() => '')
+      return /access denied|you don't have permission|reference #\d|pardon our interruption|unusual traffic/i.test(bodyText)
+    }
+    catch {
+      return false
+    }
+  }
+
+  const allowEmpty = scrapeOptions?.allowEmpty !== false
+
+  /** เปิด URL — มีการ์ด / หมวดว่าง / โดน block */
+  const gotoWithAntiBlock = async (url: string, label: string): Promise<PlpNavigateResult> => {
+    const tryDismissCookie = !cookieBannerHandled
+    const maxTries = allowEmpty ? 2 : 4
+    for (let attempt = 1; attempt <= maxTries; attempt += 1) {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 })
+      await page.waitForTimeout(2000)
+      const denied = await detectAccessDenied()
+      if (denied) {
+        log.warn(`${label} Access Denied (try ${attempt}/${maxTries})`)
+      }
+      else {
+        const cardCount = await waitForPlpProductCards(page, log, label, {
+          tryDismissCookie: tryDismissCookie && attempt === 1,
+          fastEmpty: allowEmpty,
+        })
+        if (tryDismissCookie && attempt === 1) cookieBannerHandled = true
+        if (cardCount > 0) {
+          if (attempt > 1) log.info(`${label} ok after ${attempt} tries (${cardCount} cards)`)
+          return { status: 'ok', cardCount }
+        }
+        if (allowEmpty) {
+          log.info(`${label} — no product cards on PLP (empty category)`)
+          return { status: 'empty', cardCount: 0 }
+        }
+        log.warn(`${label} no product cards (try ${attempt}/${maxTries}, count=${cardCount})`)
+      }
+      if (attempt < maxTries) {
+        const backoff = 3000 * attempt + Math.floor(Math.random() * 2000)
+        await page.waitForTimeout(backoff)
+      }
+    }
+    const denied = await detectAccessDenied()
+    const cardCount = await page.locator(PLP_CARD_SELECTOR).count()
+    if (denied) return { status: 'denied', cardCount }
+    if (cardCount === 0 && allowEmpty) return { status: 'empty', cardCount: 0 }
+    return { status: 'denied', cardCount }
+  }
 
   try {
-    page.on('response', async (response) => {
-      const responseUrl = response.url()
-      if (responseUrl.includes('org.coveo.com/rest/search/v2')) {
-        try {
-          const payload = await response.json()
-          const results = Array.isArray(payload?.results) ? payload.results : []
-          for (const result of results) {
-            const { card, usedKeys } = mapCoveoResult(asRecord(result))
-            usedKeys.forEach(k => discoveredCoveoKeys.add(k))
-            if (card) networkCards.push(card)
-          }
+    log.step(`navigate PLP ${listUrl}`)
+    const nav = await gotoWithAntiBlock(listUrl, 'navigate PLP')
+    await page.waitForTimeout(1200 + Math.floor(Math.random() * 800))
+    if (nav.status === 'denied') {
+      throw new Error('LG ปฏิเสธการเข้าถึง (Access Denied) — ลองใหม่อีกครั้งในอีกสักครู่')
+    }
+    if (nav.status === 'empty') {
+      log.done('navigate PLP (empty — no products in this category)')
+      return []
+    }
+    log.done('navigate PLP')
+
+    const domCardsRaw: DomCardRaw[] = []
+    const seenSkus = new Set<string>()
+
+    const scrapePageWithPriceWait = async (pageIndex: number) => {
+      for (let attempt = 1; attempt <= PRICE_RENDER_MAX_RETRIES; attempt += 1) {
+        log.info(`page ${pageIndex + 1} price attempt ${attempt}/${PRICE_RENDER_MAX_RETRIES}`)
+        await page.waitForFunction(hasVisibleCardPricesFn(), { timeout: PRICE_RENDER_WAIT_TIMEOUT_MS }).catch(() => false)
+        const rows = await scrapeTvPlpVariants(page)
+        if (rows.some(row => row.discountedPrice !== null || row.fullPrice !== null)) {
+          return rows
         }
-        catch {
-          // ignore malformed/blocked network payloads
-        }
-      }
-      if (!responseUrl.includes('retrieveProductList')) return
-      try {
-        const payload = await response.json()
-        const extracted = await page.evaluate((data) => {
-          const asText = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
-          const toNumber = (value: unknown) => {
-            if (typeof value === 'number') return value
-            if (typeof value !== 'string') return null
-            const cleaned = value.replace(/[^\d.]/g, '')
-            if (!cleaned) return null
-            const n = Number(cleaned)
-            return Number.isFinite(n) ? n : null
-          }
-          const pickPrice = (obj: Record<string, unknown>, keys: string[]) => {
-            for (const key of keys) {
-              if (key in obj) {
-                const n = toNumber(obj[key])
-                if (n !== null) return n
-              }
-            }
-            return null
-          }
-          const nodes: Record<string, unknown>[] = []
-          const walk = (value: unknown) => {
-            if (!value) return
-            if (Array.isArray(value)) {
-              for (const item of value) walk(item)
-              return
-            }
-            if (typeof value !== 'object') return
-            const obj = value as Record<string, unknown>
-            nodes.push(obj)
-            for (const v of Object.values(obj)) walk(v)
-          }
-          walk(data)
-
-          const results: any[] = []
-          for (const node of nodes) {
-            const href = asText(node.pdpUrl) || asText(node.productUrl) || asText(node.link) || asText(node.url)
-            if (!href.includes('/lgsubscribe')) continue
-            const values = Object.values(node).map(v => (typeof v === 'string' ? v : '')).filter(Boolean)
-            const warrantyText = values.find(v => /(\d+)\s*(ปี|year)/i.test(v)) || ''
-            const warrantyYearsMatch = warrantyText.match(/(\d+)\s*(ปี|year)/i)
-            const warrantyYears = warrantyYearsMatch ? Number(warrantyYearsMatch[1]) : null
-
-            const subscriptionNote = values.find(v => /12\s*(เดือน|month)|ส่วนลด/i.test(v)) || ''
-            const purchaseOnlyLabel = values.find(v => /ซื้อขาด|purchase/i.test(v)) || ''
-
-            results.push({
-              detailUrl: href,
-              name: asText(node.modelDisplayName) || asText(node.modelName) || asText(node.title) || null,
-              headline: values.find(v => /ยิ่งซับมาก|ลดมาก/i.test(v)) || null,
-              discountedPrice: pickPrice(node, ['subscriptionPrice', 'monthlyPrice', 'discountPrice', 'salePrice']),
-              fullPrice: pickPrice(node, ['fullPrice', 'originalPrice', 'listPrice', 'beforeDiscountPrice']),
-              warrantyYears,
-              subscriptionNote: subscriptionNote || null,
-              purchaseOnlyLabel: purchaseOnlyLabel || null,
-              purchaseOnlyUrl: asText(node.purchaseOnlyUrl) || null,
-            })
-          }
-          return results
-        }, payload)
-        for (const item of extracted) {
-          const mapped = mapRawCard(item)
-          if (mapped) networkCards.push(mapped)
+        if (attempt < PRICE_RENDER_MAX_RETRIES) {
+          log.warn(`page ${pageIndex + 1} no prices — reload`)
+          await page.reload({ waitUntil: 'domcontentloaded', timeout: 120000 })
+          await page.waitForTimeout(2500)
         }
       }
-      catch {
-        // ignore malformed/blocked network payloads; DOM fallback still applies
-      }
-    })
+      return await scrapeTvPlpVariants(page)
+    }
 
-    await page.goto(TVS_LIST_URL, { waitUntil: 'domcontentloaded', timeout: 120000 })
-    await page.waitForTimeout(2500)
-
-    await page.evaluate(async ({ endpoint, payload }) => {
-      try {
-        await fetch(endpoint, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        })
-      }
-      catch {
-        // ignore; endpoint may still be triggered by page scripts
-      }
-    }, { endpoint: RETRIEVE_PRODUCT_LIST_URL, payload: RETRIEVE_PRODUCT_LIST_PAYLOAD })
-
-    await page.waitForTimeout(3500)
-
-    const coveoFetch = await page.evaluate(async ({ endpoint, payload }) => {
-      const asRecord = (value: unknown): Record<string, unknown> => (
-        value && typeof value === 'object' ? value as Record<string, unknown> : {}
-      )
-      const tokenCandidates = new Set<string>()
-      const pushTokenLike = (value: unknown) => {
-        if (typeof value !== 'string') return
-        const token = value.trim()
-        if (!token || token.length < 20) return
-        if (!/^[A-Za-z0-9\-_.=:+/]+$/.test(token)) return
-        tokenCandidates.add(token)
-      }
-      try {
-        pushTokenLike((window as any).__COVEO_TOKEN__)
-        const w = window as any
-        const maybeObjects = [
-          w.__NUXT__,
-          w.__NEXT_DATA__,
-          w.LG,
-          w.coveo,
-          w.__PRELOADED_STATE__,
-        ]
-        for (const obj of maybeObjects) {
-          if (!obj || typeof obj !== 'object') continue
-          const stack = [obj as Record<string, unknown>]
-          let guard = 0
-          while (stack.length && guard < 1200) {
-            const current = stack.pop()
-            guard += 1
-            if (!current) continue
-            for (const [k, v] of Object.entries(current)) {
-              if (/token/i.test(k)) pushTokenLike(v)
-              if (v && typeof v === 'object') stack.push(asRecord(v))
-            }
-          }
-        }
-        for (let i = 0; i < localStorage.length; i += 1) {
-          const key = localStorage.key(i)
-          if (!key || !/token|coveo/i.test(key)) continue
-          pushTokenLike(localStorage.getItem(key))
-        }
-        for (let i = 0; i < sessionStorage.length; i += 1) {
-          const key = sessionStorage.key(i)
-          if (!key || !/token|coveo/i.test(key)) continue
-          pushTokenLike(sessionStorage.getItem(key))
-        }
-      }
-      catch {
-        // continue with unauthenticated attempt
-      }
-
-      const authHeaders = ['', ...tokenCandidates].map(token => (
-        token ? { authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}` } : {}
-      ))
-      for (const authHeader of authHeaders) {
-        try {
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-              accept: 'application/json',
-              'content-type': 'application/json',
-              'x-requested-with': 'XMLHttpRequest',
-              ...authHeader,
-            },
-            body: JSON.stringify(payload),
-          })
-          if (!response.ok) continue
-          const json = await response.json()
-          return {
-            ok: true,
-            status: response.status,
-            results: Array.isArray(json?.results) ? json.results : [],
-          }
-        }
-        catch {
-          // try another token candidate
+    for (let pageIndex = 0; pageIndex < MAX_PLP_PAGES; pageIndex += 1) {
+      const pageUrl = subscriptionListPageUrl(listUrl, pageIndex)
+      if (pageIndex > 0) {
+        log.step(`PLP page ${pageIndex + 1} ${pageUrl}`)
+        // เว้นช่วงแบบสุ่มก่อนเปลี่ยนหน้า ลดโอกาสโดน anti-bot
+        await page.waitForTimeout(1200 + Math.floor(Math.random() * 1500))
+        const pageNav = await gotoWithAntiBlock(pageUrl, `PLP page ${pageIndex + 1}`)
+        await page.waitForTimeout(1000 + Math.floor(Math.random() * 800))
+        if (pageNav.status !== 'ok') {
+          log.warn(`PLP page ${pageIndex + 1} stop (${pageNav.status}) — ใช้ข้อมูลที่ได้แล้ว ${domCardsRaw.length} rows`)
+          break
         }
       }
 
-      return { ok: false, status: 0, results: [] as unknown[] }
-    }, { endpoint: COVEO_SEARCH_URL, payload: COVEO_SEARCH_PAYLOAD })
-    if (coveoFetch?.ok && Array.isArray(coveoFetch.results)) {
-      for (const result of coveoFetch.results) {
-        const { card, usedKeys } = mapCoveoResult(asRecord(result))
-        usedKeys.forEach(k => discoveredCoveoKeys.add(k))
-        if (card) networkCards.push(card)
+      const cardsOnPage = await page.locator(PLP_CARD_SELECTOR).count()
+      log.info(`PLP page ${pageIndex + 1}: ${cardsOnPage} product card(s) (page size ${LG_SUBSCRIPTION_PAGE_SIZE})`)
+      if (cardsOnPage === 0) {
+        log.info(`PLP page ${pageIndex + 1} empty — stop pagination`)
+        break
+      }
+
+      const pageRows = pageIndex === 0
+        ? await (async () => {
+            log.step('scrape PLP page 1')
+            const rows = await scrapePageWithPriceWait(0)
+            log.done(`scrape PLP page 1 (${rows.length} variant rows)`)
+            return rows
+          })()
+        : await scrapePageWithPriceWait(pageIndex)
+
+      if (!pageRows.length) {
+        log.info(`PLP page ${pageIndex + 1} no variant rows — stop pagination`)
+        break
+      }
+
+      let newSkuCount = 0
+      for (const row of pageRows) {
+        const sku = (row.sku || (row.lgModelId ? resolveLgProductSku(row.lgModelId, null) : '')).toUpperCase()
+        if (sku && !seenSkus.has(sku)) {
+          seenSkus.add(sku)
+          newSkuCount += 1
+        }
+        domCardsRaw.push(row)
+      }
+      log.info(`PLP page ${pageIndex + 1}: +${newSkuCount} new SKU(s), ${pageRows.length} rows (total ${domCardsRaw.length})`)
+
+      if (pageIndex > 0 && newSkuCount === 0) {
+        log.info('no new SKUs on this page — stop pagination')
+        break
+      }
+      if (cardsOnPage < LG_SUBSCRIPTION_PAGE_SIZE) {
+        log.info('last PLP page (fewer cards than page size)')
+        break
       }
     }
 
-    const directApiProducts = await page.evaluate(async ({ endpoint, payload }) => {
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        })
-        if (!response.ok) return []
-        const json = await response.json()
-        if (!json || typeof json !== 'object') return []
-        const root = json as Record<string, unknown>
-        const productLists = Array.isArray(root.productLists) ? root.productLists : []
-        const rows: Record<string, unknown>[] = []
-        for (const listNode of productLists) {
-          if (!listNode || typeof listNode !== 'object') continue
-          const productList = (listNode as Record<string, unknown>).productList
-          if (!Array.isArray(productList)) continue
-          for (const product of productList) {
-            if (!product || typeof product !== 'object') continue
-            rows.push(product as Record<string, unknown>)
-          }
-        }
-        return rows
-      }
-      catch {
+    if (!domCardsRaw.length) {
+      if (allowEmpty) {
+        log.info('PLP scrape — no rows (empty category)')
         return []
       }
-    }, { endpoint: RETRIEVE_PRODUCT_LIST_URL, payload: RETRIEVE_PRODUCT_LIST_PAYLOAD })
-    for (const item of directApiProducts) {
-      for (const key of extractPriceKeys(item)) discoveredPriceKeys.add(key)
-      const mapped = mapRetrieveProductListItem(item)
-      if (mapped) networkCards.push(mapped)
+      throw new Error('เปิดหน้าจอไม่ขึ้น: ไม่พบการ์ดสินค้าในหน้า LG (อาจโดน block — ลองใหม่อีกครั้ง)')
+    }
+    const pricedRows = domCardsRaw.filter(row => row.discountedPrice !== null || row.fullPrice !== null).length
+    if (!pricedRows) {
+      log.warn(`พบ ${domCardsRaw.length} การ์ด แต่ราคายังไม่ขึ้น — เก็บรายการไว้ก่อน ราคาจะเติมจากหน้า PDP ตอน import`)
     }
 
-    const extractDomCards = () => page.evaluate(() => {
-      const parsePrice = (value: string) => {
-        const cleaned = value.replace(/[^\d.]/g, '')
-        if (!cleaned) return null
-        const parsed = Number(cleaned)
-        return Number.isFinite(parsed) ? parsed : null
-      }
-      const text = (el: Element | null) => (el?.textContent || '').replace(/\s+/g, ' ').trim()
-      const rows: any[] = []
-      const cards = Array.from(document.querySelectorAll('li.c-product-list__item.neo-card'))
+    log.info(`PLP pagination done — ${domCardsRaw.length} variant row(s) (${pricedRows} with price), ${seenSkus.size} unique SKU(s)`)
 
-      for (const card of cards) {
-        const primaryLink = card.querySelector('.neo-card--ufn a[href*="/lgsubscribe"]')
-          || card.querySelector('.neo-card--img a[href*="/lgsubscribe"]')
-          || card.querySelector('a[href*="/lgsubscribe"]')
-        const href = (primaryLink?.getAttribute('href') || '').trim()
-        if (!href) continue
-
-        const cardText = text(card)
-        if (!cardText) continue
-
-        const selectorBasePrice = parsePrice(text(card?.querySelector('.neo-price--price .cell-price')))
-        const selectorFullPrice = parsePrice(text(card?.querySelector('.neo-price--price .cell-after del')))
-        const prices = [...cardText.matchAll(/฿\s?[\d,]+(?:\.\d+)?/g)].map(m => m[0])
-        const infoItems = Array.from(card.querySelectorAll('.neo-card--info-box .info-items li .link-ti'))
-          .map((node) => text(node))
-          .filter(Boolean)
-        const warrantyText = infoItems.find((line) => /(\d+)\s*(?:ปี|year)/i.test(line))
-          || cardText.match(/(\d+\s*(?:ปี|year))/i)?.[1]
-          || null
-        const purchaseAnchor = card?.querySelector('.neo-card--info-box a[href]:not([href*="/lgsubscribe"])')
-        const headline = text(card.querySelector('.neo-price--top .cell-info')) || null
-        const subNote = infoItems.find((line) => /ส่วนลด\s*12\s*เดือนเท่านั้น|12\s*เดือน/i.test(line))
-          || null
-        const sku = text(card.querySelector('.neo-card--sku .btn-copy')) || null
-
-        rows.push({
-          detailUrl: href,
-          name: text(card?.querySelector('h1,h2,h3,h4,.cmp-product-item__title,.c-product-item__name')) || null,
-          sku,
-          headline,
-          discountedPrice: selectorBasePrice ?? parsePrice(prices[0] || ''),
-          fullPrice: selectorFullPrice ?? parsePrice(prices[1] || ''),
-          warrantyText,
-          subscriptionNote: subNote,
-          purchaseOnlyLabel: purchaseAnchor ? text(purchaseAnchor) : null,
-          purchaseOnlyUrl: purchaseAnchor?.getAttribute('href') || null,
-        })
-      }
-
-      return rows
-    })
-
-    let domCardsRaw: any[] = []
-    for (let attempt = 1; attempt <= PRICE_RENDER_MAX_RETRIES; attempt += 1) {
-      await page.waitForFunction(() => {
-        const prices = Array.from(document.querySelectorAll('.neo-price--price .cell-price'))
-        return prices.some((node) => /\d/.test((node.textContent || '').trim()))
-      }, { timeout: PRICE_RENDER_WAIT_TIMEOUT_MS }).catch(() => false)
-
-      domCardsRaw = await extractDomCards()
-      const hasPrice = domCardsRaw.some(row => row.discountedPrice !== null || row.fullPrice !== null)
-      if (hasPrice) break
-
-      if (attempt < PRICE_RENDER_MAX_RETRIES) {
-        await page.reload({ waitUntil: 'domcontentloaded', timeout: 120000 })
-        await page.waitForTimeout(2500)
-      }
+    let rowsForMap = domCardsRaw
+    try {
+      log.step('enrich names from retrieveProductList')
+      const apiSkus = fullSkusForRetrieveRequest(domCardsRaw)
+      const listPath = scrapeOptions?.listPath
+        ?? (scrapeOptions?.lgSlug ? `/th/subscription/${scrapeOptions.lgSlug}/` : '/th/subscription/tvs/')
+      const apiIndex = await fetchRetrieveProductListInPage(page, apiSkus, listPath)
+      rowsForMap = enrichDomRowsFromApi(domCardsRaw, apiIndex)
+      log.done(`enrich names from retrieveProductList (${apiIndex.size} API SKU(s))`)
+    }
+    catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      log.warn(`retrieveProductList enrich skipped: ${message}`)
     }
 
-    if (!domCardsRaw.some(row => row.discountedPrice !== null || row.fullPrice !== null)) {
-      throw new Error('เปิดหน้าจอไม่ขึ้น: ไม่พบราคาในการ์ดสินค้าหลังลอง 3 รอบ')
-    }
-
-    // Deterministic precedence for list-level fields:
-    // 1) DOM extraction values from visible product cards
-    // 2) API/network card values (Coveo + retrieveProductList)
-    // Detail page remains final fallback in tvs-draft endpoint.
-    const merged = [...domCardsRaw.map(mapRawCard).filter(Boolean) as TvListCard[], ...networkCards]
     const uniqueByKey = new Map<string, TvListCard>()
-    const buildIdentity = (card: TvListCard) => card.source_url || card.model_key || ''
-    for (const card of merged) {
-      const identity = buildIdentity(card)
-      if (!identity) continue
-      const prev = uniqueByKey.get(identity)
-      if (!prev) {
-        uniqueByKey.set(identity, card)
+    let droppedInvalidUrl = 0
+    let droppedNoSku = 0
+    for (const raw of rowsForMap) {
+      const card = mapRawCard(raw)
+      if (!card?.source_url || !isValidTvDetailUrl(card.source_url)) {
+        droppedInvalidUrl += 1
+        log.warn(`drop row — invalid detail URL: ${raw.detailUrl ?? '?'} (sku=${raw.sku ?? raw.lgModelId ?? '?'})`)
         continue
       }
-      const mergedCard: TvListCard = {
+      const sku = (card.model_key || normalizeModelKeyFromUrl(card.source_url) || '').toUpperCase()
+      if (!sku) {
+        droppedNoSku += 1
+        log.warn(`drop row — no SKU: ${card.source_url}`)
+        continue
+      }
+      const prev = uniqueByKey.get(sku)
+      if (!prev) {
+        uniqueByKey.set(sku, card)
+        continue
+      }
+      uniqueByKey.set(sku, {
         ...prev,
         ...card,
-        source_url: card.source_url || prev.source_url,
-        model_key: card.model_key || prev.model_key,
-        name: prev.name || card.name,
-        // Prefer non-zero price values. This allows DOM card prices to override API placeholders.
+        name: card.name || prev.name,
         base_price: normalizePrice(card.base_price) ?? normalizePrice(prev.base_price),
         full_price: normalizePrice(card.full_price) ?? normalizePrice(prev.full_price),
-        headline: prev.headline ?? card.headline,
-        subscription_note: prev.subscription_note ?? card.subscription_note,
-        warranty_years: prev.warranty_years ?? card.warranty_years,
-        purchase_only_label: prev.purchase_only_label ?? card.purchase_only_label,
-        purchase_only_url: prev.purchase_only_url ?? card.purchase_only_url,
-      }
-      uniqueByKey.set(identity, mergedCard)
+        variant_label: card.variant_label ?? prev.variant_label,
+        lg_model_id: card.lg_model_id ?? prev.lg_model_id,
+        variant_group_key: card.variant_group_key ?? prev.variant_group_key,
+        shared_detail_url: card.shared_detail_url ?? prev.shared_detail_url,
+      })
     }
 
-    const output = [...uniqueByKey.values()]
-      .filter(card => Boolean(card.source_url) && isValidTvDetailUrl(card.source_url))
-      .slice(0, limit)
-    if (!output.some(card => card.base_price !== null || card.full_price !== null)) {
-      console.warn('[lgTvImport] retrieveProductList price-like keys:', [...discoveredPriceKeys].join(', ') || '(none)')
+    const output = [...uniqueByKey.values()].slice(0, limit)
+    if (droppedInvalidUrl || droppedNoSku) {
+      log.warn(`dropped ${droppedInvalidUrl} invalid-URL + ${droppedNoSku} no-SKU row(s)`)
     }
-    if (discoveredCoveoKeys.size) {
-      console.warn('[lgTvImport] coveo mapped keys:', [...discoveredCoveoKeys].sort().join(', '))
+    if (uniqueByKey.size !== rowsForMap.length) {
+      log.info(`deduped ${rowsForMap.length} DOM row(s) → ${uniqueByKey.size} unique SKU(s)`)
     }
+    if (uniqueByKey.size > limit) {
+      log.warn(`capped at limit ${limit} (found ${uniqueByKey.size} unique SKU)`)
+    }
+    log.info(
+      `PLP scrape done — ${output.length} unique SKU(s) from ${domCardsRaw.length} row(s) in ${Date.now() - totalStart}ms (closing browser in background)`,
+    )
     return output
   }
   finally {
-    await context.close()
-    await browser.close()
+    const ctx = context
+    const br = browser
+    log.step('close browser')
+    void (async () => {
+      try {
+        await ctx.close().catch(() => {})
+        await br.close().catch(() => {})
+        log.done('close browser')
+      }
+      catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err)
+        log.warn(`close browser failed: ${message}`)
+      }
+    })()
   }
 }
+
 
 export async function collectTvDetailUrls(limit = 3) {
   const listCards = await collectTvListCardsWithBrowser(limit).catch(() => [])
@@ -848,6 +694,10 @@ export async function collectTvDetailUrls(limit = 3) {
   throw new Error('ไม่พบรายการทีวีจากหน้าแรก กรุณาลองใหม่อีกครั้ง')
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+}
+
 function extractSectionHtml(html: string, headingRegex: RegExp) {
   const headingMatch = headingRegex.exec(html)
   if (!headingMatch || headingMatch.index === undefined) return null
@@ -856,6 +706,74 @@ function extractSectionHtml(html: string, headingRegex: RegExp) {
   const chunk = endMatch ? after.slice(0, endMatch.index) : after
   const cleaned = chunk.trim()
   return cleaned ? cleaned : null
+}
+
+/** Inner HTML ของ element ที่มี id กำหนด (รองรับ nested tag ชนิดเดียวกัน) */
+function extractElementInnerHtmlById(html: string, id: string) {
+  const idPattern = new RegExp(`\\bid=["']${escapeRegExp(id)}["']`, 'i')
+  const idMatch = idPattern.exec(html)
+  if (!idMatch || idMatch.index === undefined) return null
+
+  const openStart = html.lastIndexOf('<', idMatch.index)
+  if (openStart < 0) return null
+
+  const openTagMatch = html.slice(openStart).match(/^<([a-z][a-z0-9]*)\b/i)
+  if (!openTagMatch) return null
+
+  const tagName = openTagMatch[1].toLowerCase()
+  const contentStart = html.indexOf('>', idMatch.index)
+  if (contentStart < 0) return null
+
+  let pos = contentStart + 1
+  let depth = 1
+  const openTagRe = new RegExp(`<${tagName}\\b`, 'gi')
+  const closeTagRe = new RegExp(`</${tagName}\\s*>`, 'gi')
+
+  while (pos < html.length && depth > 0) {
+    openTagRe.lastIndex = pos
+    closeTagRe.lastIndex = pos
+    const openM = openTagRe.exec(html)
+    const closeM = closeTagRe.exec(html)
+    if (!closeM) break
+
+    const openIdx = openM ? openM.index : Number.POSITIVE_INFINITY
+    const closeIdx = closeM.index
+
+    if (openIdx < closeIdx) {
+      depth += 1
+      pos = openIdx + openM![0].length
+    }
+    else {
+      depth -= 1
+      if (depth === 0) {
+        const inner = html.slice(contentStart + 1, closeIdx).trim()
+        return inner || null
+      }
+      pos = closeIdx + closeM[0].length
+    }
+  }
+
+  return null
+}
+
+/** LG PDP: คุณสมบัติ — เนื้อหาทั้งก้อนใน #pdp-overview-section */
+function extractPdpOverviewSectionHtml(html: string) {
+  return extractElementInnerHtmlById(html, 'pdp-overview-section')
+}
+
+/** LG PDP: สเปค — เนื้อหาทั้งก้อนใน #pdp-specs-section */
+function extractPdpSpecsSectionHtml(html: string) {
+  return extractElementInnerHtmlById(html, 'pdp-specs-section')
+}
+
+/** LG PDP: รายการคุณลักษณะที่สำคัญอยู่ใน ul#keyFeatureList (ครบใน HTML โดยไม่ต้องกด "เพิ่มเติม") */
+function extractKeyFeatureListHtml(html: string) {
+  const match = html.match(
+    /<ul\b[^>]*\bid=["']keyFeatureList["'][^>]*>[\s\S]*?<\/ul>/i,
+  )
+  if (!match) return null
+  const cleaned = match[0].trim()
+  return cleaned || null
 }
 
 function buildFaqHtmlFromText(html: string) {
@@ -887,7 +805,20 @@ export async function collectTvListCards(limit = 3) {
 }
 
 export async function parseTvDetail(detailUrl: string) {
-  const html = await $fetch<string>(detailUrl, { responseType: 'text' })
+  const log = createImportLogger('parse-detail')
+  log.step(`fetch ${detailUrl}`)
+
+  let html: string
+  try {
+    html = await fetchPdpHtml(detailUrl)
+  }
+  catch (error: unknown) {
+    const err = error as { status?: number, statusCode?: number, message?: string }
+    const status = err.status ?? err.statusCode ?? 'unknown'
+    log.error(`fetch failed url=${detailUrl} status=${status} ${err.message ?? ''}`)
+    throw error
+  }
+
   const pageText = stripTags(html)
 
   const titleMatch = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)
@@ -897,15 +828,33 @@ export async function parseTvDetail(detailUrl: string) {
   const skuMatch = pageText.match(/(?:รุ่น|Model)\s*([A-Z0-9-]{5,})/i)
   const sku = (skuFromUrl || skuMatch?.[1] || '').toUpperCase() || null
 
+  log.done(`fetch sku=${sku ?? '?'} name=${name ?? '?'}`)
+
   const priceTokens = [...pageText.matchAll(/฿\s?[\d,]+(?:\.\d+)?/g)].map(m => m[0])
   const basePrice = parsePrice(priceTokens[0] ?? null)
   const fullPrice = parsePrice(priceTokens[1] ?? null)
 
-  const imageUrls = [...new Set(
-    [...html.matchAll(/<img[^>]+src="([^"]+)"/gi)]
-      .map(m => normalizeUrl(m[1]))
-      .filter(src => src.includes('/th/images/') || src.includes('/w_') || src.includes('/h_')),
-  )].slice(0, 20)
+  const imageUrls = extractPdpImageUrls(html, { limit: 20 })
+  if (!imageUrls.length) {
+    log.warn(`no product images extracted from PDP — check HTML patterns for ${detailUrl}`)
+  }
+  else {
+    log.info(`extracted ${imageUrls.length} product image(s) from PDP`)
+  }
+
+  const detailFields = sanitizeImportedDetailFields({
+    description: extractSectionHtml(html, /(?:รายละเอียดสินค้า|Product Description)/i),
+    key_features:
+      extractKeyFeatureListHtml(html)
+      ?? extractSectionHtml(html, /(?:คุณลักษณะที่สำคัญ|Key Features)/i),
+    features:
+      extractPdpOverviewSectionHtml(html)
+      ?? extractSectionHtml(html, /(?:คุณสมบัติ|Features)/i),
+    specifications:
+      extractPdpSpecsSectionHtml(html)
+      ?? extractSectionHtml(html, /(?:สเปค|ข้อมูลจำเพาะ|Specification)/i),
+    faq_html: buildFaqHtmlFromText(html),
+  })
 
   return {
     source_url: detailUrl,
@@ -916,11 +865,7 @@ export async function parseTvDetail(detailUrl: string) {
     base_price: basePrice,
     full_price: fullPrice,
     headline: (pageText.match(/ยิ่งซับมาก ยิ่งลดมาก!|โปรโมชั่น[^.]*\./) || [])[0] ?? null,
-    description: extractSectionHtml(html, /(?:รายละเอียดสินค้า|Product Description)/i),
-    key_features: extractSectionHtml(html, /(?:คุณลักษณะที่สำคัญ|Key Features)/i),
-    features: extractSectionHtml(html, /(?:คุณสมบัติ|Features)/i),
-    specifications: extractSectionHtml(html, /(?:สเปค|ข้อมูลจำเพาะ|Specification)/i),
-    faq_html: buildFaqHtmlFromText(html),
+    ...detailFields,
   }
 }
 

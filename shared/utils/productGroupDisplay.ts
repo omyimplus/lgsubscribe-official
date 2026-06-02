@@ -1,0 +1,72 @@
+import type { Product } from '../types/product'
+
+/** ชื่อการ์ดกลาง (ไม่ใส่นิ้ว/SKU) สำหรับ product_groups.display_name */
+export function deriveGroupDisplayName(name: string | null | undefined) {
+  if (!name?.trim()) return 'สินค้า'
+  let s = name.trim()
+  s = s.replace(/\s*รุ่น\s+[A-Z0-9-]+/gi, '')
+  s = s.replace(/ทีวี\s*\d+\s*"/gi, 'ทีวี')
+  s = s.replace(/\s*\(\d+\s*(?:inch|นิ้ว|")\)/gi, '')
+  s = s.replace(/\s+/g, ' ').trim()
+  return s || name.trim()
+}
+
+/** เรียง variant บนการ์ด — ดึงตัวเลขจาก "65 inch" / "12000 BTU" */
+export function parseVariantSort(label: string | null | undefined) {
+  const m = String(label ?? '').match(/(\d+)/)
+  return m ? Number(m[1]) : null
+}
+
+export type ProductDisplayGroup = {
+  groupId: string | null
+  groupKey: string | null
+  displayName: string
+  variants: Product[]
+}
+
+function variantSortValue(p: Product) {
+  return p.variant_sort ?? parseVariantSort(p.variant_label) ?? 9999
+}
+
+/** จัดกลุ่ม products ตาม group_id (SKU เดี่ยว = กลุ่มของตัวเอง) */
+export function groupProducts(products: Product[]): ProductDisplayGroup[] {
+  const map = new Map<string, Product[]>()
+  const meta = new Map<string, {
+    groupId: string | null
+    groupKey: string | null
+    displayName: string | null
+  }>()
+
+  for (const p of products) {
+    const key = p.group_id ? `group:${p.group_id}` : `sku:${p.id}`
+    if (!meta.has(key)) {
+      meta.set(key, {
+        groupId: p.group_id ?? null,
+        groupKey: p.product_group?.group_key ?? null,
+        displayName: p.product_group?.display_name ?? null,
+      })
+    }
+    const list = map.get(key) ?? []
+    list.push(p)
+    map.set(key, list)
+  }
+
+  const groups: ProductDisplayGroup[] = []
+  for (const [key, variants] of map) {
+    const sorted = [...variants].sort((a, b) => variantSortValue(a) - variantSortValue(b))
+    const m = meta.get(key)!
+    groups.push({
+      groupId: m.groupId,
+      groupKey: m.groupKey,
+      displayName: m.displayName ?? deriveGroupDisplayName(sorted[0]?.name),
+      variants: sorted,
+    })
+  }
+
+  return groups.sort((a, b) => {
+    const sa = a.variants[0]?.product_group?.sort_order ?? 9999
+    const sb = b.variants[0]?.product_group?.sort_order ?? 9999
+    if (sa !== sb) return sa - sb
+    return a.displayName.localeCompare(b.displayName, 'th')
+  })
+}

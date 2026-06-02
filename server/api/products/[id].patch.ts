@@ -64,6 +64,15 @@ export default defineEventHandler(async (event) => {
     await syncProductTags(supabase, id, body.tag_ids)
   }
 
+  if (body.plans_locked !== undefined) {
+    const { error: lockErr } = await supabase
+      .from('products')
+      .update({ plans_locked: body.plans_locked })
+      .eq('id', id)
+
+    if (lockErr) throw createError({ statusCode: 400, message: lockErr.message })
+  }
+
   const { data: full, error: fetchErr } = await supabase
     .from('products')
     .select(productSelect)

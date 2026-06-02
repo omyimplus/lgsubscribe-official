@@ -1,41 +1,67 @@
-# Product Import Replace Workflow (Draft-First)
+# Product Import Workflow (Draft-First, Merge by SKU)
 
 เอกสารนี้ใช้ล็อก flow import แบบแยกตารางก่อน promote เข้าสู่ `products`
 
 ## เป้าหมาย
 
-สร้างปุ่มในหน้า `Import จาก LG.com` ให้ผู้ใช้กดเพื่อดึงข้อมูลจากต้นทาง แล้วทำงานแบบ:
+1. ดึง **รายการ SKU/ชื่อ** จาก LG (ไม่ scrape detail) เพื่อเลือกว่าจะ import ชิ้นไหน
+2. Import เฉพาะที่เลือก หรือทั้งหมด (ครั้งแรก) → `import_products` draft
+3. Human ตรวจ/แก้ draft (editor)
+4. **นำขึ้น Products แบบผสาน (merge)** — ไม่ลบสินค้าเดิมทั้งหมด
 
-1. นำเข้าข้อมูลใหม่เข้า `import_products` (draft แยกจาก products)
-2. เมื่อชุดใหม่พร้อม กดยืนยันเพื่อแทนที่ `products` เดิมทั้งชุด
+## โครงสร้างตาราง
 
-## โครงสร้างตารางที่ใช้
+- `import_batches` — รอบการนำเข้า
+- `import_products` — ข้อมูลรอ promote
+- `products` — ใช้งานจริง (`sku` unique)
 
-- `import_batches` เก็บรอบการนำเข้า
-- `import_products` เก็บข้อมูลสินค้ารอ promote
-- `products` เป็นตารางใช้งานจริงบนหน้าเว็บ/หลังบ้าน
+## Flow หลัก
 
-## Flow ที่เข้าใจตอนนี้
+### ① ดึงรายการจาก LG
 
-1. ผู้ใช้กดปุ่ม `Import ทีวี (3 รายการ)` ในหน้า `/admin/import`
-2. ระบบสร้าง batch ใหม่ใน `import_batches` (status=`draft`)
-3. ระบบนำเข้าข้อมูลลง `import_products` เฉพาะ batch นั้น
-4. ผู้ใช้ตรวจรายการในตาราง draft
-5. ผู้ใช้กด `ยืนยันแทนที่ Products`
-6. ระบบเรียกฟังก์ชัน `promote_import_batch(batch_id)` เพื่อ:
-   - ลบข้อมูลใน `products` เดิมทั้งหมด
-   - insert ข้อมูลจาก `import_products` ของ batch เข้า `products`
-   - อัปเดต batch เป็น `promoted`
-   - ลบ draft ที่ถูกย้ายแล้ว
+- `GET /api/admin/import/catalog?source=tvs` (หรือ `air-conditioners`, `television`, …)
+- URL หมวดดู `LG_SUBSCRIPTION_SOURCE_URLS.md` / `server/utils/lgSubscriptionSources.ts`
+- Playwright (headless + stealth) เปิด PLP ทีวี แล้วอ่าน **เฉพาะ DOM** — การ์ด + คลิก swatch (นิ้ว) → SKU, ขนาด, ราคา/เดือน
+- **ไม่** รวม Coveo / `retrieveProductList` (hardcode) — จำนวนรายการต้องตรงหน้า LG
+- Pagination LG: `firstResult=9,18,27,...` (ยังไม่วนอัตโนมัติ — ทำต่อ)
+- เทียบกับ `products` แล้วแสดงสถานะ: **ใหม่** / **มีในระบบ** / **ไม่พบใน LG** (มีใน products แต่ไม่อยู่ใน list)
 
-## API ที่ใช้งานใน flow
+### ② Import → Draft
 
 - `POST /api/admin/import/tvs-draft`
-- `GET /api/admin/import/overview`
-- `POST /api/admin/import/confirm`
-- `DELETE /api/admin/import/drafts`
+  - `{ skus: string[] }` — import เฉพาะที่เลือก (รายเดือน)
+  - `{ importAll: true }` — import ทั้งหมดจาก list (ครั้งแรก)
+  - `{ testLimit: 3 }` — ทดสอบ 3 รายการ
+- Scrape detail + mirror รูป/วิดีโอ → `import_products`
 
-## หมายเหตุ
+### ③ ตรวจ Draft + Human
 
-- ตอนนี้เริ่มจาก TV import 3 รายการเพื่อทดสอบรอบสั้น
-- สามารถขยายจำนวนรายการ/หมวดได้ภายหลังโดยใช้ flow เดิม
+- `/admin/import-items/:itemId` และ detail editor ต่อ field
+
+### ④ นำขึ้น Products (Merge)
+
+- `POST /api/admin/import/confirm` → RPC `promote_import_batch`
+- **สินค้าใหม่ (SKU ยังไม่มี):** INSERT ครบทุก field รวม HTML
+- **สินค้าเดิม:** UPDATE เฉพาะ sync fields (ราคา, รูป, headline, บริการ ฯลฯ) — **ไม่ทับ** `description`, `key_features`, `features`, `specifications`, `faq_html`
+- **ไม่ DELETE** products ที่ไม่อยู่ใน batch — ลูกค้าลบ out เองที่ `/admin/products`
+
+## API
+
+| Method | Path | คำอธิบาย |
+|--------|------|----------|
+| GET | `/api/admin/import/catalog` | สแกนรายการ LG + เทียบ SKU |
+| POST | `/api/admin/import/tvs-draft` | import detail เข้า draft |
+| GET | `/api/admin/import/overview` | draft batch ปัจจุบัน |
+| PATCH | `/api/admin/import/items/:itemId` | แก้ draft field |
+| POST | `/api/admin/import/confirm` | merge เข้า products |
+| DELETE | `/api/admin/import/drafts` | ลบ draft + storage mirror |
+
+## Migration
+
+- `0017` — DELETE ต้องมี WHERE (Supabase)
+- `0018` — `promote_import_batch` แบบ merge (รัน SQL บน Supabase ก่อนใช้ปุ่ม ③)
+
+## Storage
+
+- Mirror รูป/วิดีโอ ตอน import → `product-images/lg-import/{batchId}/…`
+- ลบ draft → ลบ mirror ของ batch (ยกเว้น path ที่ products ยังใช้)

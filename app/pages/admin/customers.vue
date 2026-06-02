@@ -46,6 +46,61 @@ function formatDate(iso: string) {
     timeStyle: 'short',
   })
 }
+
+const CUSTOMER_EXPORT_HEADER = [
+  'ชื่อ-นามสกุล',
+  'อีเมล',
+  'เบอร์โทร',
+  'Line ID',
+  'หมายเหตุ',
+  'การยินยอม',
+  'สร้างเมื่อ',
+  'อัปเดตล่าสุด',
+] as const
+
+const exportingCsv = ref(false)
+const exportingExcel = ref(false)
+
+const exportDisabled = computed(() => pending.value || !filtered.value.length)
+
+function buildCustomerExportRows() {
+  return filtered.value.map(c => [
+    c.full_name,
+    c.email,
+    c.phone,
+    c.line_id,
+    c.contact_note,
+    c.marketing_consent ? 'ยินยอม' : 'ไม่ยินยอม',
+    formatDate(c.created_at),
+    formatDate(c.updated_at),
+  ])
+}
+
+function exportCustomersCsv() {
+  exportingCsv.value = true
+  try {
+    downloadCsv(exportFilenameStamp('customers'), [
+      [...CUSTOMER_EXPORT_HEADER],
+      ...buildCustomerExportRows(),
+    ])
+  }
+  finally {
+    exportingCsv.value = false
+  }
+}
+
+async function exportCustomersExcel() {
+  exportingExcel.value = true
+  try {
+    await downloadExcel(exportFilenameStamp('customers'), 'ลูกค้า', [
+      [...CUSTOMER_EXPORT_HEADER],
+      ...buildCustomerExportRows(),
+    ])
+  }
+  finally {
+    exportingExcel.value = false
+  }
+}
 </script>
 
 <template>
@@ -55,6 +110,32 @@ function formatDate(iso: string) {
       description="รายชื่อลูกค้าที่สมัครสมาชิกบนเว็บไซต์ พร้อมข้อมูลสำหรับติดต่อกลับ"
     >
       <template #actions>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="exportDisabled || exportingCsv || exportingExcel"
+          @click="exportCustomersCsv"
+        >
+          <Icon
+            :name="exportingCsv ? 'heroicons:arrow-path' : 'heroicons:arrow-down-tray'"
+            class="h-4 w-4"
+            :class="{ 'animate-spin': exportingCsv }"
+          />
+          Export CSV
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          :disabled="exportDisabled || exportingCsv || exportingExcel"
+          @click="exportCustomersExcel"
+        >
+          <Icon
+            :name="exportingExcel ? 'heroicons:arrow-path' : 'heroicons:arrow-down-tray'"
+            class="h-4 w-4"
+            :class="{ 'animate-spin': exportingExcel }"
+          />
+          Export Excel
+        </button>
         <button
           type="button"
           class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"

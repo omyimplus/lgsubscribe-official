@@ -1,5 +1,8 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'default' })
+definePageMeta({
+  layout: 'default',
+  breadcrumb: [{ label: 'สมัครสมาชิก' }],
+})
 
 const router = useRouter()
 const { $supabase } = useNuxtApp()
@@ -56,7 +59,7 @@ async function handleRegister() {
 </script>
 
 <template>
-  <main class="mx-auto min-h-screen w-full max-w-xl px-4 py-10">
+  <main class="mx-auto w-full max-w-xl px-4 py-10">
     <NuxtLink to="/" class="text-sm text-gray-500 hover:text-red-600">← กลับหน้าแรก</NuxtLink>
     <h1 class="mt-4 text-2xl font-bold text-gray-900">สมัครสมาชิก</h1>
     <p class="mt-1 text-sm text-gray-500">สร้างบัญชีเพื่อบันทึกข้อมูลติดต่อและติดตามการสั่งซื้อ</p>

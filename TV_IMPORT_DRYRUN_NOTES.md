@@ -26,7 +26,10 @@
 - `base_price`, `full_price`: parse จากราคาในหน้า PDP (`฿...`)
 - `image_urls`: ดึงจาก gallery ของ PDP (ต้องใช้ selector เฉพาะ gallery)
 - `image_url`: รูปแรกของ `image_urls`
-- `description`, `key_features`, `features`, `specifications`: ดึงจาก section heading ที่ตรงชื่อ
+- `description`: ดึงจาก section heading ที่ตรงชื่อ
+- `specifications`: inner HTML ของ `#pdp-specs-section`
+- `features`: inner HTML ของ `#pdp-overview-section` (เนื้อหาคุณสมบัติทั้งก้อน รวมข้อความ)
+- `key_features`: outer HTML ของ `ul#keyFeatureList` (ไม่รวมลิงก์ "เพิ่มเติม" — รายการอยู่ครบใน HTML โดยไม่ต้องกดขยาย)
 - ค่าไม่พบให้เก็บ `null`
 
 ## สถานะสคริปต์

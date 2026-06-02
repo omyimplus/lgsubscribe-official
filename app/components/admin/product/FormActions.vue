@@ -17,7 +17,7 @@ async function onSave(includeDescription?: boolean) {
 </script>
 
 <template>
-  <div class="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+  <div class="mt-6 rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
     <p v-if="formError" class="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
       {{ formError }}
     </p>

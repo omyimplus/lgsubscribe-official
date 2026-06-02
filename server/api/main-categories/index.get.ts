@@ -5,6 +5,7 @@ export default defineEventHandler(async () => {
     .from('main_categories')
     .select('*')
     .order('sort_order', { ascending: true })
+    .order('name', { ascending: true })
 
   if (error) throw createError({ statusCode: 500, message: error.message })
   return data

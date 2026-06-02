@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Category, CategoryInput } from '~~/shared/types/category'
+import { categoriesGroupedByMain, sortMainCategories } from '~~/shared/utils/categoryDisplay'
 
 definePageMeta({
   layout: 'admin',
@@ -27,17 +28,12 @@ const filtered = computed(() => {
 })
 
 const groupedCategories = computed(() => {
-  const mains = mainCategories.value ?? []
   const list = filtered.value
-  return mains
-    .map(main => ({
-      main,
-      items: list
-        .filter(c => c.main_category_id === main.id)
-        .sort((a, b) => a.sort_order - b.sort_order),
-    }))
-    .filter(g => g.items.length > 0)
+  return categoriesGroupedByMain(mainCategories.value ?? [], list)
+    .map(g => ({ main: g.main, items: g.categories }))
 })
+
+const sortedMainCategories = computed(() => sortMainCategories(mainCategories.value ?? []))
 
 const stats = computed(() => {
   const list = categories.value ?? []
@@ -74,7 +70,7 @@ function resetForm() {
   editingId.value = null
   form.name = ''
   form.slug = ''
-  form.main_category_id = mainCategories.value?.[0]?.id ?? ''
+  form.main_category_id = sortedMainCategories.value[0]?.id ?? mainCategories.value?.[0]?.id ?? ''
   form.icon = ''
   form.description = ''
   form.sort_order = 0
@@ -396,7 +392,7 @@ async function toggleActive(c: Category) {
             >
               <option value="" disabled>เลือกกลุ่ม...</option>
               <option
-                v-for="mc in mainCategories"
+                v-for="mc in sortedMainCategories"
                 :key="mc.id"
                 :value="mc.id"
               >

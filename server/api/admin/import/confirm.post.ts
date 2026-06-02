@@ -1,3 +1,5 @@
+import { ensureProductGroupsFromImportBatch } from '~~/server/utils/productGroups'
+
 export default defineEventHandler(async (event) => {
   const body = await readBody<{ batchId?: string }>(event)
   const supabase = useSupabaseAdmin()
@@ -15,6 +17,8 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!batchId) throw createError({ statusCode: 400, message: 'ไม่พบ draft batch สำหรับยืนยัน' })
+
+  await ensureProductGroupsFromImportBatch(supabase, batchId)
 
   const { data, error } = await supabase.rpc('promote_import_batch', { p_batch_id: batchId })
   if (error) throw createError({ statusCode: 400, message: error.message })

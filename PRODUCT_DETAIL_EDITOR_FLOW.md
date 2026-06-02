@@ -6,7 +6,7 @@
 
 - แยกการแก้ไขเนื้อหาออกเป็นส่วนย่อยและแยก "หน้าแก้ไข" ต่อ field
 - รองรับ rich content พร้อมแทรกรูป/วิดีโอ
-- อัปโหลด media ลง localhost ก่อน (`public/uploads/editor`)
+- อัปโหลด media ไป Supabase Storage bucket `product-images` (`editor/images/`, `editor/videos/`)
 
 ## Components ที่เกี่ยวข้อง
 
@@ -22,7 +22,7 @@
 - `app/composables/useAdminProductForm.ts`
   - `saveSingleDetailField(field)` สำหรับ patch เฉพาะคอลัมน์เดียว
 - `server/api/editor/upload-media.post.ts`
-  - รับไฟล์ multipart แล้วบันทึกลง `public/uploads/editor`
+  - รับไฟล์ multipart แล้วอัปโหลดไป Supabase (`server/utils/editorMediaStorage.ts`)
 
 ## Save Flow (แยก field)
 
@@ -37,11 +37,21 @@
 1. กดปุ่ม `แทรกรูป` หรือ `แทรกวิดีโอ`
 2. เรียก `POST /api/editor/upload-media`
 3. API ตรวจประเภท/ขนาดไฟล์
-4. เขียนไฟล์ลง `public/uploads/editor`
-5. ส่ง URL กลับ เช่น `/uploads/editor/<filename>`
-6. Editor แทรก embed ลงใน HTML content
+4. อัปโหลดไป `product-images/editor/images/` หรือ `editor/videos/`
+5. ส่ง public URL กลับ (เช่น `https://…supabase.co/storage/v1/object/public/product-images/editor/videos/…`)
+6. Editor แทรก `<img>` หรือ `<video><source …></video>` ลงใน HTML content
+
+## Import Draft Item (แยกหน้าเดียวกัน)
+
+ใช้ pattern เดียวกับ products แต่บันทึกลง `import_products`:
+
+- `app/pages/admin/import-items/[itemId].vue` + `AdminImportFormDetail`
+- `app/pages/admin/import-items/[itemId]/detail/[field].vue`
+- `app/components/admin/import/HtmlFieldEditor.client.vue` — **TinyMCE** WYSIWYG + ปุ่ม **แทรกรูป/แทรกวิดีโอ** (`/api/editor/upload-media`) + plugin `media` (embed URL) — ไม่ใช้ Quill เพราะตัด LG markup
+- `app/composables/useAdminImportItemForm.ts` → `PATCH /api/admin/import/items/:itemId` (`server: false` บน useFetch)
+- รองรับ field: `key_features`, `features`, `specifications`, `faq_html`
 
 ## ข้อควรระวัง
 
-- media ที่อยู่ใน localhost จะไม่ข้ามเครื่องอัตโนมัติ
-- ถ้าจะขึ้น production ต้องเปลี่ยน flow upload ไป storage จริง (เช่น Supabase Storage)
+- วิดีโอ/รูปจาก editor ใช้ public URL ของ Supabase — ต้องตั้ง bucket `product-images` เป็น public read
+- วิดีโอสั้น ≤25MB; รูป ≤8MB

@@ -1,14 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
-export default defineNuxtPlugin(() => {
-  const config = useRuntimeConfig()
+export default defineNuxtPlugin({
+  name: 'supabase',
+  setup() {
+    const config = useRuntimeConfig()
 
-  const supabase = createClient(
-    config.public.supabaseUrl,
-    config.public.supabaseAnonKey,
-  )
+    const supabase = createClient(
+      config.public.supabaseUrl,
+      config.public.supabaseAnonKey,
+    )
 
-  return {
-    provide: { supabase },
-  }
+    return {
+      provide: { supabase },
+    }
+  },
 })

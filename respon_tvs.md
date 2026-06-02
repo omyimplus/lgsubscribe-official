@@ -1,1895 +1,1685 @@
 {
 
-```
-"code": 200,
+    "code": 200,
 
-"status": null,
+    "status": null,
 
-"message": null,
+    "message": null,
 
-"productLists": [
+    "productLists": [
 
-    {
+        {
 
-        "productListTitle": "",
+            "productListTitle": "",
 
-        "productListType": "",
+            "productListType": "",
 
-        "componentId": "",
+            "componentId": "",
 
-        "productList": [
+            "productList": [
 
-            {
+                {
 
-                "modelId": "MD08741031",
+                    "modelId": "MD08741031",
 
-                "sku": "[OLED65C6PSA.ATM.EATH.TH](http://OLED65C6PSA.ATM.EATH.TH).C",
+                    "sku": "[OLED65C6PSA.ATM.EATH.TH](http://OLED65C6PSA.ATM.EATH.TH).C",
 
-                "modelName": "OLED65C6PSA",
+                    "modelName": "OLED65C6PSA",
 
-                "modelType": "G",
+                    "modelType": "G",
 
-                "bizType": "B2C",
+                    "bizType": "B2C",
 
-                "brandType": null,
+                    "brandType": null,
 
-                "modelUrlPath": "/th/tv-soundbars/oled-evo/oled65c6psa/",
+                    "modelUrlPath": "/th/tv-soundbars/oled-evo/oled65c6psa/",
 
-                "totalCount": 6,
+                    "totalCount": 5,
 
-                "superCategoryId": "CT52000120",
+                    "superCategoryId": "CT52000120",
 
-                "categoryId": "CT52000129",
+                    "categoryId": "CT52000129",
 
-                "subCategoryId": "CT52000412",
+                    "subCategoryId": "CT52000412",
 
-                "categoryName": "ทีวี & Soundbars",
+                    "categoryName": "ทีวี & Soundbars",
 
-                "retailerPricingFlag": "N",
+                    "retailerPricingFlag": "N",
 
-                "modelStatusCode": "ACTIVE",
+                    "modelStatusCode": "ACTIVE",
 
-                "salesModelCode": "OLED65C6PSA",
+                    "salesModelCode": "OLED65C6PSA",
 
-                "salesSuffixCode": "ATM",
+                    "salesSuffixCode": "ATM",
 
-                "productLevel1Code": "TV",
+                    "productLevel1Code": "TV",
 
-                "defaultProductTag": "",
+                    "defaultProductTag": "",
 
-                "productTag1": "New",
+                    "productTag1": "New",
 
-                "productTag1BeginDay": "2026-04-08 00:00:00",
+                    "productTag1BeginDay": "2026-04-08 00:00:00",
 
-                "productTag1EndDay": "2026-12-31 23:30:00",
+                    "productTag1EndDay": "2026-12-31 23:30:00",
 
-                "productTag2": null,
+                    "productTag2": null,
 
-                "productTag2BeginDay": null,
+                    "productTag2BeginDay": null,
 
-                "productTag2EndDay": null,
+                    "productTag2EndDay": null,
 
-                "productTag1UserType": "ALL",
+                    "productTag1UserType": "ALL",
 
-                "productTag2UserType": "",
+                    "productTag2UserType": "",
 
-                "promotionText": "",
+                    "promotionText": "",
 
-                "imageAltText": "The front view of LG OLED evo AI C6, released in 2026, features a slim black bezel, with a vivid, sculpted swirl of layered rainbow tones flowing across the screen.",
+                    "imageAltText": "The front view of LG OLED evo AI C6, released in 2026, features a slim black bezel, with a vivid, sculpted swirl of layered rainbow tones flowing across the screen.",
 
-                "mediumImageAddr": "/th/image-update/tv/2026/oled/oled81-42c6psa-atm/gallery/65-c6/basic/lg-oled-evo-c6-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
+                    "mediumImageAddr": "/th/image-update/tv/2026/oled/oled81-42c6psa-atm/gallery/65-c6/basic/lg-oled-evo-c6-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
 
-                "smallImageAddr": "/th/image-update/tv/2026/oled/oled81-42c6psa-atm/gallery/65-c6/basic/lg-oled-evo-c6-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
+                    "smallImageAddr": "/th/image-update/tv/2026/oled/oled81-42c6psa-atm/gallery/65-c6/basic/lg-oled-evo-c6-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
 
-                "userFriendlyName": "ทีวี 65\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED65C6PSA",
+                    "userFriendlyName": "ทีวี 65\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED65C6PSA",
 
-                "bundlePlpDisplayFlag": "Y",
+                    "bundlePlpDisplayFlag": "Y",
 
-                "reviewType": "BV",
+                    "reviewType": "BV",
 
-                "ratingPercent": 100,
+                    "ratingPercent": 100,
 
-                "wtbUseFlag": "Y",
+                    "wtbUseFlag": "Y",
 
-                "obsSellFlag": "Y",
+                    "obsSellFlag": "Y",
 
-                "ecommerceTarget": "self",
+                    "ecommerceTarget": "self",
 
-                "msrp": 0.0,
+                    "msrp": 0,
 
-                "productSupportFlag": null,
+                    "productSupportFlag": null,
 
-                "wtbExternalLinkUseFlag": "N",
+                    "wtbExternalLinkUseFlag": "N",
 
-                "wtbExternalLinkName": "",
+                    "wtbExternalLinkName": "",
 
-                "wtbExternalLinkUrl": "",
+                    "wtbExternalLinkUrl": "",
 
-                "wtbExternalLinkSelfFlag": "N",
+                    "wtbExternalLinkSelfFlag": "N",
 
-                "inquiryToBuyFlag": "N",
+                    "inquiryToBuyFlag": "N",
 
-                "findTheDealerFlag": "Y",
+                    "findTheDealerFlag": "Y",
 
-                "buyNowUrl": "",
+                    "buyNowUrl": "",
 
-                "productSupportUrl": null,
+                    "productSupportUrl": null,
 
-                "siblingGroupCode": "OLEDC6PSA TH",
+                    "siblingGroupCode": "OLEDC6PSA TH",
 
-                "seriesName": "OLEDC6PSA",
+                    "seriesName": "OLEDC6PSA",
 
-                "siblingCode": "65",
+                    "siblingCode": "65",
 
-                "defaultSiblingModelFlag": "N",
+                    "defaultSiblingModelFlag": "N",
 
-                "plpHighlightModelFlag": "N",
+                    "plpHighlightModelFlag": "N",
 
-                "siblingLocalValue": "65\"",
+                    "siblingLocalValue": "65\"",
 
-                "target": "NEW",
+                    "target": "NEW",
 
-                "siblingType": "SIZE",
+                    "siblingType": "SIZE",
 
-                "siblingModels": [
+                    "siblingModels": [
 
-                    {
+                        {
 
-                        "siblingCode": "42",
+                            "siblingCode": "83",
 
-                        "siblingValue": "42\"",
+                            "siblingValue": "83\"",
 
-                        "promotionLinkUrl": "",
+                            "promotionLinkUrl": "",
 
-                        "sku": "[OLED42C6PSA.ATM.EATH.TH](http://OLED42C6PSA.ATM.EATH.TH).C",
+                            "sku": "[OLED83C6PSA.ATM.EATH.TH](http://OLED83C6PSA.ATM.EATH.TH).C",
 
-                        "promotionText": ""
+                            "promotionText": ""
 
-                    },
+                        },
 
-                    {
+                        {
 
-                        "siblingCode": "48",
+                            "siblingCode": "77",
 
-                        "siblingValue": "48\"",
+                            "siblingValue": "77\"",
 
-                        "promotionLinkUrl": "",
+                            "promotionLinkUrl": "",
 
-                        "sku": "[OLED48C6PSA.ATM.EATH.TH](http://OLED48C6PSA.ATM.EATH.TH).C",
+                            "sku": "[OLED77C6PSA.ATM.EATH.TH](http://OLED77C6PSA.ATM.EATH.TH).C",
 
-                        "promotionText": ""
+                            "promotionText": ""
 
-                    },
+                        },
 
-                    {
+                        {
 
-                        "siblingCode": "55",
+                            "siblingCode": "65",
 
-                        "siblingValue": "55\"",
+                            "siblingValue": "65\"",
 
-                        "promotionLinkUrl": "",
+                            "promotionLinkUrl": "",
 
-                        "sku": "[OLED55C6PSA.ATM.EATH.TH](http://OLED55C6PSA.ATM.EATH.TH).C",
+                            "sku": "[OLED65C6PSA.ATM.EATH.TH](http://OLED65C6PSA.ATM.EATH.TH).C",
 
-                        "promotionText": ""
+                            "promotionText": ""
 
-                    },
+                        },
 
-                    {
+                        {
 
-                        "siblingCode": "65",
+                            "siblingCode": "55",
 
-                        "siblingValue": "65\"",
+                            "siblingValue": "55\"",
 
-                        "promotionLinkUrl": "",
+                            "promotionLinkUrl": "",
 
-                        "sku": "[OLED65C6PSA.ATM.EATH.TH](http://OLED65C6PSA.ATM.EATH.TH).C",
+                            "sku": "[OLED55C6PSA.ATM.EATH.TH](http://OLED55C6PSA.ATM.EATH.TH).C",
 
-                        "promotionText": ""
+                            "promotionText": ""
 
-                    },
+                        },
 
-                    {
+                        {
 
-                        "siblingCode": "77",
+                            "siblingCode": "48",
 
-                        "siblingValue": "77\"",
+                            "siblingValue": "48\"",
 
-                        "promotionLinkUrl": "",
+                            "promotionLinkUrl": "",
 
-                        "sku": "[OLED77C6PSA.ATM.EATH.TH](http://OLED77C6PSA.ATM.EATH.TH).C",
+                            "sku": "[OLED48C6PSA.ATM.EATH.TH](http://OLED48C6PSA.ATM.EATH.TH).C",
 
-                        "promotionText": ""
+                            "promotionText": ""
 
-                    },
+                        },
 
-                    {
+                        {
 
-                        "siblingCode": "83",
+                            "siblingCode": "42",
 
-                        "siblingValue": "83\"",
+                            "siblingValue": "42\"",
 
-                        "promotionLinkUrl": "",
+                            "promotionLinkUrl": "",
 
-                        "sku": "[OLED83C6PSA.ATM.EATH.TH](http://OLED83C6PSA.ATM.EATH.TH).C",
+                            "sku": "[OLED42C6PSA.ATM.EATH.TH](http://OLED42C6PSA.ATM.EATH.TH).C",
 
-                        "promotionText": ""
+                            "promotionText": ""
 
-                    }
+                        }
 
-                ],
+                    ],
 
-                "buyNowUseFlag": "N",
+                    "buyNowUseFlag": "N",
 
-                "energyLabel": null,
+                    "energyLabel": null,
 
-                "energyLabelFileName": "",
+                    "energyLabelFileName": "",
 
-                "energyLabelOriginalName": "",
+                    "energyLabelOriginalName": "",
 
-                "productFicheFileName": "",
+                    "productFicheFileName": "",
 
-                "productFicheOriginalName": "",
+                    "productFicheOriginalName": "",
 
-                "energyLabelDocId": "",
+                    "energyLabelDocId": "",
 
-                "productFicheDocId": "",
+                    "productFicheDocId": "",
 
-                "energyLabelImageAddr": "",
+                    "energyLabelImageAddr": "",
 
-                "energyLabelName": "",
+                    "energyLabelName": "",
 
-                "energyLabelCategory": null,
+                    "energyLabelCategory": null,
 
-                "buName1": "MS",
+                    "buName1": "MS",
 
-                "buName2": "TV/Audio/Video",
+                    "buName2": "TV/Audio/Video",
 
-                "buName3": "TV",
+                    "buName3": "TV",
 
-                "superCategoryName": "TV/Audio",
+                    "superCategoryName": "TV/Audio",
 
-                "categoryEngName": "TV & Soundbars",
+                    "categoryEngName": "TV & Soundbars",
 
-                "signatureFlag": "N",
+                    "signatureFlag": "N",
 
-                "localeCode": "TH",
+                    "localeCode": "TH",
 
-                "modelYear": "2026",
+                    "modelYear": "2026",
 
-                "limitSaleUseFlag": "N",
+                    "limitSaleUseFlag": "N",
 
-                "promotionLinkUrl": "",
+                    "promotionLinkUrl": "",
 
-                "externalLinkTarget": null,
+                    "externalLinkTarget": null,
 
-                "energyLabelproductLeve1Code": "",
+                    "energyLabelproductLeve1Code": "",
 
-                "productFicheproductLeve1Code": "",
+                    "productFicheproductLeve1Code": "",
 
-                "fenergyLabelproductLeve1Code": "",
+                    "fenergyLabelproductLeve1Code": "",
 
-                "washTowerFlag": null,
+                    "washTowerFlag": null,
 
-                "secondEnergyLabel": null,
+                    "secondEnergyLabel": null,
 
-                "secondEnergyLabelCategory": null,
+                    "secondEnergyLabelCategory": null,
 
-                "secondEnergyLabelDocId": null,
+                    "secondEnergyLabelDocId": null,
 
-                "secondEnergyLabelFileName": null,
+                    "secondEnergyLabelFileName": null,
 
-                "secondEnergyLabelOriginalName": null,
+                    "secondEnergyLabelOriginalName": null,
 
-                "secondEnergyLabelproductLeve1Code": null,
+                    "secondEnergyLabelproductLeve1Code": null,
 
-                "secondProductFicheDocId": null,
+                    "secondProductFicheDocId": null,
 
-                "secondProductFicheFileName": null,
+                    "secondProductFicheFileName": null,
 
-                "secondProductFicheOriginalName": null,
+                    "secondProductFicheOriginalName": null,
 
-                "secondProductFicheproductLeve1Code": null,
+                    "secondProductFicheproductLeve1Code": null,
 
-                "secondFEnergyLabelDocId": null,
+                    "secondFEnergyLabelDocId": null,
 
-                "secondFEnergyLabelFileName": null,
+                    "secondFEnergyLabelFileName": null,
 
-                "secondFEnergyLabelOriginalName": null,
+                    "secondFEnergyLabelOriginalName": null,
 
-                "secondFEnergyLabelproductLeve1Code": null,
+                    "secondFEnergyLabelproductLeve1Code": null,
 
-                "secondEnergyLabelImageAddr": null,
+                    "secondEnergyLabelImageAddr": null,
 
-                "secondEnergyLabelName": null,
+                    "secondEnergyLabelName": null,
 
-                "themeType": "Light",
+                    "themeType": "Light",
 
-                "exclusionModel": "Retailer Exclusive",
+                    "exclusionModel": "Retailer Exclusive",
 
-                "classificationFlagLv1": "MS",
+                    "classificationFlagLv1": "MS",
 
-                "classificationFlagLv2": "TV/Audio/Video",
+                    "classificationFlagLv2": "TV/Audio/Video",
 
-                "classificationFlagLv3": "TV",
+                    "classificationFlagLv3": "TV",
 
-                "classificationFlagLv4": "OLED",
+                    "classificationFlagLv4": "OLED",
 
-                "repairModelAreaYn": null,
+                    "repairModelAreaYn": null,
 
-                "labelRepairMap": [],
+                    "labelRepairMap": [],
 
-                "labelUseFlag": null,
+                    "labelUseFlag": null,
 
-                "repairabilityIndexFlag": null,
+                    "repairabilityIndexFlag": null,
 
-                "taxInformationUseFlag": "N",
+                    "taxInformationUseFlag": "N",
 
-                "elType": null,
+                    "elType": null,
 
-                "secondElType": null,
+                    "secondElType": null,
 
-                "secondPisDocType": null,
+                    "secondPisDocType": null,
 
-                "secondPfCode": null,
+                    "secondPfCode": null,
 
-                "pisDocType": null,
+                    "pisDocType": null,
 
-                "pisDocOldFlag": null,
+                    "pisDocOldFlag": null,
 
-                "epsIncludeCharger": null,
+                    "epsIncludeCharger": null,
 
-                "epsMinPower": null,
+                    "epsMinPower": null,
 
-                "epsMaxPower": null,
+                    "epsMaxPower": null,
 
-                "epsUsbPd": null,
+                    "epsUsbPd": null,
 
-                "lgPickOrderNo": null,
+                    "lgPickOrderNo": null,
 
-                "mtsModelUrlPath": null,
+                    "mtsModelUrlPath": null,
 
-                "inchCode": "65",
+                    "inchCode": "65",
 
-                "modelReleaseDate": "2026-04-05",
+                    "modelReleaseDate": "2026-04-05",
 
-                "admPtoFlag": "N",
+                    "admPtoFlag": "N",
 
-                "energyRatingDocUrl": "",
+                    "energyRatingDocUrl": "",
 
-                "productSheetDocUrl": "",
+                    "productSheetDocUrl": "",
 
-                "secondEnergyRatingDocUrl": null,
+                    "secondEnergyRatingDocUrl": null,
 
-                "secondFEnergyRatingDocUrl": null,
+                    "secondFEnergyRatingDocUrl": null,
 
-                "secondProductSheetDocUrl": null,
+                    "secondProductSheetDocUrl": null,
 
-                "productTag1Type": "line",
+                    "productTag1Type": "line",
 
-                "productTag1Category": "Product Stock",
+                    "productTag1Category": "Product Stock",
 
-                "productTag2Type": null,
+                    "productTag2Type": null,
 
-                "productTag2Category": null,
+                    "productTag2Category": null,
 
-                "productDeliveryTag": null,
+                    "productDeliveryTag": null,
 
-                "productDeliveryTagUseFlag": null,
+                    "productDeliveryTagUseFlag": null,
 
-                "productDeliveryTagUserType": null,
+                    "productDeliveryTagUserType": null,
 
-                "productDeliveryTagBeginDay": null,
+                    "productDeliveryTagBeginDay": null,
 
-                "productDeliveryTagEndDay": null,
+                    "productDeliveryTagEndDay": null,
 
-                "fenergyLabelDocId": "",
+                    "fenergyLabelOriginalName": "",
 
-                "fenergyLabelFileName": "",
+                    "fenergyLabelFileName": "",
 
-                "fenergyLabelOriginalName": "",
+                    "fenergyRatingDocUrl": "",
 
-                "srating2": 5.0,
+                    "fenergyLabelDocId": "",
 
-                "pcount": 3,
+                    "srating2": 5,
 
-                "srating": 5,
+                    "pcount": 3,
 
-                "fenergyRatingDocUrl": ""
+                    "srating": 5
 
-            },
+                },
 
-            {
+                {
 
-                "modelId": "MD08742489",
+                    "modelId": "MD08803154",
 
-                "sku": "[65QNED80BSA.ATM.EATH.TH](http://65QNED80BSA.ATM.EATH.TH).C",
+                    "sku": "[43NU855BPSA.ATM.EATH.TH](http://43NU855BPSA.ATM.EATH.TH).C",
 
-                "modelName": "65QNED80BSA",
+                    "modelName": "43NU855BPSA",
 
-                "modelType": "G",
+                    "modelType": "G",
 
-                "bizType": "B2C",
+                    "bizType": "B2C",
 
-                "brandType": null,
+                    "brandType": null,
 
-                "modelUrlPath": "/th/tv-soundbars/qned-evo/65qned80bsa/",
+                    "modelUrlPath": "/th/tv-soundbars/nano-4k-uhd/43nu855bppa/",
 
-                "totalCount": 6,
+                    "totalCount": 5,
 
-                "superCategoryId": "CT52000120",
+                    "superCategoryId": "CT52000120",
 
-                "categoryId": "CT52000129",
+                    "categoryId": "CT52000129",
 
-                "subCategoryId": "CT52108901",
+                    "subCategoryId": "CT53101445",
 
-                "categoryName": "ทีวี & Soundbars",
+                    "categoryName": "ทีวี & Soundbars",
 
-                "retailerPricingFlag": "N",
+                    "retailerPricingFlag": "N",
 
-                "modelStatusCode": "ACTIVE",
+                    "modelStatusCode": "ACTIVE",
 
-                "salesModelCode": "65QNED80BSA",
+                    "salesModelCode": "43NU855BPSA",
 
-                "salesSuffixCode": "ATM",
+                    "salesSuffixCode": "ATM",
 
-                "productLevel1Code": "TV",
+                    "productLevel1Code": "TV",
 
-                "defaultProductTag": "",
+                    "defaultProductTag": "",
 
-                "productTag1": "New",
+                    "productTag1": "New",
 
-                "productTag1BeginDay": "2026-04-20 00:00:00",
+                    "productTag1BeginDay": "2026-05-28 00:00:00",
 
-                "productTag1EndDay": "2026-10-20 00:00:00",
+                    "productTag1EndDay": "2026-08-31 23:30:00",
 
-                "productTag2": null,
+                    "productTag2": null,
 
-                "productTag2BeginDay": null,
+                    "productTag2BeginDay": null,
 
-                "productTag2EndDay": null,
+                    "productTag2EndDay": null,
 
-                "productTag1UserType": "ALL",
+                    "productTag1UserType": "ALL",
 
-                "productTag2UserType": "",
+                    "productTag2UserType": "",
 
-                "promotionText": "",
+                    "promotionText": "",
 
-                "imageAltText": "Намуди пеши LG QNED evo AI QNED80 Mini LED, ки соли 2026 бароварда шуд, экранро бо ҷараёни рангин, моеъмонанди рангҳо пур мекунад, чун рангҳои сахтқатраш ба таври ҳамвор дар тамоми намоиш паҳн мешаванд.BGM бо Music Lounge",
+                    "imageAltText": "The front view of LG NANO 4K UHD AI NU85, released in 2026, fills the screen with smooth, flowing layers of vividly colored, fabric-like textures, as curved multicolored folds spread across the display.",
 
-                "mediumImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/65-qned80/basic/lg-qned-evo-qned80-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
+                    "mediumImageAddr": "/th/image-update/tv/2026/nano-4k-uhd/98-43nu855bpsa-atm/gallery/43-nu85/basic/lg-nano-4k-uhd-nu85-2026-43-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
 
-                "smallImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/65-qned80/basic/lg-qned-evo-qned80-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
+                    "smallImageAddr": "/th/image-update/tv/2026/nano-4k-uhd/98-43nu855bpsa-atm/gallery/43-nu85/basic/lg-nano-4k-uhd-nu85-2026-43-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
 
-                "userFriendlyName": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 65QNED80BSA",
+                    "userFriendlyName": "ทีวี 43\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 43NU855BPSA",
 
-                "bundlePlpDisplayFlag": "Y",
+                    "bundlePlpDisplayFlag": "Y",
 
-                "reviewType": "BV",
+                    "reviewType": "BV",
 
-                "ratingPercent": 0,
+                    "ratingPercent": 100,
 
-                "wtbUseFlag": "Y",
+                    "wtbUseFlag": "N",
 
-                "obsSellFlag": "Y",
+                    "obsSellFlag": "Y",
 
-                "ecommerceTarget": "self",
+                    "ecommerceTarget": "self",
 
-                "msrp": 0.0,
+                    "msrp": 11990,
 
-                "productSupportFlag": null,
+                    "productSupportFlag": null,
 
-                "wtbExternalLinkUseFlag": "N",
+                    "wtbExternalLinkUseFlag": "N",
 
-                "wtbExternalLinkName": "",
+                    "wtbExternalLinkName": "",
 
-                "wtbExternalLinkUrl": "",
+                    "wtbExternalLinkUrl": "",
 
-                "wtbExternalLinkSelfFlag": "N",
+                    "wtbExternalLinkSelfFlag": "N",
 
-                "inquiryToBuyFlag": "N",
+                    "inquiryToBuyFlag": "N",
 
-                "findTheDealerFlag": "Y",
+                    "findTheDealerFlag": "Y",
 
-                "buyNowUrl": "",
+                    "buyNowUrl": "",
 
-                "productSupportUrl": null,
+                    "productSupportUrl": null,
 
-                "siblingGroupCode": null,
+                    "siblingGroupCode": "NU855BPSA",
 
-                "seriesName": null,
+                    "seriesName": "NU855BPSA",
 
-                "siblingCode": null,
+                    "siblingCode": "43",
 
-                "defaultSiblingModelFlag": "N",
+                    "defaultSiblingModelFlag": "N",
 
-                "plpHighlightModelFlag": "Y",
+                    "plpHighlightModelFlag": "N",
 
-                "siblingLocalValue": null,
+                    "siblingLocalValue": "43\"",
 
-                "target": null,
+                    "target": "NEW",
 
-                "siblingType": null,
+                    "siblingType": "SIZE",
 
-                "siblingModels": null,
+                    "siblingModels": [
 
-                "buyNowUseFlag": "N",
+                        {
 
-                "energyLabel": null,
+                            "siblingCode": "85",
 
-                "energyLabelFileName": "",
+                            "siblingValue": "85\"",
 
-                "energyLabelOriginalName": "",
+                            "promotionLinkUrl": "",
 
-                "productFicheFileName": "",
+                            "sku": "[85NU855BPSA.ATM.EATH.TH](http://85NU855BPSA.ATM.EATH.TH).C",
 
-                "productFicheOriginalName": "",
+                            "promotionText": ""
 
-                "energyLabelDocId": "",
+                        },
 
-                "productFicheDocId": "",
+                        {
 
-                "energyLabelImageAddr": "",
+                            "siblingCode": "75",
 
-                "energyLabelName": "",
+                            "siblingValue": "75\"",
 
-                "energyLabelCategory": null,
+                            "promotionLinkUrl": "",
 
-                "buName1": "MS",
+                            "sku": "[75NU855BPSA.ATM.EATH.TH](http://75NU855BPSA.ATM.EATH.TH).C",
 
-                "buName2": "TV/Audio/Video",
+                            "promotionText": ""
 
-                "buName3": "TV",
+                        },
 
-                "superCategoryName": "TV/Audio",
+                        {
 
-                "categoryEngName": "TV & Soundbars",
+                            "siblingCode": "65",
 
-                "signatureFlag": "N",
+                            "siblingValue": "65\"",
 
-                "localeCode": "TH",
+                            "promotionLinkUrl": "",
 
-                "modelYear": "2026",
+                            "sku": "[65NU855BPSA.ATM.EATH.TH](http://65NU855BPSA.ATM.EATH.TH).C",
 
-                "limitSaleUseFlag": "N",
+                            "promotionText": ""
 
-                "promotionLinkUrl": "",
+                        },
 
-                "externalLinkTarget": null,
+                        {
 
-                "energyLabelproductLeve1Code": "",
+                            "siblingCode": "55",
 
-                "productFicheproductLeve1Code": "",
+                            "siblingValue": "55\"",
 
-                "fenergyLabelproductLeve1Code": "",
+                            "promotionLinkUrl": "",
 
-                "washTowerFlag": null,
+                            "sku": "[55NU855BPSA.ATM.EATH.TH](http://55NU855BPSA.ATM.EATH.TH).C",
 
-                "secondEnergyLabel": null,
+                            "promotionText": ""
 
-                "secondEnergyLabelCategory": null,
+                        },
 
-                "secondEnergyLabelDocId": null,
+                        {
 
-                "secondEnergyLabelFileName": null,
+                            "siblingCode": "50",
 
-                "secondEnergyLabelOriginalName": null,
+                            "siblingValue": "50\"",
 
-                "secondEnergyLabelproductLeve1Code": null,
+                            "promotionLinkUrl": "",
 
-                "secondProductFicheDocId": null,
+                            "sku": "[50NU855BPSA.ATM.EATH.TH](http://50NU855BPSA.ATM.EATH.TH).C",
 
-                "secondProductFicheFileName": null,
+                            "promotionText": ""
 
-                "secondProductFicheOriginalName": null,
+                        },
 
-                "secondProductFicheproductLeve1Code": null,
+                        {
 
-                "secondFEnergyLabelDocId": null,
+                            "siblingCode": "43",
 
-                "secondFEnergyLabelFileName": null,
+                            "siblingValue": "43\"",
 
-                "secondFEnergyLabelOriginalName": null,
+                            "promotionLinkUrl": "",
 
-                "secondFEnergyLabelproductLeve1Code": null,
+                            "sku": "[43NU855BPSA.ATM.EATH.TH](http://43NU855BPSA.ATM.EATH.TH).C",
 
-                "secondEnergyLabelImageAddr": null,
+                            "promotionText": ""
 
-                "secondEnergyLabelName": null,
+                        }
 
-                "themeType": "Light",
+                    ],
 
-                "exclusionModel": "Retailer Exclusive",
+                    "buyNowUseFlag": "N",
 
-                "classificationFlagLv1": "MS",
+                    "energyLabel": "",
 
-                "classificationFlagLv2": "TV/Audio/Video",
+                    "energyLabelFileName": "",
 
-                "classificationFlagLv3": "TV",
+                    "energyLabelOriginalName": "",
 
-                "classificationFlagLv4": "QNED",
+                    "productFicheFileName": "",
 
-                "repairModelAreaYn": null,
+                    "productFicheOriginalName": "",
 
-                "labelRepairMap": [],
+                    "energyLabelDocId": "",
 
-                "labelUseFlag": null,
+                    "productFicheDocId": "",
 
-                "repairabilityIndexFlag": null,
+                    "energyLabelImageAddr": "",
 
-                "taxInformationUseFlag": "N",
+                    "energyLabelName": "",
 
-                "elType": null,
+                    "energyLabelCategory": null,
 
-                "secondElType": null,
+                    "buName1": "MS",
 
-                "secondPisDocType": null,
+                    "buName2": "TV/Audio/Video",
 
-                "secondPfCode": null,
+                    "buName3": "TV",
 
-                "pisDocType": null,
+                    "superCategoryName": "TV/Audio",
 
-                "pisDocOldFlag": null,
+                    "categoryEngName": "TV & Soundbars",
 
-                "epsIncludeCharger": null,
+                    "signatureFlag": "N",
 
-                "epsMinPower": null,
+                    "localeCode": "TH",
 
-                "epsMaxPower": null,
+                    "modelYear": "2026",
 
-                "epsUsbPd": null,
+                    "limitSaleUseFlag": "N",
 
-                "lgPickOrderNo": null,
+                    "promotionLinkUrl": "",
 
-                "mtsModelUrlPath": null,
+                    "externalLinkTarget": null,
 
-                "inchCode": "65",
+                    "energyLabelproductLeve1Code": "",
 
-                "modelReleaseDate": "2026-04-20",
+                    "productFicheproductLeve1Code": "",
 
-                "admPtoFlag": "N",
+                    "fenergyLabelproductLeve1Code": "",
 
-                "energyRatingDocUrl": "",
+                    "washTowerFlag": "N",
 
-                "productSheetDocUrl": "",
+                    "secondEnergyLabel": null,
 
-                "secondEnergyRatingDocUrl": null,
+                    "secondEnergyLabelCategory": null,
 
-                "secondFEnergyRatingDocUrl": null,
+                    "secondEnergyLabelDocId": null,
 
-                "secondProductSheetDocUrl": null,
+                    "secondEnergyLabelFileName": null,
 
-                "productTag1Type": "line",
+                    "secondEnergyLabelOriginalName": null,
 
-                "productTag1Category": "Product Stock",
+                    "secondEnergyLabelproductLeve1Code": null,
 
-                "productTag2Type": null,
+                    "secondProductFicheDocId": null,
 
-                "productTag2Category": null,
+                    "secondProductFicheFileName": null,
 
-                "productDeliveryTag": null,
+                    "secondProductFicheOriginalName": null,
 
-                "productDeliveryTagUseFlag": null,
+                    "secondProductFicheproductLeve1Code": null,
 
-                "productDeliveryTagUserType": null,
+                    "secondFEnergyLabelDocId": null,
 
-                "productDeliveryTagBeginDay": null,
+                    "secondFEnergyLabelFileName": null,
 
-                "productDeliveryTagEndDay": null,
+                    "secondFEnergyLabelOriginalName": null,
 
-                "fenergyLabelDocId": "",
+                    "secondFEnergyLabelproductLeve1Code": null,
 
-                "fenergyLabelFileName": "",
+                    "secondEnergyLabelImageAddr": null,
 
-                "fenergyLabelOriginalName": "",
+                    "secondEnergyLabelName": null,
 
-                "srating2": 0.0,
+                    "themeType": "Light",
 
-                "pcount": 0,
+                    "exclusionModel": "N",
 
-                "srating": 0,
+                    "classificationFlagLv1": "MS",
 
-                "fenergyRatingDocUrl": ""
+                    "classificationFlagLv2": "TV/Audio/Video",
 
-            },
+                    "classificationFlagLv3": "TV",
 
-            {
+                    "classificationFlagLv4": "",
 
-                "modelId": "MD08803161",
+                    "repairModelAreaYn": null,
 
-                "sku": "[65NU855BPSA.ATM.EATH.TH](http://65NU855BPSA.ATM.EATH.TH).C",
+                    "labelRepairMap": [],
 
-                "modelName": "65NU855BPSA",
+                    "labelUseFlag": null,
 
-                "modelType": "G",
+                    "repairabilityIndexFlag": null,
 
-                "bizType": "B2C",
+                    "taxInformationUseFlag": "N",
 
-                "brandType": null,
+                    "elType": null,
 
-                "modelUrlPath": "/th/tv-soundbars/nano-4k-uhd/65nu855bpsa/",
+                    "secondElType": null,
 
-                "totalCount": 6,
+                    "secondPisDocType": null,
 
-                "superCategoryId": "CT52000120",
+                    "secondPfCode": null,
 
-                "categoryId": "CT52000129",
+                    "pisDocType": null,
 
-                "subCategoryId": "CT53101445",
+                    "pisDocOldFlag": null,
 
-                "categoryName": "ทีวี & Soundbars",
+                    "epsIncludeCharger": null,
 
-                "retailerPricingFlag": "N",
+                    "epsMinPower": null,
 
-                "modelStatusCode": "ACTIVE",
+                    "epsMaxPower": null,
 
-                "salesModelCode": "65NU855BPSA",
+                    "epsUsbPd": null,
 
-                "salesSuffixCode": "ATM",
+                    "lgPickOrderNo": null,
 
-                "productLevel1Code": "TV",
+                    "mtsModelUrlPath": null,
 
-                "defaultProductTag": "",
+                    "inchCode": "43",
 
-                "productTag1": null,
+                    "modelReleaseDate": "2026-04-30",
 
-                "productTag1BeginDay": null,
+                    "admPtoFlag": "N",
 
-                "productTag1EndDay": null,
+                    "energyRatingDocUrl": "",
 
-                "productTag2": null,
+                    "productSheetDocUrl": "",
 
-                "productTag2BeginDay": null,
+                    "secondEnergyRatingDocUrl": null,
 
-                "productTag2EndDay": null,
+                    "secondFEnergyRatingDocUrl": null,
 
-                "productTag1UserType": "",
+                    "secondProductSheetDocUrl": null,
 
-                "productTag2UserType": "",
+                    "productTag1Type": "line",
 
-                "promotionText": "",
+                    "productTag1Category": "Product Stock",
 
-                "imageAltText": "The front view of LG NANO 4K UHD AI NU85, released in 2026, fills the screen with smooth, flowing layers of vividly colored, fabric-like textures, as curved multicolored folds spread across the display.",
+                    "productTag2Type": null,
 
-                "mediumImageAddr": "/th/image-update/tv/2026/nano-4k-uhd/98-43nu855bpsa-atm/gallery/65-nu85/basic/lg-nano-4k-uhd-nu85-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
+                    "productTag2Category": null,
 
-                "smallImageAddr": "/th/image-update/tv/2026/nano-4k-uhd/98-43nu855bpsa-atm/gallery/65-nu85/basic/lg-nano-4k-uhd-nu85-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
+                    "productDeliveryTag": null,
 
-                "userFriendlyName": "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU855BPSA",
+                    "productDeliveryTagUseFlag": null,
 
-                "bundlePlpDisplayFlag": "Y",
+                    "productDeliveryTagUserType": null,
 
-                "reviewType": "BV",
+                    "productDeliveryTagBeginDay": null,
 
-                "ratingPercent": 0,
+                    "productDeliveryTagEndDay": null,
 
-                "wtbUseFlag": "N",
+                    "fenergyLabelOriginalName": "",
 
-                "obsSellFlag": "Y",
+                    "fenergyLabelFileName": "",
 
-                "ecommerceTarget": "self",
+                    "fenergyRatingDocUrl": "",
 
-                "msrp": 22990.0,
+                    "fenergyLabelDocId": "",
 
-                "productSupportFlag": null,
+                    "srating2": 5,
 
-                "wtbExternalLinkUseFlag": "N",
+                    "pcount": 1,
 
-                "wtbExternalLinkName": "",
+                    "srating": 5
 
-                "wtbExternalLinkUrl": "",
+                },
 
-                "wtbExternalLinkSelfFlag": "N",
+                {
 
-                "inquiryToBuyFlag": "N",
+                    "modelId": "MD08742489",
 
-                "findTheDealerFlag": "Y",
+                    "sku": "[65QNED80BSA.ATM.EATH.TH](http://65QNED80BSA.ATM.EATH.TH).C",
 
-                "buyNowUrl": "",
+                    "modelName": "65QNED80BSA",
 
-                "productSupportUrl": null,
+                    "modelType": "G",
 
-                "siblingGroupCode": null,
+                    "bizType": "B2C",
 
-                "seriesName": null,
+                    "brandType": null,
 
-                "siblingCode": null,
+                    "modelUrlPath": "/th/tv-soundbars/qned-evo/65qned80bsa/",
 
-                "defaultSiblingModelFlag": "N",
+                    "totalCount": 5,
 
-                "plpHighlightModelFlag": "Y",
+                    "superCategoryId": "CT52000120",
 
-                "siblingLocalValue": null,
+                    "categoryId": "CT52000129",
 
-                "target": null,
+                    "subCategoryId": "CT52108901",
 
-                "siblingType": null,
+                    "categoryName": "ทีวี & Soundbars",
 
-                "siblingModels": null,
+                    "retailerPricingFlag": "N",
 
-                "buyNowUseFlag": "N",
+                    "modelStatusCode": "ACTIVE",
 
-                "energyLabel": "",
+                    "salesModelCode": "65QNED80BSA",
 
-                "energyLabelFileName": "",
+                    "salesSuffixCode": "ATM",
 
-                "energyLabelOriginalName": "",
+                    "productLevel1Code": "TV",
 
-                "productFicheFileName": "",
+                    "defaultProductTag": "",
 
-                "productFicheOriginalName": "",
+                    "productTag1": "New",
 
-                "energyLabelDocId": "",
+                    "productTag1BeginDay": "2026-04-20 00:00:00",
 
-                "productFicheDocId": "",
+                    "productTag1EndDay": "2026-10-20 00:00:00",
 
-                "energyLabelImageAddr": "",
+                    "productTag2": null,
 
-                "energyLabelName": "",
+                    "productTag2BeginDay": null,
 
-                "energyLabelCategory": null,
+                    "productTag2EndDay": null,
 
-                "buName1": "MS",
+                    "productTag1UserType": "ALL",
 
-                "buName2": "TV/Audio/Video",
+                    "productTag2UserType": "",
 
-                "buName3": "TV",
+                    "promotionText": "",
 
-                "superCategoryName": "TV/Audio",
+                    "imageAltText": "Намуди пеши LG QNED evo AI QNED80 Mini LED, ки соли 2026 бароварда шуд, экранро бо ҷараёни рангин, моеъмонанди рангҳо пур мекунад, чун рангҳои сахтқатраш ба таври ҳамвор дар тамоми намоиш паҳн мешаванд.BGM бо Music Lounge",
 
-                "categoryEngName": "TV & Soundbars",
+                    "mediumImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/65-qned80/basic/lg-qned-evo-qned80-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
 
-                "signatureFlag": "N",
+                    "smallImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/65-qned80/basic/lg-qned-evo-qned80-2026-65-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
 
-                "localeCode": "TH",
+                    "userFriendlyName": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 65QNED80BSA",
 
-                "modelYear": "2026",
+                    "bundlePlpDisplayFlag": "Y",
 
-                "limitSaleUseFlag": "N",
+                    "reviewType": "BV",
 
-                "promotionLinkUrl": "",
+                    "ratingPercent": 0,
 
-                "externalLinkTarget": null,
+                    "wtbUseFlag": "Y",
 
-                "energyLabelproductLeve1Code": "",
+                    "obsSellFlag": "Y",
 
-                "productFicheproductLeve1Code": "",
+                    "ecommerceTarget": "self",
 
-                "fenergyLabelproductLeve1Code": "",
+                    "msrp": 0,
 
-                "washTowerFlag": "N",
+                    "productSupportFlag": null,
 
-                "secondEnergyLabel": null,
+                    "wtbExternalLinkUseFlag": "N",
 
-                "secondEnergyLabelCategory": null,
+                    "wtbExternalLinkName": "",
 
-                "secondEnergyLabelDocId": null,
+                    "wtbExternalLinkUrl": "",
 
-                "secondEnergyLabelFileName": null,
+                    "wtbExternalLinkSelfFlag": "N",
 
-                "secondEnergyLabelOriginalName": null,
+                    "inquiryToBuyFlag": "N",
 
-                "secondEnergyLabelproductLeve1Code": null,
+                    "findTheDealerFlag": "Y",
 
-                "secondProductFicheDocId": null,
+                    "buyNowUrl": "",
 
-                "secondProductFicheFileName": null,
+                    "productSupportUrl": null,
 
-                "secondProductFicheOriginalName": null,
+                    "siblingGroupCode": null,
 
-                "secondProductFicheproductLeve1Code": null,
+                    "seriesName": null,
 
-                "secondFEnergyLabelDocId": null,
+                    "siblingCode": null,
 
-                "secondFEnergyLabelFileName": null,
+                    "defaultSiblingModelFlag": "N",
 
-                "secondFEnergyLabelOriginalName": null,
+                    "plpHighlightModelFlag": "Y",
 
-                "secondFEnergyLabelproductLeve1Code": null,
+                    "siblingLocalValue": null,
 
-                "secondEnergyLabelImageAddr": null,
+                    "target": null,
 
-                "secondEnergyLabelName": null,
+                    "siblingType": null,
 
-                "themeType": "Light",
+                    "siblingModels": null,
 
-                "exclusionModel": "Retailer Exclusive",
+                    "buyNowUseFlag": "N",
 
-                "classificationFlagLv1": "MS",
+                    "energyLabel": null,
 
-                "classificationFlagLv2": "TV/Audio/Video",
+                    "energyLabelFileName": "",
 
-                "classificationFlagLv3": "TV",
+                    "energyLabelOriginalName": "",
 
-                "classificationFlagLv4": "",
+                    "productFicheFileName": "",
 
-                "repairModelAreaYn": null,
+                    "productFicheOriginalName": "",
 
-                "labelRepairMap": [],
+                    "energyLabelDocId": "",
 
-                "labelUseFlag": null,
+                    "productFicheDocId": "",
 
-                "repairabilityIndexFlag": null,
+                    "energyLabelImageAddr": "",
 
-                "taxInformationUseFlag": "N",
+                    "energyLabelName": "",
 
-                "elType": null,
+                    "energyLabelCategory": null,
 
-                "secondElType": null,
+                    "buName1": "MS",
 
-                "secondPisDocType": null,
+                    "buName2": "TV/Audio/Video",
 
-                "secondPfCode": null,
+                    "buName3": "TV",
 
-                "pisDocType": null,
+                    "superCategoryName": "TV/Audio",
 
-                "pisDocOldFlag": null,
+                    "categoryEngName": "TV & Soundbars",
 
-                "epsIncludeCharger": null,
+                    "signatureFlag": "N",
 
-                "epsMinPower": null,
+                    "localeCode": "TH",
 
-                "epsMaxPower": null,
+                    "modelYear": "2026",
 
-                "epsUsbPd": null,
+                    "limitSaleUseFlag": "N",
 
-                "lgPickOrderNo": null,
+                    "promotionLinkUrl": "",
 
-                "mtsModelUrlPath": null,
+                    "externalLinkTarget": null,
 
-                "inchCode": "65",
+                    "energyLabelproductLeve1Code": "",
 
-                "modelReleaseDate": "2026-04-30",
+                    "productFicheproductLeve1Code": "",
 
-                "admPtoFlag": "N",
+                    "fenergyLabelproductLeve1Code": "",
 
-                "energyRatingDocUrl": "",
+                    "washTowerFlag": null,
 
-                "productSheetDocUrl": "",
+                    "secondEnergyLabel": null,
 
-                "secondEnergyRatingDocUrl": null,
+                    "secondEnergyLabelCategory": null,
 
-                "secondFEnergyRatingDocUrl": null,
+                    "secondEnergyLabelDocId": null,
 
-                "secondProductSheetDocUrl": null,
+                    "secondEnergyLabelFileName": null,
 
-                "productTag1Type": null,
+                    "secondEnergyLabelOriginalName": null,
 
-                "productTag1Category": null,
+                    "secondEnergyLabelproductLeve1Code": null,
 
-                "productTag2Type": null,
+                    "secondProductFicheDocId": null,
 
-                "productTag2Category": null,
+                    "secondProductFicheFileName": null,
 
-                "productDeliveryTag": null,
+                    "secondProductFicheOriginalName": null,
 
-                "productDeliveryTagUseFlag": null,
+                    "secondProductFicheproductLeve1Code": null,
 
-                "productDeliveryTagUserType": null,
+                    "secondFEnergyLabelDocId": null,
 
-                "productDeliveryTagBeginDay": null,
+                    "secondFEnergyLabelFileName": null,
 
-                "productDeliveryTagEndDay": null,
+                    "secondFEnergyLabelOriginalName": null,
 
-                "fenergyLabelDocId": "",
+                    "secondFEnergyLabelproductLeve1Code": null,
 
-                "fenergyLabelFileName": "",
+                    "secondEnergyLabelImageAddr": null,
 
-                "fenergyLabelOriginalName": "",
+                    "secondEnergyLabelName": null,
 
-                "srating2": 0.0,
+                    "themeType": "Light",
 
-                "pcount": 0,
+                    "exclusionModel": "Retailer Exclusive",
 
-                "srating": 0,
+                    "classificationFlagLv1": "MS",
 
-                "fenergyRatingDocUrl": ""
+                    "classificationFlagLv2": "TV/Audio/Video",
 
-            },
+                    "classificationFlagLv3": "TV",
 
-            {
+                    "classificationFlagLv4": "QNED",
 
-                "modelId": "MD08742490",
+                    "repairModelAreaYn": null,
 
-                "sku": "[55QNED80BSA.ATM.EATH.TH](http://55QNED80BSA.ATM.EATH.TH).C",
+                    "labelRepairMap": [],
 
-                "modelName": "55QNED80BSA",
+                    "labelUseFlag": null,
 
-                "modelType": "G",
+                    "repairabilityIndexFlag": null,
 
-                "bizType": "B2C",
+                    "taxInformationUseFlag": "N",
 
-                "brandType": null,
+                    "elType": null,
 
-                "modelUrlPath": "/th/tv-soundbars/qned-evo/55qned80bsa/",
+                    "secondElType": null,
 
-                "totalCount": 6,
+                    "secondPisDocType": null,
 
-                "superCategoryId": "CT52000120",
+                    "secondPfCode": null,
 
-                "categoryId": "CT52000129",
+                    "pisDocType": null,
 
-                "subCategoryId": "CT52108901",
+                    "pisDocOldFlag": null,
 
-                "categoryName": "ทีวี & Soundbars",
+                    "epsIncludeCharger": null,
 
-                "retailerPricingFlag": "N",
+                    "epsMinPower": null,
 
-                "modelStatusCode": "ACTIVE",
+                    "epsMaxPower": null,
 
-                "salesModelCode": "55QNED80BSA",
+                    "epsUsbPd": null,
 
-                "salesSuffixCode": "ATM",
+                    "lgPickOrderNo": null,
 
-                "productLevel1Code": "TV",
+                    "mtsModelUrlPath": null,
 
-                "defaultProductTag": "",
+                    "inchCode": "65",
 
-                "productTag1": "New",
+                    "modelReleaseDate": "2026-04-20",
 
-                "productTag1BeginDay": "2026-04-20 00:00:00",
+                    "admPtoFlag": "N",
 
-                "productTag1EndDay": "2026-10-20 00:00:00",
+                    "energyRatingDocUrl": "",
 
-                "productTag2": null,
+                    "productSheetDocUrl": "",
 
-                "productTag2BeginDay": null,
+                    "secondEnergyRatingDocUrl": null,
 
-                "productTag2EndDay": null,
+                    "secondFEnergyRatingDocUrl": null,
 
-                "productTag1UserType": "ALL",
+                    "secondProductSheetDocUrl": null,
 
-                "productTag2UserType": "",
+                    "productTag1Type": "line",
 
-                "promotionText": "",
+                    "productTag1Category": "Product Stock",
 
-                "imageAltText": "Намуди пеши LG QNED evo AI QNED80 Mini LED, ки соли 2026 бароварда шуд, экранро бо ҷараёни рангин, моеъмонанди рангҳо пур мекунад, чун рангҳои сахтқатраш ба таври ҳамвор дар тамоми намоиш паҳн мешаванд.BGM бо Music Lounge",
+                    "productTag2Type": null,
 
-                "mediumImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/55-qned80/basic/lg-qned-evo-qned80-2026-55-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
+                    "productTag2Category": null,
 
-                "smallImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/55-qned80/basic/lg-qned-evo-qned80-2026-55-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
+                    "productDeliveryTag": null,
 
-                "userFriendlyName": "ทีวี 55\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 55QNED80BSA",
+                    "productDeliveryTagUseFlag": null,
 
-                "bundlePlpDisplayFlag": "Y",
+                    "productDeliveryTagUserType": null,
 
-                "reviewType": "BV",
+                    "productDeliveryTagBeginDay": null,
 
-                "ratingPercent": 100,
+                    "productDeliveryTagEndDay": null,
 
-                "wtbUseFlag": "Y",
+                    "fenergyLabelOriginalName": "",
 
-                "obsSellFlag": "Y",
+                    "fenergyLabelFileName": "",
 
-                "ecommerceTarget": "self",
+                    "fenergyRatingDocUrl": "",
 
-                "msrp": 0.0,
+                    "fenergyLabelDocId": "",
 
-                "productSupportFlag": null,
+                    "srating2": 0,
 
-                "wtbExternalLinkUseFlag": "N",
+                    "pcount": 0,
 
-                "wtbExternalLinkName": "",
+                    "srating": 0
 
-                "wtbExternalLinkUrl": "",
+                },
 
-                "wtbExternalLinkSelfFlag": "N",
+                {
 
-                "inquiryToBuyFlag": "N",
+                    "modelId": "MD08742490",
 
-                "findTheDealerFlag": "Y",
+                    "sku": "[55QNED80BSA.ATM.EATH.TH](http://55QNED80BSA.ATM.EATH.TH).C",
 
-                "buyNowUrl": "",
+                    "modelName": "55QNED80BSA",
 
-                "productSupportUrl": null,
+                    "modelType": "G",
 
-                "siblingGroupCode": null,
+                    "bizType": "B2C",
 
-                "seriesName": null,
+                    "brandType": null,
 
-                "siblingCode": null,
+                    "modelUrlPath": "/th/tv-soundbars/qned-evo/55qned80bsa/",
 
-                "defaultSiblingModelFlag": "N",
+                    "totalCount": 5,
 
-                "plpHighlightModelFlag": "Y",
+                    "superCategoryId": "CT52000120",
 
-                "siblingLocalValue": null,
+                    "categoryId": "CT52000129",
 
-                "target": null,
+                    "subCategoryId": "CT52108901",
 
-                "siblingType": null,
+                    "categoryName": "ทีวี & Soundbars",
 
-                "siblingModels": null,
+                    "retailerPricingFlag": "N",
 
-                "buyNowUseFlag": "N",
+                    "modelStatusCode": "ACTIVE",
 
-                "energyLabel": null,
+                    "salesModelCode": "55QNED80BSA",
 
-                "energyLabelFileName": "",
+                    "salesSuffixCode": "ATM",
 
-                "energyLabelOriginalName": "",
+                    "productLevel1Code": "TV",
 
-                "productFicheFileName": "",
+                    "defaultProductTag": "",
 
-                "productFicheOriginalName": "",
+                    "productTag1": "New",
 
-                "energyLabelDocId": "",
+                    "productTag1BeginDay": "2026-04-20 00:00:00",
 
-                "productFicheDocId": "",
+                    "productTag1EndDay": "2026-10-20 00:00:00",
 
-                "energyLabelImageAddr": "",
+                    "productTag2": null,
 
-                "energyLabelName": "",
+                    "productTag2BeginDay": null,
 
-                "energyLabelCategory": null,
+                    "productTag2EndDay": null,
 
-                "buName1": "MS",
+                    "productTag1UserType": "ALL",
 
-                "buName2": "TV/Audio/Video",
+                    "productTag2UserType": "",
 
-                "buName3": "TV",
+                    "promotionText": "",
 
-                "superCategoryName": "TV/Audio",
+                    "imageAltText": "Намуди пеши LG QNED evo AI QNED80 Mini LED, ки соли 2026 бароварда шуд, экранро бо ҷараёни рангин, моеъмонанди рангҳо пур мекунад, чун рангҳои сахтқатраш ба таври ҳамвор дар тамоми намоиш паҳн мешаванд.BGM бо Music Lounge",
 
-                "categoryEngName": "TV & Soundbars",
+                    "mediumImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/55-qned80/basic/lg-qned-evo-qned80-2026-55-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
 
-                "signatureFlag": "N",
+                    "smallImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/55-qned80/basic/lg-qned-evo-qned80-2026-55-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
 
-                "localeCode": "TH",
+                    "userFriendlyName": "ทีวี 55\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 55QNED80BSA",
 
-                "modelYear": "2026",
+                    "bundlePlpDisplayFlag": "Y",
 
-                "limitSaleUseFlag": "N",
+                    "reviewType": "BV",
 
-                "promotionLinkUrl": "",
+                    "ratingPercent": 100,
 
-                "externalLinkTarget": null,
+                    "wtbUseFlag": "Y",
 
-                "energyLabelproductLeve1Code": "",
+                    "obsSellFlag": "Y",
 
-                "productFicheproductLeve1Code": "",
+                    "ecommerceTarget": "self",
 
-                "fenergyLabelproductLeve1Code": "",
+                    "msrp": 0,
 
-                "washTowerFlag": null,
+                    "productSupportFlag": null,
 
-                "secondEnergyLabel": null,
+                    "wtbExternalLinkUseFlag": "N",
 
-                "secondEnergyLabelCategory": null,
+                    "wtbExternalLinkName": "",
 
-                "secondEnergyLabelDocId": null,
+                    "wtbExternalLinkUrl": "",
 
-                "secondEnergyLabelFileName": null,
+                    "wtbExternalLinkSelfFlag": "N",
 
-                "secondEnergyLabelOriginalName": null,
+                    "inquiryToBuyFlag": "N",
 
-                "secondEnergyLabelproductLeve1Code": null,
+                    "findTheDealerFlag": "Y",
 
-                "secondProductFicheDocId": null,
+                    "buyNowUrl": "",
 
-                "secondProductFicheFileName": null,
+                    "productSupportUrl": null,
 
-                "secondProductFicheOriginalName": null,
+                    "siblingGroupCode": null,
 
-                "secondProductFicheproductLeve1Code": null,
+                    "seriesName": null,
 
-                "secondFEnergyLabelDocId": null,
+                    "siblingCode": null,
 
-                "secondFEnergyLabelFileName": null,
+                    "defaultSiblingModelFlag": "N",
 
-                "secondFEnergyLabelOriginalName": null,
+                    "plpHighlightModelFlag": "Y",
 
-                "secondFEnergyLabelproductLeve1Code": null,
+                    "siblingLocalValue": null,
 
-                "secondEnergyLabelImageAddr": null,
+                    "target": null,
 
-                "secondEnergyLabelName": null,
+                    "siblingType": null,
 
-                "themeType": "Light",
+                    "siblingModels": null,
 
-                "exclusionModel": "N",
+                    "buyNowUseFlag": "N",
 
-                "classificationFlagLv1": "MS",
+                    "energyLabel": null,
 
-                "classificationFlagLv2": "TV/Audio/Video",
+                    "energyLabelFileName": "",
 
-                "classificationFlagLv3": "TV",
+                    "energyLabelOriginalName": "",
 
-                "classificationFlagLv4": "QNED",
+                    "productFicheFileName": "",
 
-                "repairModelAreaYn": null,
+                    "productFicheOriginalName": "",
 
-                "labelRepairMap": [],
+                    "energyLabelDocId": "",
 
-                "labelUseFlag": null,
+                    "productFicheDocId": "",
 
-                "repairabilityIndexFlag": null,
+                    "energyLabelImageAddr": "",
 
-                "taxInformationUseFlag": "N",
+                    "energyLabelName": "",
 
-                "elType": null,
+                    "energyLabelCategory": null,
 
-                "secondElType": null,
+                    "buName1": "MS",
 
-                "secondPisDocType": null,
+                    "buName2": "TV/Audio/Video",
 
-                "secondPfCode": null,
+                    "buName3": "TV",
 
-                "pisDocType": null,
+                    "superCategoryName": "TV/Audio",
 
-                "pisDocOldFlag": null,
+                    "categoryEngName": "TV & Soundbars",
 
-                "epsIncludeCharger": null,
+                    "signatureFlag": "N",
 
-                "epsMinPower": null,
+                    "localeCode": "TH",
 
-                "epsMaxPower": null,
+                    "modelYear": "2026",
 
-                "epsUsbPd": null,
+                    "limitSaleUseFlag": "N",
 
-                "lgPickOrderNo": null,
+                    "promotionLinkUrl": "",
 
-                "mtsModelUrlPath": null,
+                    "externalLinkTarget": null,
 
-                "inchCode": "55",
+                    "energyLabelproductLeve1Code": "",
 
-                "modelReleaseDate": "2026-04-20",
+                    "productFicheproductLeve1Code": "",
 
-                "admPtoFlag": "N",
+                    "fenergyLabelproductLeve1Code": "",
 
-                "energyRatingDocUrl": "",
+                    "washTowerFlag": null,
 
-                "productSheetDocUrl": "",
+                    "secondEnergyLabel": null,
 
-                "secondEnergyRatingDocUrl": null,
+                    "secondEnergyLabelCategory": null,
 
-                "secondFEnergyRatingDocUrl": null,
+                    "secondEnergyLabelDocId": null,
 
-                "secondProductSheetDocUrl": null,
+                    "secondEnergyLabelFileName": null,
 
-                "productTag1Type": "line",
+                    "secondEnergyLabelOriginalName": null,
 
-                "productTag1Category": "Product Stock",
+                    "secondEnergyLabelproductLeve1Code": null,
 
-                "productTag2Type": null,
+                    "secondProductFicheDocId": null,
 
-                "productTag2Category": null,
+                    "secondProductFicheFileName": null,
 
-                "productDeliveryTag": null,
+                    "secondProductFicheOriginalName": null,
 
-                "productDeliveryTagUseFlag": null,
+                    "secondProductFicheproductLeve1Code": null,
 
-                "productDeliveryTagUserType": null,
+                    "secondFEnergyLabelDocId": null,
 
-                "productDeliveryTagBeginDay": null,
+                    "secondFEnergyLabelFileName": null,
 
-                "productDeliveryTagEndDay": null,
+                    "secondFEnergyLabelOriginalName": null,
 
-                "fenergyLabelDocId": "",
+                    "secondFEnergyLabelproductLeve1Code": null,
 
-                "fenergyLabelFileName": "",
+                    "secondEnergyLabelImageAddr": null,
 
-                "fenergyLabelOriginalName": "",
+                    "secondEnergyLabelName": null,
 
-                "srating2": 5.0,
+                    "themeType": "Light",
 
-                "pcount": 1,
+                    "exclusionModel": "N",
 
-                "srating": 5,
+                    "classificationFlagLv1": "MS",
 
-                "fenergyRatingDocUrl": ""
+                    "classificationFlagLv2": "TV/Audio/Video",
 
-            },
+                    "classificationFlagLv3": "TV",
 
-            {
+                    "classificationFlagLv4": "QNED",
 
-                "modelId": "MD08803154",
+                    "repairModelAreaYn": null,
 
-                "sku": "[43NU855BPSA.ATM.EATH.TH](http://43NU855BPSA.ATM.EATH.TH).C",
+                    "labelRepairMap": [],
 
-                "modelName": "43NU855BPSA",
+                    "labelUseFlag": null,
 
-                "modelType": "G",
+                    "repairabilityIndexFlag": null,
 
-                "bizType": "B2C",
+                    "taxInformationUseFlag": "N",
 
-                "brandType": null,
+                    "elType": null,
 
-                "modelUrlPath": "/th/tv-soundbars/nano-4k-uhd/43nu855bppa/",
+                    "secondElType": null,
 
-                "totalCount": 6,
+                    "secondPisDocType": null,
 
-                "superCategoryId": "CT52000120",
+                    "secondPfCode": null,
 
-                "categoryId": "CT52000129",
+                    "pisDocType": null,
 
-                "subCategoryId": "CT53101445",
+                    "pisDocOldFlag": null,
 
-                "categoryName": "ทีวี & Soundbars",
+                    "epsIncludeCharger": null,
 
-                "retailerPricingFlag": "N",
+                    "epsMinPower": null,
 
-                "modelStatusCode": "ACTIVE",
+                    "epsMaxPower": null,
 
-                "salesModelCode": "43NU855BPSA",
+                    "epsUsbPd": null,
 
-                "salesSuffixCode": "ATM",
+                    "lgPickOrderNo": null,
 
-                "productLevel1Code": "TV",
+                    "mtsModelUrlPath": null,
 
-                "defaultProductTag": "",
+                    "inchCode": "55",
 
-                "productTag1": null,
+                    "modelReleaseDate": "2026-04-20",
 
-                "productTag1BeginDay": null,
+                    "admPtoFlag": "N",
 
-                "productTag1EndDay": null,
+                    "energyRatingDocUrl": "",
 
-                "productTag2": null,
+                    "productSheetDocUrl": "",
 
-                "productTag2BeginDay": null,
+                    "secondEnergyRatingDocUrl": null,
 
-                "productTag2EndDay": null,
+                    "secondFEnergyRatingDocUrl": null,
 
-                "productTag1UserType": "",
+                    "secondProductSheetDocUrl": null,
 
-                "productTag2UserType": "",
+                    "productTag1Type": "line",
 
-                "promotionText": "",
+                    "productTag1Category": "Product Stock",
 
-                "imageAltText": "The front view of LG NANO 4K UHD AI NU85, released in 2026, fills the screen with smooth, flowing layers of vividly colored, fabric-like textures, as curved multicolored folds spread across the display.",
+                    "productTag2Type": null,
 
-                "mediumImageAddr": "/th/image-update/tv/2026/nano-4k-uhd/98-43nu855bpsa-atm/gallery/43-nu85/basic/lg-nano-4k-uhd-nu85-2026-43-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
+                    "productTag2Category": null,
 
-                "smallImageAddr": "/th/image-update/tv/2026/nano-4k-uhd/98-43nu855bpsa-atm/gallery/43-nu85/basic/lg-nano-4k-uhd-nu85-2026-43-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
+                    "productDeliveryTag": null,
 
-                "userFriendlyName": "ทีวี 43\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 43NU855BPSA",
+                    "productDeliveryTagUseFlag": null,
 
-                "bundlePlpDisplayFlag": "Y",
+                    "productDeliveryTagUserType": null,
 
-                "reviewType": "BV",
+                    "productDeliveryTagBeginDay": null,
 
-                "ratingPercent": 100,
+                    "productDeliveryTagEndDay": null,
 
-                "wtbUseFlag": "N",
+                    "fenergyLabelOriginalName": "",
 
-                "obsSellFlag": "Y",
+                    "fenergyLabelFileName": "",
 
-                "ecommerceTarget": "self",
+                    "fenergyRatingDocUrl": "",
 
-                "msrp": 11990.0,
+                    "fenergyLabelDocId": "",
 
-                "productSupportFlag": null,
+                    "srating2": 5,
 
-                "wtbExternalLinkUseFlag": "N",
+                    "pcount": 1,
 
-                "wtbExternalLinkName": "",
+                    "srating": 5
 
-                "wtbExternalLinkUrl": "",
+                },
 
-                "wtbExternalLinkSelfFlag": "N",
+                {
 
-                "inquiryToBuyFlag": "N",
+                    "modelId": "MD08742484",
 
-                "findTheDealerFlag": "Y",
+                    "sku": "[85QNED80BSA.ATM.EATH.TH](http://85QNED80BSA.ATM.EATH.TH).C",
 
-                "buyNowUrl": "",
+                    "modelName": "85QNED80BSA",
 
-                "productSupportUrl": null,
+                    "modelType": "G",
 
-                "siblingGroupCode": null,
+                    "bizType": "B2C",
 
-                "seriesName": null,
+                    "brandType": null,
 
-                "siblingCode": null,
+                    "modelUrlPath": "/th/tv-soundbars/qned-evo/85qned80bsa/",
 
-                "defaultSiblingModelFlag": "N",
+                    "totalCount": 5,
 
-                "plpHighlightModelFlag": "Y",
+                    "superCategoryId": "CT52000120",
 
-                "siblingLocalValue": null,
+                    "categoryId": "CT52000129",
 
-                "target": null,
+                    "subCategoryId": "CT52108901",
 
-                "siblingType": null,
+                    "categoryName": "ทีวี & Soundbars",
 
-                "siblingModels": null,
+                    "retailerPricingFlag": "N",
 
-                "buyNowUseFlag": "N",
+                    "modelStatusCode": "ACTIVE",
 
-                "energyLabel": "",
+                    "salesModelCode": "85QNED80BSA",
 
-                "energyLabelFileName": "",
+                    "salesSuffixCode": "ATM",
 
-                "energyLabelOriginalName": "",
+                    "productLevel1Code": "TV",
 
-                "productFicheFileName": "",
+                    "defaultProductTag": "",
 
-                "productFicheOriginalName": "",
+                    "productTag1": "New",
 
-                "energyLabelDocId": "",
+                    "productTag1BeginDay": "2026-04-20 00:00:00",
 
-                "productFicheDocId": "",
+                    "productTag1EndDay": "2026-10-20 00:00:00",
 
-                "energyLabelImageAddr": "",
+                    "productTag2": null,
 
-                "energyLabelName": "",
+                    "productTag2BeginDay": null,
 
-                "energyLabelCategory": null,
+                    "productTag2EndDay": null,
 
-                "buName1": "MS",
+                    "productTag1UserType": "ALL",
 
-                "buName2": "TV/Audio/Video",
+                    "productTag2UserType": "",
 
-                "buName3": "TV",
+                    "promotionText": "",
 
-                "superCategoryName": "TV/Audio",
+                    "imageAltText": "Намуди пеши LG QNED evo AI QNED80 Mini LED, ки соли 2026 бароварда шуд, экранро бо ҷараёни рангин, моеъмонанди рангҳо пур мекунад, чун рангҳои сахтқатраш ба таври ҳамвор дар тамоми намоиш паҳн мешаванд.BGM бо Music Lounge",
 
-                "categoryEngName": "TV & Soundbars",
+                    "mediumImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/85-qned80/basic/lg-qned-evo-qned80-2026-85-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
 
-                "signatureFlag": "N",
+                    "smallImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/85-qned80/basic/lg-qned-evo-qned80-2026-85-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
 
-                "localeCode": "TH",
+                    "userFriendlyName": "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 85QNED80BSA",
 
-                "modelYear": "2026",
+                    "bundlePlpDisplayFlag": "Y",
 
-                "limitSaleUseFlag": "N",
+                    "reviewType": "BV",
 
-                "promotionLinkUrl": "",
+                    "ratingPercent": 0,
 
-                "externalLinkTarget": null,
+                    "wtbUseFlag": "Y",
 
-                "energyLabelproductLeve1Code": "",
+                    "obsSellFlag": "Y",
 
-                "productFicheproductLeve1Code": "",
+                    "ecommerceTarget": "self",
 
-                "fenergyLabelproductLeve1Code": "",
+                    "msrp": 0,
 
-                "washTowerFlag": "N",
+                    "productSupportFlag": null,
 
-                "secondEnergyLabel": null,
+                    "wtbExternalLinkUseFlag": "N",
 
-                "secondEnergyLabelCategory": null,
+                    "wtbExternalLinkName": "",
 
-                "secondEnergyLabelDocId": null,
+                    "wtbExternalLinkUrl": "",
 
-                "secondEnergyLabelFileName": null,
+                    "wtbExternalLinkSelfFlag": "N",
 
-                "secondEnergyLabelOriginalName": null,
+                    "inquiryToBuyFlag": "N",
 
-                "secondEnergyLabelproductLeve1Code": null,
+                    "findTheDealerFlag": "Y",
 
-                "secondProductFicheDocId": null,
+                    "buyNowUrl": "",
 
-                "secondProductFicheFileName": null,
+                    "productSupportUrl": null,
 
-                "secondProductFicheOriginalName": null,
+                    "siblingGroupCode": null,
 
-                "secondProductFicheproductLeve1Code": null,
+                    "seriesName": null,
 
-                "secondFEnergyLabelDocId": null,
+                    "siblingCode": null,
 
-                "secondFEnergyLabelFileName": null,
+                    "defaultSiblingModelFlag": "N",
 
-                "secondFEnergyLabelOriginalName": null,
+                    "plpHighlightModelFlag": "Y",
 
-                "secondFEnergyLabelproductLeve1Code": null,
+                    "siblingLocalValue": null,
 
-                "secondEnergyLabelImageAddr": null,
+                    "target": null,
 
-                "secondEnergyLabelName": null,
+                    "siblingType": null,
 
-                "themeType": "Light",
+                    "siblingModels": null,
 
-                "exclusionModel": "N",
+                    "buyNowUseFlag": "N",
 
-                "classificationFlagLv1": "MS",
+                    "energyLabel": "",
 
-                "classificationFlagLv2": "TV/Audio/Video",
+                    "energyLabelFileName": "",
 
-                "classificationFlagLv3": "TV",
+                    "energyLabelOriginalName": "",
 
-                "classificationFlagLv4": "",
+                    "productFicheFileName": "",
 
-                "repairModelAreaYn": null,
+                    "productFicheOriginalName": "",
 
-                "labelRepairMap": [],
+                    "energyLabelDocId": "",
 
-                "labelUseFlag": null,
+                    "productFicheDocId": "",
 
-                "repairabilityIndexFlag": null,
+                    "energyLabelImageAddr": "",
 
-                "taxInformationUseFlag": "N",
+                    "energyLabelName": "",
 
-                "elType": null,
+                    "energyLabelCategory": null,
 
-                "secondElType": null,
+                    "buName1": "MS",
 
-                "secondPisDocType": null,
+                    "buName2": "TV/Audio/Video",
 
-                "secondPfCode": null,
+                    "buName3": "TV",
 
-                "pisDocType": null,
+                    "superCategoryName": "TV/Audio",
 
-                "pisDocOldFlag": null,
+                    "categoryEngName": "TV & Soundbars",
 
-                "epsIncludeCharger": null,
+                    "signatureFlag": "N",
 
-                "epsMinPower": null,
+                    "localeCode": "TH",
 
-                "epsMaxPower": null,
+                    "modelYear": "2026",
 
-                "epsUsbPd": null,
+                    "limitSaleUseFlag": "N",
 
-                "lgPickOrderNo": null,
+                    "promotionLinkUrl": "",
 
-                "mtsModelUrlPath": null,
+                    "externalLinkTarget": null,
 
-                "inchCode": "43",
+                    "energyLabelproductLeve1Code": "",
 
-                "modelReleaseDate": "2026-04-30",
+                    "productFicheproductLeve1Code": "",
 
-                "admPtoFlag": "N",
+                    "fenergyLabelproductLeve1Code": "",
 
-                "energyRatingDocUrl": "",
+                    "washTowerFlag": "N",
 
-                "productSheetDocUrl": "",
+                    "secondEnergyLabel": null,
 
-                "secondEnergyRatingDocUrl": null,
+                    "secondEnergyLabelCategory": null,
 
-                "secondFEnergyRatingDocUrl": null,
+                    "secondEnergyLabelDocId": null,
 
-                "secondProductSheetDocUrl": null,
+                    "secondEnergyLabelFileName": null,
 
-                "productTag1Type": null,
+                    "secondEnergyLabelOriginalName": null,
 
-                "productTag1Category": null,
+                    "secondEnergyLabelproductLeve1Code": null,
 
-                "productTag2Type": null,
+                    "secondProductFicheDocId": null,
 
-                "productTag2Category": null,
+                    "secondProductFicheFileName": null,
 
-                "productDeliveryTag": null,
+                    "secondProductFicheOriginalName": null,
 
-                "productDeliveryTagUseFlag": null,
+                    "secondProductFicheproductLeve1Code": null,
 
-                "productDeliveryTagUserType": null,
+                    "secondFEnergyLabelDocId": null,
 
-                "productDeliveryTagBeginDay": null,
+                    "secondFEnergyLabelFileName": null,
 
-                "productDeliveryTagEndDay": null,
+                    "secondFEnergyLabelOriginalName": null,
 
-                "fenergyLabelDocId": "",
+                    "secondFEnergyLabelproductLeve1Code": null,
 
-                "fenergyLabelFileName": "",
+                    "secondEnergyLabelImageAddr": null,
 
-                "fenergyLabelOriginalName": "",
+                    "secondEnergyLabelName": null,
 
-                "srating2": 5.0,
+                    "themeType": "Light",
 
-                "pcount": 1,
+                    "exclusionModel": "N",
 
-                "srating": 5,
+                    "classificationFlagLv1": "MS",
 
-                "fenergyRatingDocUrl": ""
+                    "classificationFlagLv2": "TV/Audio/Video",
 
-            },
+                    "classificationFlagLv3": "TV",
 
-            {
+                    "classificationFlagLv4": "QNED",
 
-                "modelId": "MD08742484",
+                    "repairModelAreaYn": null,
 
-                "sku": "[85QNED80BSA.ATM.EATH.TH](http://85QNED80BSA.ATM.EATH.TH).C",
+                    "labelRepairMap": [],
 
-                "modelName": "85QNED80BSA",
+                    "labelUseFlag": null,
 
-                "modelType": "G",
+                    "repairabilityIndexFlag": null,
 
-                "bizType": "B2C",
+                    "taxInformationUseFlag": "N",
 
-                "brandType": null,
+                    "elType": null,
 
-                "modelUrlPath": "/th/tv-soundbars/qned-evo/85qned80bsa/",
+                    "secondElType": null,
 
-                "totalCount": 6,
+                    "secondPisDocType": null,
 
-                "superCategoryId": "CT52000120",
+                    "secondPfCode": null,
 
-                "categoryId": "CT52000129",
+                    "pisDocType": null,
 
-                "subCategoryId": "CT52108901",
+                    "pisDocOldFlag": null,
 
-                "categoryName": "ทีวี & Soundbars",
+                    "epsIncludeCharger": null,
 
-                "retailerPricingFlag": "N",
+                    "epsMinPower": null,
 
-                "modelStatusCode": "ACTIVE",
+                    "epsMaxPower": null,
 
-                "salesModelCode": "85QNED80BSA",
+                    "epsUsbPd": null,
 
-                "salesSuffixCode": "ATM",
+                    "lgPickOrderNo": null,
 
-                "productLevel1Code": "TV",
+                    "mtsModelUrlPath": null,
 
-                "defaultProductTag": "",
+                    "inchCode": "85",
 
-                "productTag1": "New",
+                    "modelReleaseDate": "2026-04-20",
 
-                "productTag1BeginDay": "2026-04-20 00:00:00",
+                    "admPtoFlag": "N",
 
-                "productTag1EndDay": "2026-10-20 00:00:00",
+                    "energyRatingDocUrl": "",
 
-                "productTag2": null,
+                    "productSheetDocUrl": "",
 
-                "productTag2BeginDay": null,
+                    "secondEnergyRatingDocUrl": null,
 
-                "productTag2EndDay": null,
+                    "secondFEnergyRatingDocUrl": null,
 
-                "productTag1UserType": "ALL",
+                    "secondProductSheetDocUrl": null,
 
-                "productTag2UserType": "",
+                    "productTag1Type": "line",
 
-                "promotionText": "",
+                    "productTag1Category": "Product Stock",
 
-                "imageAltText": "Намуди пеши LG QNED evo AI QNED80 Mini LED, ки соли 2026 бароварда шуд, экранро бо ҷараёни рангин, моеъмонанди рангҳо пур мекунад, чун рангҳои сахтқатраш ба таври ҳамвор дар тамоми намоиш паҳн мешаванд.BGM бо Music Lounge",
+                    "productTag2Type": null,
 
-                "mediumImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/85-qned80/basic/lg-qned-evo-qned80-2026-85-gallery-basic.jpg/jcr:content/renditions/thum-350x350.jpeg",
+                    "productTag2Category": null,
 
-                "smallImageAddr": "/th/image-update/tv/2026/qned/75-43qned80bsa-atm/gallery/85-qned80/basic/lg-qned-evo-qned80-2026-85-gallery-basic.jpg/jcr:content/renditions/thum-165x165.jpeg",
+                    "productDeliveryTag": null,
 
-                "userFriendlyName": "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 85QNED80BSA",
+                    "productDeliveryTagUseFlag": null,
 
-                "bundlePlpDisplayFlag": "Y",
+                    "productDeliveryTagUserType": null,
 
-                "reviewType": "BV",
+                    "productDeliveryTagBeginDay": null,
 
-                "ratingPercent": 0,
+                    "productDeliveryTagEndDay": null,
 
-                "wtbUseFlag": "Y",
+                    "fenergyLabelOriginalName": "",
 
-                "obsSellFlag": "Y",
+                    "fenergyLabelFileName": "",
 
-                "ecommerceTarget": "self",
+                    "fenergyRatingDocUrl": "",
 
-                "msrp": 0.0,
+                    "fenergyLabelDocId": "",
 
-                "productSupportFlag": null,
+                    "srating2": 0,
 
-                "wtbExternalLinkUseFlag": "N",
+                    "pcount": 0,
 
-                "wtbExternalLinkName": "",
+                    "srating": 0
 
-                "wtbExternalLinkUrl": "",
+                }
 
-                "wtbExternalLinkSelfFlag": "N",
+            ],
 
-                "inquiryToBuyFlag": "N",
+เส            "reviewType": "BV",
 
-                "findTheDealerFlag": "Y",
+            "obsLoginFlag": "Y",
 
-                "buyNowUrl": "",
+            "buyNowUseFlag": "N",
 
-                "productSupportUrl": null,
+            "energyLabelFlag": "N",
 
-                "siblingGroupCode": null,
+            "obsBuynowFlag": "N",
 
-                "seriesName": null,
+            "newestOnSaleUse": "N",
 
-                "siblingCode": null,
+            "mostOnSaleUse": "N",
 
-                "defaultSiblingModelFlag": "N",
+            "limitSaleUseFlag": null
 
-                "plpHighlightModelFlag": "Y",
+        }
 
-                "siblingLocalValue": null,
-
-                "target": null,
-
-                "siblingType": null,
-
-                "siblingModels": null,
-
-                "buyNowUseFlag": "N",
-
-                "energyLabel": "",
-
-                "energyLabelFileName": "",
-
-                "energyLabelOriginalName": "",
-
-                "productFicheFileName": "",
-
-                "productFicheOriginalName": "",
-
-                "energyLabelDocId": "",
-
-                "productFicheDocId": "",
-
-                "energyLabelImageAddr": "",
-
-                "energyLabelName": "",
-
-                "energyLabelCategory": null,
-
-                "buName1": "MS",
-
-                "buName2": "TV/Audio/Video",
-
-                "buName3": "TV",
-
-                "superCategoryName": "TV/Audio",
-
-                "categoryEngName": "TV & Soundbars",
-
-                "signatureFlag": "N",
-
-                "localeCode": "TH",
-
-                "modelYear": "2026",
-
-                "limitSaleUseFlag": "N",
-
-                "promotionLinkUrl": "",
-
-                "externalLinkTarget": null,
-
-                "energyLabelproductLeve1Code": "",
-
-                "productFicheproductLeve1Code": "",
-
-                "fenergyLabelproductLeve1Code": "",
-
-                "washTowerFlag": "N",
-
-                "secondEnergyLabel": null,
-
-                "secondEnergyLabelCategory": null,
-
-                "secondEnergyLabelDocId": null,
-
-                "secondEnergyLabelFileName": null,
-
-                "secondEnergyLabelOriginalName": null,
-
-                "secondEnergyLabelproductLeve1Code": null,
-
-                "secondProductFicheDocId": null,
-
-                "secondProductFicheFileName": null,
-
-                "secondProductFicheOriginalName": null,
-
-                "secondProductFicheproductLeve1Code": null,
-
-                "secondFEnergyLabelDocId": null,
-
-                "secondFEnergyLabelFileName": null,
-
-                "secondFEnergyLabelOriginalName": null,
-
-                "secondFEnergyLabelproductLeve1Code": null,
-
-                "secondEnergyLabelImageAddr": null,
-
-                "secondEnergyLabelName": null,
-
-                "themeType": "Light",
-
-                "exclusionModel": "N",
-
-                "classificationFlagLv1": "MS",
-
-                "classificationFlagLv2": "TV/Audio/Video",
-
-                "classificationFlagLv3": "TV",
-
-                "classificationFlagLv4": "QNED",
-
-                "repairModelAreaYn": null,
-
-                "labelRepairMap": [],
-
-                "labelUseFlag": null,
-
-                "repairabilityIndexFlag": null,
-
-                "taxInformationUseFlag": "N",
-
-                "elType": null,
-
-                "secondElType": null,
-
-                "secondPisDocType": null,
-
-                "secondPfCode": null,
-
-                "pisDocType": null,
-
-                "pisDocOldFlag": null,
-
-                "epsIncludeCharger": null,
-
-                "epsMinPower": null,
-
-                "epsMaxPower": null,
-
-                "epsUsbPd": null,
-
-                "lgPickOrderNo": null,
-
-                "mtsModelUrlPath": null,
-
-                "inchCode": "85",
-
-                "modelReleaseDate": "2026-04-20",
-
-                "admPtoFlag": "N",
-
-                "energyRatingDocUrl": "",
-
-                "productSheetDocUrl": "",
-
-                "secondEnergyRatingDocUrl": null,
-
-                "secondFEnergyRatingDocUrl": null,
-
-                "secondProductSheetDocUrl": null,
-
-                "productTag1Type": "line",
-
-                "productTag1Category": "Product Stock",
-
-                "productTag2Type": null,
-
-                "productTag2Category": null,
-
-                "productDeliveryTag": null,
-
-                "productDeliveryTagUseFlag": null,
-
-                "productDeliveryTagUserType": null,
-
-                "productDeliveryTagBeginDay": null,
-
-                "productDeliveryTagEndDay": null,
-
-                "fenergyLabelDocId": "",
-
-                "fenergyLabelFileName": "",
-
-                "fenergyLabelOriginalName": "",
-
-                "srating2": 0.0,
-
-                "pcount": 0,
-
-                "srating": 0,
-
-                "fenergyRatingDocUrl": ""
-
-            }
-
-        ],
-
-        "reviewType": "BV",
-
-        "obsLoginFlag": "Y",
-
-        "buyNowUseFlag": "N",
-
-        "energyLabelFlag": "N",
-
-        "obsBuynowFlag": "N",
-
-        "newestOnSaleUse": "N",
-
-        "mostOnSaleUse": "N",
-
-        "limitSaleUseFlag": null
-
-    }
-
-]
-```
+    ]
 
 }

@@ -7,20 +7,11 @@ if (!ctx) throw new Error('ProductFormBasic must be used inside product form pag
 const {
   form,
   inputClass,
-  btnSecondaryClass,
   pricingPreview,
-  mainCategories,
+  sortedMainCategories,
   allTags,
-  uploadingImage,
-  dragOverImageZone,
-  fileInput,
   categoriesForMain,
   toggleTag,
-  triggerFileInput,
-  handleImageUpload,
-  handleImageDrop,
-  moveImage,
-  removeImage,
 } = ctx
 </script>
 
@@ -42,7 +33,7 @@ const {
           <label class="mb-1 block text-xs font-medium text-gray-600">หมวดหมู่ *</label>
           <select v-model="form.category_id" required :class="inputClass">
             <option value="" disabled>เลือกหมวดหมู่</option>
-            <optgroup v-for="main in mainCategories" :key="main.id" :label="main.name">
+            <optgroup v-for="main in sortedMainCategories" :key="main.id" :label="main.name">
               <option v-for="c in categoriesForMain(main.id)" :key="c.id" :value="c.id">
                 {{ c.name }}
               </option>
@@ -53,63 +44,14 @@ const {
           <label class="mb-1 block text-xs font-medium text-gray-600">หัวข้อหลัก (ข้อความโปรโมชั่น)</label>
           <input v-model="form.headline" placeholder="เช่น ยิ่งซับมาก ยิ่งลดมาก!" :class="inputClass">
         </div>
-        <div class="sm:col-span-2">
-          <label class="mb-1 block text-xs font-medium text-gray-600">รูปสินค้า (หลายรูป)</label>
-          <p class="mb-3 text-xs text-gray-500">ลากและวางรูปได้หลายไฟล์, รูปแรกจะเป็นรูปหลักของการ์ดสินค้า</p>
-
-          <div
-            class="mb-4 rounded-xl border-2 border-dashed bg-gray-50 p-5 text-center transition"
-            :class="dragOverImageZone ? 'border-red-400 bg-red-50/40' : 'border-gray-300'"
-            @dragover.prevent="dragOverImageZone = true"
-            @dragleave.prevent="dragOverImageZone = false"
-            @drop="handleImageDrop"
-          >
-            <input
-              ref="fileInput"
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              multiple
-              class="hidden"
-              @change="handleImageUpload"
-            >
-            <p class="text-sm font-medium text-gray-700">
-              {{ uploadingImage ? 'กำลังอัพโหลด...' : 'ลากรูปมาวางที่นี่ หรือคลิกเลือกไฟล์' }}
-            </p>
-            <button type="button" :class="['mt-3', btnSecondaryClass]" :disabled="uploadingImage" @click="triggerFileInput">
-              เลือกรูปภาพ
-            </button>
-          </div>
-
-          <div v-if="form.image_urls?.length" class="space-y-2">
-            <div
-              v-for="(url, idx) in form.image_urls"
-              :key="`${url}-${idx}`"
-              class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-2"
-            >
-              <img :src="url" class="h-16 w-16 rounded-lg border border-gray-100 bg-gray-50 object-contain p-1">
-              <div class="min-w-0 flex-1">
-                <p class="truncate text-xs text-gray-500">{{ url }}</p>
-                <p v-if="idx === 0" class="text-xs font-semibold text-red-600">รูปหลัก</p>
-              </div>
-              <div class="flex items-center gap-1">
-                <button type="button" class="rounded-md p-1 text-gray-500 hover:bg-gray-100" :disabled="idx === 0" @click="moveImage(idx, idx - 1)">
-                  <Icon name="heroicons:arrow-up" class="h-4 w-4" />
-                </button>
-                <button type="button" class="rounded-md p-1 text-gray-500 hover:bg-gray-100" :disabled="idx === form.image_urls.length - 1" @click="moveImage(idx, idx + 1)">
-                  <Icon name="heroicons:arrow-down" class="h-4 w-4" />
-                </button>
-                <button type="button" class="rounded-md p-1 text-red-500 hover:bg-red-50" @click="removeImage(idx)">
-                  <Icon name="heroicons:trash" class="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
     <section class="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">
-      <h3 class="mb-4 text-sm font-semibold text-gray-800">ราคา</h3>
+      <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+        <h3 class="text-sm font-semibold text-gray-800">ราคา</h3>
+        <p class="text-xs text-amber-700">ใช้ import เท่านั้น — ไม่แสดงหน้าร้าน</p>
+      </div>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <label class="mb-1 block text-xs font-medium text-gray-600">ราคาหลัก / เดือน *</label>
@@ -184,26 +126,8 @@ const {
     </section>
 
     <section class="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">
-      <h3 class="mb-4 text-sm font-semibold text-gray-800">บริการ & ระยะเวลา</h3>
-      <div class="mb-4 flex flex-wrap gap-4">
-        <label class="flex items-center gap-2 text-sm">
-          <input v-model="form.service_self_clean" type="checkbox" class="rounded text-red-500">
-          ทำความสะอาดด้วยตนเอง
-        </label>
-        <label class="flex items-center gap-2 text-sm">
-          <input v-model="form.service_technician" type="checkbox" class="rounded text-red-500">
-          ช่างถึงบ้าน
-        </label>
-      </div>
+      <h3 class="mb-4 text-sm font-semibold text-gray-800">ข้อมูลรับประกัน</h3>
       <div class="grid gap-4 sm:grid-cols-3">
-        <div>
-          <label class="mb-1 block text-xs font-medium text-gray-600">รอบบริการ (เดือน)</label>
-          <input v-model.number="form.service_months" type="number" min="0" :class="inputClass">
-        </div>
-        <div>
-          <label class="mb-1 block text-xs font-medium text-gray-600">ผ่อน (เดือน)</label>
-          <input v-model.number="form.installment_months" type="number" min="0" :class="inputClass">
-        </div>
         <div>
           <label class="mb-1 block text-xs font-medium text-gray-600">รับประกัน (ปี)</label>
           <input v-model.number="form.warranty_years" type="number" min="0" :class="inputClass">

@@ -1,38 +1,18 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
+import { IMPORT_ITEM_FORM_KEY } from '~/components/admin/import/form-context'
+import { useAdminImportItemForm } from '~/composables/useAdminImportItemForm'
 
-type ImportItemDetail = {
-  id: string
-  batch_id: string
-  source_url: string | null
-  category_id: string
-  name: string
-  sku: string
-  headline: string | null
-  description: string | null
-  faq_html: string | null
-  image_url: string | null
-  image_urls: string[]
-  key_features: string | null
-  features: string | null
-  specifications: string | null
-  base_price: number
-  full_price: number | null
-  price_range: string | null
-  subscription_note: string | null
-  purchase_only_label: string | null
-  purchase_only_url: string | null
-  service_self_clean: boolean
-  service_technician: boolean
-  service_months: number | null
-  installment_months: number | null
-  warranty_years: number | null
-}
+definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 const route = useRoute()
 const itemId = route.params.itemId as string
 
-const { data: item, pending, error } = await useFetch<ImportItemDetail>(`/api/admin/import/items/${itemId}`)
+const formCtx = useAdminImportItemForm(itemId)
+provide(IMPORT_ITEM_FORM_KEY, formCtx)
+
+const item = computed(() => formCtx.item.value)
+const pending = computed(() => formCtx.loadingItem.value)
+const loadError = computed(() => formCtx.fetchError.value)
 const selectedImage = ref('')
 
 watch(item, (value) => {
@@ -45,8 +25,8 @@ watch(item, (value) => {
   <div class="pb-12">
     <div v-if="pending" class="py-20 text-center text-gray-400">กำลังโหลด...</div>
 
-    <div v-else-if="error" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-      {{ error.message }}
+    <div v-else-if="loadError" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+      {{ loadError.message || 'โหลดรายการไม่สำเร็จ' }}
     </div>
 
     <template v-else-if="item">
@@ -102,27 +82,13 @@ watch(item, (value) => {
             <div class="prose prose-sm max-w-none text-gray-700" v-html="item.description || '<p>-</p>'" />
           </div>
 
-          <div class="rounded-2xl border border-gray-200 bg-white p-5">
-            <h2 class="mb-2 text-lg font-semibold text-gray-900">คุณลักษณะที่สำคัญ</h2>
-            <div class="prose prose-sm max-w-none text-gray-700" v-html="item.key_features || '<p>-</p>'" />
-          </div>
-
-          <div class="rounded-2xl border border-gray-200 bg-white p-5">
-            <h2 class="mb-2 text-lg font-semibold text-gray-900">คุณสมบัติ</h2>
-            <div class="prose prose-sm max-w-none text-gray-700" v-html="item.features || '<p>-</p>'" />
-          </div>
-
-          <div class="rounded-2xl border border-gray-200 bg-white p-5">
-            <h2 class="mb-2 text-lg font-semibold text-gray-900">สเปค</h2>
-            <div class="prose prose-sm max-w-none text-gray-700" v-html="item.specifications || '<p>-</p>'" />
-          </div>
-
-          <div class="rounded-2xl border border-gray-200 bg-white p-5">
-            <h2 class="mb-2 text-lg font-semibold text-gray-900">FAQ</h2>
-            <div class="prose prose-sm max-w-none text-gray-700" v-html="item.faq_html || '<p>-</p>'" />
-          </div>
+          <AdminImportFormDetail />
         </section>
       </div>
     </template>
+
+    <div v-else class="py-20 text-center text-gray-500">
+      ไม่พบรายการ import
+    </div>
   </div>
 </template>

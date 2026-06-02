@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
+import { groupProducts } from '~~/shared/utils/productGroupDisplay'
 
-definePageMeta({ layout: 'default' })
+definePageMeta({
+  layout: 'default',
+  breadcrumb: [
+    { label: 'หน้าแรก', to: '/' },
+    { label: 'สินค้าทั้งหมด' },
+  ],
+})
 
 useSeoMeta({
   title: 'สินค้าทั้งหมด — LG Subscribe',
@@ -11,12 +18,9 @@ const { data: products, pending, error } = await useFetch<Product[]>('/api/publi
   default: () => [],
 })
 
-const compareList = ref<Product[]>([])
+const displayGroups = computed(() => groupProducts(products.value ?? []))
 
-function onSubscribe(product: Product) {
-  // TODO: flow สั่ง Subscribe
-  console.log('subscribe', product.id)
-}
+const compareList = ref<Product[]>([])
 
 function onCompare(product: Product, checked: boolean) {
   if (checked) {
@@ -32,23 +36,6 @@ function onCompare(product: Product, checked: boolean) {
 
 <template>
   <div class="min-h-screen bg-white">
-    <header class="border-b border-gray-200 bg-white">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-        <NuxtLink to="/" class="text-lg font-bold text-gray-900">LG Subscribe</NuxtLink>
-        <nav class="text-sm text-gray-600">
-          <NuxtLink to="/" class="hover:text-red-600">หน้าแรก</NuxtLink>
-          <span class="mx-2">/</span>
-          <span class="text-gray-900">สินค้าทั้งหมด</span>
-        </nav>
-        <div class="flex items-center gap-3 text-sm">
-          <NuxtLink to="/auth/login" class="text-gray-600 hover:text-red-600">เข้าสู่ระบบ</NuxtLink>
-          <NuxtLink to="/auth/register" class="rounded-full bg-red-500 px-3 py-1.5 font-medium text-white hover:bg-red-600">
-            สมัครสมาชิก
-          </NuxtLink>
-        </div>
-      </div>
-    </header>
-
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
       <h1 class="mb-8 text-2xl font-bold text-gray-900 sm:text-3xl">
         สินค้าทั้งหมด
@@ -63,25 +50,29 @@ function onCompare(product: Product, checked: boolean) {
       </div>
 
       <div
-        v-else-if="!products?.length"
+        v-else-if="!displayGroups.length"
         class="py-20 text-center text-gray-500"
       >
         ยังไม่มีสินค้าที่เผยแพร่
       </div>
 
-      <!-- Grid แบบ lg.com -->
-      <div
-        v-else
-        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      >
-        <ProductCard
-          v-for="p in products"
-          :key="p.id"
-          :product="p"
-          @subscribe="onSubscribe"
-          @compare="onCompare"
-        />
-      </div>
+      <template v-else>
+        <p class="mb-4 text-sm text-gray-500">
+          {{ displayGroups.length }} กลุ่ม · {{ products?.length ?? 0 }} SKU
+        </p>
+
+        <!-- Grid แบบ lg.com -->
+        <div
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          <ProductGroupCard
+            v-for="g in displayGroups"
+            :key="g.groupId ?? g.variants[0]!.id"
+            :group="g"
+            @compare="onCompare"
+          />
+        </div>
+      </template>
 
       <p
         v-if="compareList.length"

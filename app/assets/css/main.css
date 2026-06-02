@@ -1,1 +1,75 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Prompt", ui-sans-serif, system-ui, sans-serif;
+
+  /* +2px จากค่า default ของ Tailwind (ที่ root 16px) */
+  --text-xs: 14px;
+  --text-sm: 16px;
+  --text-base: 18px;
+  --text-lg: 20px;
+  --text-xl: 22px;
+  --text-2xl: 26px;
+  --text-3xl: 32px;
+  --text-4xl: 38px;
+  --text-5xl: 50px;
+  --text-6xl: 62px;
+  --text-7xl: 74px;
+  --text-8xl: 98px;
+  --text-9xl: 130px;
+}
+
+@layer base {
+  html {
+    @apply font-sans text-base antialiased;
+  }
+
+  /* หลังบ้าน — ลดขนาด font ทั้งหมด 1px จากค่า theme หลัก */
+  .admin-app {
+    --text-xs: 13px;
+    --text-sm: 15px;
+    --text-base: 17px;
+    --text-lg: 19px;
+    --text-xl: 21px;
+    --text-2xl: 25px;
+    --text-3xl: 31px;
+    --text-4xl: 37px;
+    --text-5xl: 49px;
+    --text-6xl: 61px;
+    --text-7xl: 73px;
+    --text-8xl: 97px;
+    --text-9xl: 129px;
+  }
+
+  /* หน้าบ้าน (front) — ลดขนาด font ทั้งหมด 1px จากค่า theme หลัก */
+  .storefront {
+    --text-xs: 13px;
+    --text-sm: 15px;
+    --text-base: 17px;
+    --text-lg: 19px;
+    --text-xl: 21px;
+    --text-2xl: 25px;
+    --text-3xl: 31px;
+    --text-4xl: 37px;
+    --text-5xl: 49px;
+    --text-6xl: 61px;
+    --text-7xl: 73px;
+    --text-8xl: 97px;
+    --text-9xl: 129px;
+  }
+}
+
+/* Quill rich text editor */
+.ql-editor {
+  font-family: var(--font-sans);
+  font-size: 18px;
+}
+
+.admin-app .ql-editor {
+  font-size: 17px;
+}
+
+.ql-toolbar.ql-snow,
+.ql-container.ql-snow {
+  font-family: var(--font-sans);
+}

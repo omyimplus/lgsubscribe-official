@@ -20,10 +20,13 @@ const navGroups = [
     label: 'จัดการข้อมูล',
     items: [
       { label: 'สินค้า', icon: 'heroicons:tag', to: '/admin/products' },
+      { label: 'กลุ่มสินค้า', icon: 'heroicons:squares-2x2', to: '/admin/product-groups' },
       { label: 'หมวดหมู่', icon: 'heroicons:folder', to: '/admin/categories' },
       { label: 'Tags', icon: 'heroicons:hashtag', to: '/admin/tags' },
       { label: 'ลูกค้า', icon: 'heroicons:user-group', to: '/admin/customers' },
+      { label: 'คำขอสนใจผ่อน', icon: 'heroicons:chat-bubble-left-right', to: '/admin/inquiries' },
       { label: 'โปรโมชั่น', icon: 'heroicons:gift', to: '/admin/promotions' },
+      { label: 'Combo ส่วนลด', icon: 'heroicons:squares-plus', to: '/admin/combo-programs' },
     ],
   },
   {

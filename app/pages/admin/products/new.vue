@@ -26,7 +26,8 @@ provide(PRODUCT_FORM_KEY, formCtx)
       หลังบันทึก ระบบจะพาไปหน้าแก้ไขเพื่อเพิ่ม <strong>รายละเอียดภายใน</strong> ในขั้นตอนถัดไป
     </div>
 
-    <form @submit.prevent="formCtx.save({ includeDescription: false })">
+    <form class="space-y-8" @submit.prevent="formCtx.save({ includeDescription: false })">
+      <AdminProductFormGallery />
       <AdminProductFormBasic />
       <AdminProductFormActions save-label="สร้างสินค้า" />
     </form>

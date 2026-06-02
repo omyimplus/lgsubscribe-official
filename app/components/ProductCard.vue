@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
 import { productWarrantyLine } from '~/composables/useProductCardText'
+import {
+  cardMonthlyPrice,
+  cardPricePrefix,
+  productHasPlanPricing,
+} from '~/composables/useProductPlanPricing'
 
 const props = defineProps<{
   product: Product
+  /** ชื่อบนการ์ด (เช่น ชื่อกลุ่มเมื่อมีหลายขนาด) */
+  titleOverride?: string
 }>()
 
 const emit = defineEmits<{
@@ -11,20 +18,24 @@ const emit = defineEmits<{
   compare: [product: Product, checked: boolean]
 }>()
 
+const cart = useInterestCart()
 const compared = ref(false)
 const copied = ref(false)
+const planDialogOpen = ref(false)
+const scheduleOpen = ref(false)
+const installmentDialogRef = ref<{ present: () => Promise<void> } | null>(null)
 
-const monthlyPrice = computed(() =>
-  props.product.discounted_price ?? props.product.base_price,
-)
 
-const showStrikethroughPrice = computed(() => {
-  const full = props.product.full_price
-  return full != null && full > monthlyPrice.value
-})
+const displayTitle = computed(() => props.titleOverride ?? props.product.name)
+const hasPricing = computed(() => productHasPlanPricing(props.product))
+const pricing = computed(() => props.product.plan_pricing)
 
+const monthlyPrice = computed(() => cardMonthlyPrice(pricing.value))
+const pricePrefix = computed(() => cardPricePrefix(pricing.value))
+const priceNote = computed(() => pricing.value?.display_price_note)
+
+const inCart = computed(() => cart.hasProduct(props.product.id))
 const warrantyText = computed(() => productWarrantyLine(props.product))
-
 const promoText = computed(() => props.product.headline || 'ยิ่งซับมาก ยิ่งลดมาก!')
 
 async function copySku() {
@@ -43,17 +54,34 @@ function onCompareChange(e: Event) {
   compared.value = checked
   emit('compare', props.product, checked)
 }
+
+async function openPlanDialog() {
+  planDialogOpen.value = true
+  await nextTick()
+  await installmentDialogRef.value?.present()
+}
+
+function onAddedToCart() {
+  emit('subscribe', props.product)
+}
 </script>
 
 <template>
   <article
     class="flex h-full flex-col rounded-sm border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
   >
-    <div class="mb-3">
+    <div class="mb-3 flex flex-wrap items-center gap-2">
       <span
         class="inline-block rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1 text-xs font-semibold text-white"
       >
         Subscription
+      </span>
+      <span
+        v-if="inCart"
+        class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800"
+      >
+        <Icon name="heroicons:check" class="h-3 w-3" />
+        ในรายการ
       </span>
     </div>
 
@@ -61,7 +89,7 @@ function onCompareChange(e: Event) {
       :to="`/products/${product.id}`"
       class="mb-2 text-sm font-normal text-gray-900 underline decoration-gray-400 underline-offset-2 hover:text-red-600"
     >
-      {{ product.name }}
+      {{ displayTitle }}
     </NuxtLink>
 
     <div class="mb-4 flex items-center gap-2 text-xs text-gray-600">
@@ -92,23 +120,20 @@ function onCompareChange(e: Event) {
       {{ promoText }}
     </p>
 
-    <div class="flex flex-wrap items-baseline gap-2">
+    <div v-if="hasPricing" class="flex flex-wrap items-baseline gap-2">
       <p class="text-3xl font-bold tracking-tight text-gray-900">
-        {{ formatBaht(monthlyPrice) }}
-      </p>
-      <p
-        v-if="showStrikethroughPrice"
-        class="text-base text-gray-400 line-through"
-      >
-        {{ formatBaht(product.full_price!) }}
+        <span v-if="pricePrefix" class="text-lg font-semibold text-gray-600">{{ pricePrefix }}</span>
+        {{ formatBaht(monthlyPrice!) }}
       </p>
     </div>
+    <p v-else class="text-lg font-semibold text-gray-500">
+      สอบถามราคา
+    </p>
 
     <div class="mt-1 space-y-0.5 text-xs text-gray-600">
+      <p v-if="priceNote">{{ priceNote }}</p>
+      <p v-else-if="hasPricing && pricing">{{ pricing.contract_label }}</p>
       <p>{{ warrantyText }}</p>
-      <p v-if="product.subscription_note">
-        {{ product.subscription_note }}
-      </p>
     </div>
 
     <component
@@ -119,22 +144,40 @@ function onCompareChange(e: Event) {
       {{ product.purchase_only_label || 'หรือซื้อเฉพาะสินค้าเท่านั้น' }}
     </component>
 
-    <div class="mt-5 flex items-end justify-between gap-2 border-t border-gray-100 pt-4">
-      <NuxtLink
-        :to="`/products/${product.id}`"
-        class="text-sm text-gray-900 hover:text-red-600"
-      >
-        เรียนรู้เพิ่มเติม &gt;
-      </NuxtLink>
-
-      <div class="flex flex-col items-end gap-2">
+    <div class="mt-5 flex flex-col gap-2 border-t border-gray-100 pt-4">
+      <template v-if="hasPricing">
         <button
           type="button"
-          class="min-w-[120px] rounded-full bg-[#ea1917] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700"
-          @click="emit('subscribe', product)"
+          class="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#ea1917] bg-white py-2.5 text-sm font-semibold text-[#ea1917] transition hover:bg-red-50"
+          @click="openPlanDialog"
         >
-          Subscribe
+          <Icon name="heroicons:document-text" class="h-4 w-4" />
+          รายละเอียดผ่อน
         </button>
+        <button
+          type="button"
+          class="flex w-full items-center justify-center gap-2 rounded-full border border-[#1e3354]/25 bg-[#1e3354]/5 py-2.5 text-sm font-semibold text-[#1e3354] transition hover:bg-[#1e3354]/10"
+          @click="scheduleOpen = true"
+        >
+          <Icon name="heroicons:table-cells" class="h-4 w-4" />
+          ดูแผนผ่อน
+        </button>
+      </template>
+      <NuxtLink
+        v-else
+        :to="`/products/${product.id}`"
+        class="flex w-full items-center justify-center rounded-full border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+      >
+        ดูรายละเอียดสินค้า
+      </NuxtLink>
+
+      <div class="flex items-center justify-between gap-2">
+        <NuxtLink
+          :to="`/products/${product.id}`"
+          class="text-xs text-gray-900 hover:text-red-600"
+        >
+          เรียนรู้เพิ่มเติม &gt;
+        </NuxtLink>
         <label class="flex cursor-pointer items-center gap-1.5 text-xs text-gray-600">
           <input
             type="checkbox"
@@ -146,5 +189,21 @@ function onCompareChange(e: Event) {
         </label>
       </div>
     </div>
+
   </article>
+
+  <ClientOnly v-if="hasPricing">
+    <ProductInstallmentDialog
+      ref="installmentDialogRef"
+      :open="planDialogOpen"
+      :product="product"
+      @update:open="planDialogOpen = $event"
+      @added="onAddedToCart"
+    />
+    <ProductInstallmentScheduleDialog
+      :open="scheduleOpen"
+      :product="product"
+      @update:open="scheduleOpen = $event"
+    />
+  </ClientOnly>
 </template>

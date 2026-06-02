@@ -69,6 +69,12 @@ export const productSelect = `
     slug,
     main_category:main_categories ( id, name, slug )
   ),
+  product_group:product_groups (
+    id,
+    group_key,
+    display_name,
+    sort_order
+  ),
   product_tags (
     tag:tags ( id, name, slug, color )
   )

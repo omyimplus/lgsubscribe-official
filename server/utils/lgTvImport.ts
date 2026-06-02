@@ -20,22 +20,13 @@ import {
   resolveLgProductSku,
   subscriptionListPageUrl,
 } from './lgSubscriptionSources'
+import { getLgScrapeProfile, launchLgBrowser } from './lgBrowserLaunch'
 
 const TVS_LIST_URL = LG_TV_LIST_URL
 const PRICE_RENDER_MAX_RETRIES = 3
 const PRICE_RENDER_WAIT_TIMEOUT_MS = 60000
 /** สูงสุด ~25 หน้า × 9 การ์ด/หน้า (LG ใช้ firstResult) */
 const MAX_PLP_PAGES = 25
-
-/** UA ใกล้เคียง Chrome จริงบน Mac — อย่าใส่ sec-ch-ua คนละเวอร์ชันกับ browser จริง */
-const LG_STEALTH_UA =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-
-const LG_STEALTH_LAUNCH_ARGS = [
-  '--disable-blink-features=AutomationControlled',
-  '--no-sandbox',
-  '--window-size=1366,900',
-]
 
 const PLP_CARD_SELECTOR = 'li.c-product-list__item.neo-card'
 
@@ -88,22 +79,6 @@ async function waitForPlpProductCards(
 type PlpNavigateResult = {
   status: 'ok' | 'empty' | 'denied'
   cardCount: number
-}
-
-/** LG/Akamai มัก block bundled Chromium — ต้องใช้ Chrome จริง (channel: chrome) ก่อน */
-async function launchLgBrowser(log: ImportLogger) {
-  const { chromium } = await import('playwright')
-  const headless = process.env.LG_SCRAPE_HEADFUL !== '1'
-  try {
-    const browser = await chromium.launch({ headless, channel: 'chrome', args: LG_STEALTH_LAUNCH_ARGS })
-    log.info(`browser: system Chrome (${headless ? 'headless' : 'headed'})`)
-    return browser
-  }
-  catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    log.warn(`Chrome channel unavailable (${message}) — trying bundled Chromium`)
-    return chromium.launch({ headless, args: LG_STEALTH_LAUNCH_ARGS })
-  }
 }
 
 function isValidTvDetailUrl(url: string) {
@@ -406,11 +381,12 @@ export async function collectTvListCardsWithBrowser(
   const totalStart = Date.now()
   log.step(`launch browser limit=${limit}`)
 
+  const scrapeProfile = getLgScrapeProfile()
   const browser = await launchLgBrowser(log)
   log.done('launch browser')
 
   const context = await browser.newContext({
-    userAgent: LG_STEALTH_UA,
+    userAgent: scrapeProfile.userAgent,
     locale: 'th-TH',
     timezoneId: 'Asia/Bangkok',
     viewport: { width: 1366, height: 900 },
@@ -418,12 +394,12 @@ export async function collectTvListCardsWithBrowser(
       'accept-language': 'th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7',
     },
   })
-  await context.addInitScript(() => {
+  await context.addInitScript((platform: string) => {
     Object.defineProperty(navigator, 'webdriver', { get: () => false })
     Object.defineProperty(navigator, 'languages', { get: () => ['th-TH', 'th', 'en-US', 'en'] })
-    Object.defineProperty(navigator, 'platform', { get: () => 'MacIntel' })
+    Object.defineProperty(navigator, 'platform', { get: () => platform })
     ;(window as unknown as { chrome?: { runtime: Record<string, unknown> } }).chrome = { runtime: {} }
-  })
+  }, scrapeProfile.navigatorPlatform)
   const page = await context.newPage()
   let cookieBannerHandled = false
 

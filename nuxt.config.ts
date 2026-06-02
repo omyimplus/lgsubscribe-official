@@ -13,14 +13,14 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     // server-side only (ไม่ถูก expose ไปฝั่ง client)
-    supabaseServiceRoleKey: '',
+    supabaseServiceRoleKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY || '',
     lineChannelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
     lineChannelSecret: process.env.LINE_CHANNEL_SECRET || '',
     lineNotifyUserIds: process.env.LINE_NOTIFY_USER_IDS || '',
     // public (เข้าถึงได้ทั้ง client และ server)
     public: {
-      supabaseUrl: '',
-      supabaseAnonKey: '',
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
+      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || '',
       lineOaUrl: process.env.NUXT_PUBLIC_LINE_OA_URL || '',
     },
   },

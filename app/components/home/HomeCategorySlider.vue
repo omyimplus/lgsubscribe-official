@@ -51,9 +51,8 @@ watch(() => props.items, async () => {
 
 <template>
   <section v-if="showSection" class="bg-white py-6 sm:py-7">
-    <div class="index-container overflow-visible">
-      <!-- กล่องครอบรวม — ปุ่ม slide ทับขอบซ้าย/ขวา -->
-      <div class="relative overflow-visible rounded-2xl border border-gray-200 bg-white px-4 py-3 sm:px-5 sm:py-4">
+    <div class="index-container">
+      <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 py-3 sm:px-5 sm:py-4">
         <div v-if="showLoading" class="flex gap-6 overflow-hidden sm:gap-8">
           <div
             v-for="i in 7"
@@ -69,7 +68,7 @@ watch(() => props.items, async () => {
           <button
             v-show="showArrows"
             type="button"
-            class="absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30"
+            class="absolute left-1 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30 sm:left-2 sm:h-9 sm:w-9"
             :disabled="!canScrollLeft"
             aria-label="เลื่อนหมวดไปทางซ้าย"
             @click="scrollBy(-1)"
@@ -80,7 +79,7 @@ watch(() => props.items, async () => {
           <button
             v-show="showArrows"
             type="button"
-            class="absolute right-0 top-1/2 z-10 flex h-9 w-9 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30"
+            class="absolute right-1 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30 sm:right-2 sm:h-9 sm:w-9"
             :disabled="!canScrollRight"
             aria-label="เลื่อนหมวดไปทางขวา"
             @click="scrollBy(1)"

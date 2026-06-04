@@ -47,7 +47,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
-      include: ['tinymce', '@tinymce/tinymce-vue'],
+      include: ['tinymce', '@tinymce/tinymce-vue', 'qrcode'],
     },
   },
 })

@@ -39,7 +39,7 @@ const socialLinks = computed(() => [
             <img
               src="/images/logo.webp"
               alt="LG Subscribe"
-              class="h-9 w-auto"
+              class="block h-9 w-auto object-contain"
               width="160"
               height="36"
             >

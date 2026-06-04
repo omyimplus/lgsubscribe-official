@@ -44,12 +44,12 @@ onUnmounted(() => {
 
 <template>
   <header class="sticky top-0 z-40 border-b border-gray-200 bg-white">
-    <div class="index-container flex h-16 items-center gap-4 lg:h-[4.5rem]">
-      <NuxtLink to="/" class="shrink-0" aria-label="LG Subscribe หน้าแรก">
+    <div class="index-container flex h-16 min-w-0 items-center gap-2 sm:gap-4 lg:h-[4.5rem]">
+      <NuxtLink to="/" class="block shrink-0" aria-label="LG Subscribe หน้าแรก">
         <img
           src="/images/logo.webp"
           alt="LG Subscribe"
-          class="h-8 w-auto sm:h-9"
+          class="block h-7 w-auto object-contain sm:h-9"
           width="160"
           height="36"
           fetchpriority="high"
@@ -100,7 +100,7 @@ onUnmounted(() => {
         </NuxtLink>
       </nav>
 
-      <div class="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+      <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-2 [&_button]:h-9 [&_button]:w-9 sm:[&_button]:h-10 sm:[&_button]:w-10">
         <SiteHeaderSearch />
 
         <InterestCartButton />
@@ -109,7 +109,7 @@ onUnmounted(() => {
 
         <button
           type="button"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-50 lg:hidden"
+          class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-700 transition hover:bg-gray-50 sm:h-10 sm:w-10 lg:hidden"
           :aria-expanded="mobileMenuOpen"
           aria-label="เปิดเมนู"
           @click="mobileMenuOpen = !mobileMenuOpen"

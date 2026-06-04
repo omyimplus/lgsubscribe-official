@@ -78,7 +78,7 @@ onUnmounted(() => {
 
       <aside
         :id="id"
-        class="fixed inset-y-0 left-0 z-[111] grid h-dvh w-[min(20rem,calc(100vw-2rem))] max-w-full grid-rows-[auto_minmax(0,1fr)] bg-white shadow-2xl"
+        class="fixed inset-y-0 left-0 z-[111] grid h-dvh w-full max-w-[20rem] grid-rows-[auto_minmax(0,1fr)] bg-white shadow-2xl"
         role="dialog"
         aria-modal="true"
         aria-label="กรองและเรียงสินค้า"

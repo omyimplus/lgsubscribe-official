@@ -57,3 +57,7 @@ Important latest migrations:
 npm run build
 npm run preview
 ```
+
+## Deploy (Production)
+
+ดูคู่มือเต็มใน **[DEPLOY.md](./DEPLOY.md)** — Supabase migrations, env, VPS + PM2 + Nginx, อัปเดตครั้งถัดไป

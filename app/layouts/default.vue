@@ -10,7 +10,7 @@ const showHero = computed(() => {
 </script>
 
 <template>
-  <div class="storefront min-h-screen bg-gray-50">
+  <div class="storefront min-h-screen overflow-x-clip bg-gray-50">
     <SiteHeader />
     <HomeHero v-if="showHero" />
     <slot />

@@ -79,7 +79,7 @@ onActivated(async () => {
 
       <div
         v-else
-        class="relative overflow-visible"
+        class="relative overflow-hidden"
         @mouseenter="pauseAutoPlay"
         @mouseleave="resumeAutoPlay"
         @focusin="pauseAutoPlay"
@@ -88,7 +88,7 @@ onActivated(async () => {
         <button
           v-show="showArrows"
           type="button"
-          class="absolute -left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30 sm:-left-4"
+          class="absolute left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30 sm:left-2 sm:h-10 sm:w-10"
           :disabled="!canScrollLeft"
           aria-label="เลื่อนสินค้าไปทางซ้าย"
           @click="scrollBy(-1)"
@@ -99,7 +99,7 @@ onActivated(async () => {
         <button
           v-show="showArrows"
           type="button"
-          class="absolute -right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30 sm:-right-4"
+          class="absolute right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-md transition hover:border-gray-300 hover:text-gray-900 disabled:cursor-default disabled:opacity-30 sm:right-2 sm:h-10 sm:w-10"
           :disabled="!canScrollRight"
           aria-label="เลื่อนสินค้าไปทางขวา"
           @click="scrollBy(1)"

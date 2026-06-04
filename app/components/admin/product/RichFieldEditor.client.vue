@@ -13,16 +13,31 @@ const emit = defineEmits<{
 
 const editorRef = ref<InstanceType<typeof QuillEditor> | null>(null)
 const content = ref(props.modelValue ?? '')
+const editorHasFocus = ref(false)
 const uploading = ref(false)
 const hiddenFileInput = ref<HTMLInputElement | null>(null)
 const uploadKind = ref<'image' | 'video'>('image')
 
 watch(() => props.modelValue, (value) => {
-  content.value = value ?? ''
+  if (editorHasFocus.value) return
+  const next = value ?? ''
+  if (next === content.value) return
+  content.value = next
 })
 
 watch(content, (value) => {
-  emit('update:modelValue', value)
+  if (editorHasFocus.value) emit('update:modelValue', value)
+})
+
+onMounted(() => {
+  const quill = editorRef.value?.getQuill()
+  if (!quill) return
+  quill.on('selection-change', (range) => {
+    editorHasFocus.value = range !== null
+  })
+  quill.on('text-change', () => {
+    if (editorHasFocus.value) emit('update:modelValue', content.value)
+  })
 })
 
 const toolbar = [

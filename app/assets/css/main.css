@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./storefront-rich-html.css";
 
 @theme {
   --font-sans: "Prompt", ui-sans-serif, system-ui, sans-serif;
@@ -17,6 +18,9 @@
   --text-7xl: 74px;
   --text-8xl: 98px;
   --text-9xl: 130px;
+
+  /* หน้าแรก — ความกว้างเนื้อหาตาม mockup */
+  --width-index: 75rem; /* 1200px */
 }
 
 @layer base {
@@ -59,7 +63,25 @@
   }
 }
 
-/* Quill rich text editor */
+@layer components {
+  /** เนื้อหาหน้าแรก — max 1200px กลางจอ (section ที่ full-bleed ใช้ wrapper นอก + index-container ด้านใน) */
+  .index-container {
+    @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6;
+  }
+
+  /** การ์ดสินค้าหน้าร้าน — หน้าแรก + /products (ตาม mockup index) */
+  .product-storefront-card {
+    @apply rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_2px_14px_rgba(0,0,0,0.07)];
+  }
+
+  .product-storefront-card__btn-outline {
+    @apply rounded-full border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition hover:border-gray-300 hover:bg-gray-50 hover:shadow-[0_3px_10px_rgba(0,0,0,0.08)];
+  }
+
+  .product-storefront-card__btn-primary {
+    @apply rounded-full bg-[#ea1917] py-2.5 text-sm font-semibold text-white shadow-[0_2px_10px_rgba(234,25,23,0.2)] transition hover:bg-[#d41715] hover:shadow-[0_3px_12px_rgba(234,25,23,0.26)];
+  }
+}
 .ql-editor {
   font-family: var(--font-sans);
   font-size: 18px;

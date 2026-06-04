@@ -44,7 +44,7 @@ provide(PRODUCT_FORM_KEY, formCtx)
 
       <AdminPageHeader
         :title="formCtx.product.value.name"
-        :description="`SKU: ${formCtx.product.value.sku}`"
+        :description="`รหัสสินค้า: ${formCtx.product.value.sku}`"
       />
 
       <div class="mt-6 grid gap-8 lg:grid-cols-2">

@@ -37,31 +37,90 @@ const emit = defineEmits<{
 const content = ref(repairEditorHtmlImages(props.modelValue ?? ''))
 const editorInstanceId = `import-html-editor-${useId()}`
 const editorRef = shallowRef<TinyMceEditor | null>(null)
+/** กัน loop: พิมพ์ → emit → parent ส่งกลับ → setContent ทำให้ cursor กระโดดต้นข้อความ */
+const editorHasFocus = ref(false)
 const uploading = ref(false)
+/** เปิด file picker อยู่ — กัน blur/sync ทับเนื้อหา */
+const pendingMediaInsert = ref(false)
 const uploadingKind = ref<'image' | 'video' | null>(null)
 const imageInput = ref<HTMLInputElement | null>(null)
 const videoInput = ref<HTMLInputElement | null>(null)
+/** เก็บตำแหน่งเคอร์เซอร์ก่อนเปิด file picker (ปุ่มอัปโหลดทำให้ editor blur) */
+let savedSelectionBookmark: ReturnType<TinyMceEditor['selection']['getBookmark']> | null = null
 
-watch(() => props.modelValue, (value) => {
+function syncFromProps(value: string | undefined) {
+  if (uploading.value || pendingMediaInsert.value) return
   const next = repairEditorHtmlImages(value ?? '')
-  if (next === content.value) return
-  content.value = next
   const editor = editorRef.value ?? tinymce.get(editorInstanceId)
-  if (editor && editor.getContent() !== next) {
+  const current = editor && !editor.destroyed ? editor.getContent() : content.value
+  if (next === current || next === content.value) return
+  content.value = next
+  if (editor && !editor.destroyed && editor.getContent() !== next) {
     editor.setContent(next)
   }
+}
+
+watch(() => props.modelValue, (value) => {
+  if (editorHasFocus.value || uploading.value || pendingMediaInsert.value) return
+  syncFromProps(value)
 })
 
-watch(content, (value) => {
-  emit('update:modelValue', value)
-})
+function commitEditorHtml(editor: TinyMceEditor) {
+  const html = editor.getContent()
+  content.value = html
+  emit('update:modelValue', html)
+}
+
+function emitEditorHtml(editor: TinyMceEditor) {
+  commitEditorHtml(editor)
+}
+
+function saveSelection(editor: TinyMceEditor) {
+  try {
+    savedSelectionBookmark = editor.selection.getBookmark(2, true)
+  }
+  catch {
+    savedSelectionBookmark = null
+  }
+}
+
+function restoreSelection(editor: TinyMceEditor) {
+  if (!savedSelectionBookmark) return
+  try {
+    editor.focus()
+    editor.selection.moveToBookmark(savedSelectionBookmark)
+  }
+  catch {
+    editor.focus()
+  }
+  finally {
+    savedSelectionBookmark = null
+  }
+}
 
 function onEditorInit(_evt: unknown, editor: TinyMceEditor) {
   editorRef.value = editor
+
+  editor.on('focus', () => {
+    editorHasFocus.value = true
+  })
+  editor.on('blur', () => {
+    if (uploading.value || pendingMediaInsert.value) return
+    editorHasFocus.value = false
+    commitEditorHtml(editor)
+  })
+  editor.on('change input Undo Redo', () => {
+    if (editorHasFocus.value) commitEditorHtml(editor)
+  })
+  editor.on('SelectionChange', () => {
+    if (editorHasFocus.value && !uploading.value) saveSelection(editor)
+  })
+
   const repaired = repairEditorHtmlImages(editor.getContent())
   if (repaired !== editor.getContent()) {
     editor.setContent(repaired)
     content.value = repaired
+    emit('update:modelValue', repaired)
   }
 }
 
@@ -83,6 +142,16 @@ function getEditor() {
   return editorRef.value ?? tinymce.get(editorInstanceId) ?? null
 }
 
+function prepareMediaInsert() {
+  const editor = getEditor()
+  if (!editor) return null
+  pendingMediaInsert.value = true
+  saveSelection(editor)
+  commitEditorHtml(editor)
+  editorHasFocus.value = true
+  return editor
+}
+
 async function insertUploadedImage(file: File) {
   const editor = getEditor()
   if (!editor) {
@@ -93,8 +162,10 @@ async function insertUploadedImage(file: File) {
   uploadingKind.value = 'image'
   try {
     const res = await uploadEditorMedia(file)
+    restoreSelection(editor)
     editor.insertContent(`<img src="${res.url}" alt="" />`)
-    content.value = editor.getContent()
+    editorHasFocus.value = true
+    commitEditorHtml(editor)
   }
   catch (err) {
     window.alert(uploadErrorMessage(err))
@@ -102,6 +173,7 @@ async function insertUploadedImage(file: File) {
   finally {
     uploading.value = false
     uploadingKind.value = null
+    pendingMediaInsert.value = false
   }
 }
 
@@ -116,10 +188,12 @@ async function insertUploadedVideo(file: File) {
   try {
     const res = await uploadEditorMedia(file)
     const type = file.type || 'video/mp4'
+    restoreSelection(editor)
     editor.insertContent(
       `<video controls width="100%" playsinline><source src="${res.url}" type="${type}" /></video>`,
     )
-    content.value = editor.getContent()
+    editorHasFocus.value = true
+    commitEditorHtml(editor)
   }
   catch (err) {
     window.alert(uploadErrorMessage(err))
@@ -127,14 +201,23 @@ async function insertUploadedVideo(file: File) {
   finally {
     uploading.value = false
     uploadingKind.value = null
+    pendingMediaInsert.value = false
   }
 }
 
 function openImagePicker() {
+  if (!prepareMediaInsert()) {
+    window.alert('รอ editor โหลดเสร็จก่อน แล้วลองอีกครั้ง')
+    return
+  }
   imageInput.value?.click()
 }
 
 function openVideoPicker() {
+  if (!prepareMediaInsert()) {
+    window.alert('รอ editor โหลดเสร็จก่อน แล้วลองอีกครั้ง')
+    return
+  }
   videoInput.value?.click()
 }
 
@@ -142,7 +225,10 @@ async function onImagePicked(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   input.value = ''
-  if (!file) return
+  if (!file) {
+    pendingMediaInsert.value = false
+    return
+  }
   await insertUploadedImage(file)
 }
 
@@ -150,7 +236,10 @@ async function onVideoPicked(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   input.value = ''
-  if (!file) return
+  if (!file) {
+    pendingMediaInsert.value = false
+    return
+  }
   await insertUploadedVideo(file)
 }
 
@@ -211,15 +300,24 @@ const editorInit = {
 
 <template>
   <div class="import-tinymce-editor space-y-3">
+    <Editor
+      :id="editorInstanceId"
+      v-model="content"
+      license-key="gpl"
+      :init="{ ...editorInit, placeholder: props.placeholder ?? editorInit.placeholder }"
+      @init="onEditorInit"
+    />
+
     <div class="rounded-xl border-2 border-red-200 bg-red-50 p-4">
       <p class="mb-3 text-sm font-medium text-gray-800">
-        อัปโหลดจากเครื่อง (ใช้ปุ่มด้านล่าง — ไม่ได้อยู่ในเมนูคลิกขวา)
+        แทรกรูป/วิดีโอต่อจากตำแหน่งเคอร์เซอร์ใน editor (อัปโหลดจากเครื่อง)
       </p>
       <div class="flex flex-wrap gap-2">
         <button
           type="button"
           class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-50"
           :disabled="uploading"
+          @mousedown.prevent
           @click="openImagePicker"
         >
           {{ uploadingKind === 'image' ? 'กำลังอัปโหลดรูป...' : 'แทรกรูป' }}
@@ -228,21 +326,16 @@ const editorInit = {
           type="button"
           class="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 disabled:opacity-50"
           :disabled="uploading"
+          @mousedown.prevent
           @click="openVideoPicker"
         >
           {{ uploadingKind === 'video' ? 'กำลังอัปโหลดวิดีโอ...' : 'แทรกวิดีโอ' }}
         </button>
       </div>
       <p class="mt-2 text-xs text-gray-500">
-        อัปโหลดไป Supabase Storage
-        (<span class="font-mono">product-images/editor/…</span>)
-        · รูป ≤8MB · วิดีโอ ≤25MB (MP4, WebM, MOV)
-        · ใน toolbar: ไอคอนรูป → แท็บ Upload ก็อัปโหลดได้
-      </p>
-      <p class="mt-1 text-xs text-gray-500">
-        จัดรูปแบบข้อความ: dropdown แรกในแถบเครื่องมือ (ย่อหน้า / H1–H6)
-        · ตัวหนา/เอียง/ขีดเส้นใต้/ขีดฆ่า ถัดจาก dropdown นั้น
-        · เมนู <span class="font-medium">Format</span> ด้านบนมีตัวเลือกเพิ่ม
+        คลิกใน editor ให้เคอร์เซอร์อยู่จุดที่ต้องการแทรก แล้วกดปุ่มด้านบน
+        · อัปโหลดไป Supabase (<span class="font-mono">product-images/editor/…</span>)
+        · รูป ≤8MB · วิดีโอ ≤25MB
       </p>
       <input
         ref="imageInput"
@@ -259,14 +352,6 @@ const editorInit = {
         @change="onVideoPicked"
       >
     </div>
-
-    <Editor
-      :id="editorInstanceId"
-      v-model="content"
-      license-key="gpl"
-      :init="{ ...editorInit, placeholder: props.placeholder ?? editorInit.placeholder }"
-      @init="onEditorInit"
-    />
   </div>
 </template>
 

@@ -22,6 +22,10 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || '',
       lineOaUrl: process.env.NUXT_PUBLIC_LINE_OA_URL || '',
+      /** Line ID สำหรับสร้างลิงก์/QR เมื่อไม่ตั้ง URL (ชั่วคราว: aisuru_oat) */
+      lineOaId: process.env.NUXT_PUBLIC_LINE_OA_ID || 'aisuru_oat',
+      /** รูป QR แบบ static — ว่าง = สร้างจาก Line ID/URL อัตโนมัติ */
+      lineOaQrImage: process.env.NUXT_PUBLIC_LINE_OA_QR_IMAGE || '',
     },
   },
 

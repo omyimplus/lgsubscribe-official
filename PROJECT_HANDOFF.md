@@ -176,6 +176,7 @@ LG ใช้ **Akamai Bot Manager**. การรัน Playwright แบบ **h
 |------|---------|
 | `AGENT_IRON_RULES.md` | กฎเหล็ก agent — อ่านก่อนแก้ DB/logic |
 | `PROJECT_SPEC.md` | Spec ภาพรวมฟีเจอร์ |
+| `INDEX_PAGE_MOCKUP.md` | **หน้าแรก** — อ่านคู่ `public/mockup/index.png` ทุกครั้งที่ทำ front index |
 | `PRODUCTS_FIELD_GUIDE.md` | คอลัมน์ products + mapping LG |
 | `PRODUCT_IMPORT_REPLACE_WORKFLOW.md` | Flow draft → promote |
 | `PRODUCT_DETAIL_EDITOR_FLOW.md` | หน้า editor ราย field |

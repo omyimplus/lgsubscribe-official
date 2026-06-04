@@ -14,6 +14,7 @@
   - `features` (คุณสมบัติ)
   - `specifications` (สเปค)
 - รองรับ tags ผ่าน `public.product_tags` (many-to-many)
+- แท็ก **สินค้าแนะนำ** (`tags.slug = home-featured`) ใช้แสดงบนหน้าแรก section «สินค้าแนะนำสำหรับเดือนนี้» — slider 4 ชิ้น (`GET /api/public/featured-products`)
 
 ---
 

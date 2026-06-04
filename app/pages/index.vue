@@ -1,26 +1,71 @@
 <script setup lang="ts">
+import type { HomeCategoryCard } from '~~/shared/types/homeCategory'
+import type { Product } from '~~/shared/types/product'
+import type { Promotion } from '~~/shared/types/promotion'
+import { groupProducts } from '~~/shared/utils/productGroupDisplay'
+
 definePageMeta({ layout: 'default' })
+
+useSeoMeta({
+  title: 'LG Subscribe — เป็นเจ้าของ LG ง่ายกว่าใคร',
+  description: 'เริ่มต้นเพียงหลักร้อย จ่ายง่ายผ่อนสบาย สมัครใช้เครื่องใช้ไฟฟ้า LG แบบรายเดือน',
+})
+
+const HOME_CATEGORIES_KEY = 'public-home-categories'
+const HOME_PROMOTIONS_KEY = 'public-home-promotions'
+const HOME_FEATURED_KEY = 'public-home-featured-products'
+
+const { data: homeCategories, pending: homeCategoriesPending } = await useFetch<HomeCategoryCard[]>('/api/public/home-categories', {
+  key: HOME_CATEGORIES_KEY,
+  default: () => [],
+})
+
+type PromotionRow = Promotion & { product_count: number }
+
+const { data: promotions, pending: promotionsPending } = await useFetch<PromotionRow[]>('/api/public/promotions', {
+  key: HOME_PROMOTIONS_KEY,
+  default: () => [],
+})
+
+const { data: featuredProducts, pending: featuredPending, refresh: refreshFeaturedProducts } = await useFetch<Product[]>('/api/public/featured-products', {
+  key: HOME_FEATURED_KEY,
+  default: () => [],
+})
+
+const route = useRoute()
+
+/** กลับมาหน้าแรก (รวมปุ่ม Back) — รีเฟรชสินค้าแนะนำถ้า cache ว่าง */
+onMounted(() => {
+  if (route.path === '/' && !(featuredProducts.value?.length)) {
+    refreshFeaturedProducts()
+  }
+})
+
+onActivated(() => {
+  if (route.path === '/' && !(featuredProducts.value?.length)) {
+    refreshFeaturedProducts()
+  }
+})
+
+const featuredGroups = computed(() => groupProducts(featuredProducts.value ?? []))
 </script>
 
 <template>
-  <main class="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center p-8">
-    <div class="text-center">
-      <h1 class="text-5xl font-bold text-gray-900">LG Subscribe</h1>
-      <p class="mt-4 text-lg text-gray-500">สมัครใช้เครื่องใช้ไฟฟ้า LG แบบรายเดือน</p>
-      <div class="mt-8 flex flex-wrap justify-center gap-4">
-        <NuxtLink
-          to="/products"
-          class="rounded-full bg-[#ea1917] px-8 py-3 text-sm font-semibold text-white shadow hover:bg-red-700 transition-colors"
-        >
-          ดูสินค้าทั้งหมด
-        </NuxtLink>
-        <NuxtLink
-          to="/promotions"
-          class="rounded-full border border-gray-300 bg-white px-8 py-3 text-sm font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition-colors"
-        >
-          โปรโมชั่น
-        </NuxtLink>
-      </div>
-    </div>
+  <main>
+    <HomeCategorySlider
+      :items="homeCategories ?? []"
+      :loading="homeCategoriesPending"
+    />
+    <HomeBannerPair />
+    <HomePromotions
+      :promotions="promotions ?? []"
+      :loading="promotionsPending"
+    />
+    <HomeFeaturedProducts
+      :groups="featuredGroups"
+      :loading="featuredPending"
+    />
+    <HomeArticles />
+    <HomeExperiences />
   </main>
 </template>

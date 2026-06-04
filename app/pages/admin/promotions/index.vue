@@ -144,7 +144,7 @@ function formatDateRange(p: Promotion) {
   <div class="space-y-6">
     <AdminPageHeader
       title="โปรโมชั่น"
-      description="สร้างโปรและเลือกสินค้า (SKU) ที่จะแสดงบนหน้าบ้าน — เลือกทั้งกลุ่มแล้วเอาบางขนาดออกได้"
+      description="สร้างโปรและเลือกสินค้า (รหัสสินค้า) ที่จะแสดงบนหน้าบ้าน — เลือกทั้งกลุ่มแล้วเอาบางขนาดออกได้"
     >
       <template #actions>
         <button
@@ -201,7 +201,7 @@ function formatDateRange(p: Promotion) {
               <th class="px-4 py-3">โปรโมชั่น</th>
               <th class="px-4 py-3">หน้าร้าน</th>
               <th class="px-4 py-3">เปิด/ปิด</th>
-              <th class="px-4 py-3">SKU</th>
+              <th class="px-4 py-3">รหัสสินค้า</th>
               <th class="px-4 py-3">ช่วงเวลา</th>
               <th class="px-4 py-3 text-right">จัดการ</th>
             </tr>

@@ -1,9 +1,7 @@
+import type { Ref, WatchSource } from 'vue'
+
 /** ปรับ <video> ใน HTML ที่ render ด้วย v-html (รวมข้อมูลเก่าก่อน re-import) */
-export function fixEmbeddedVideos(root: ParentNode = document) {
-  root.querySelectorAll('.product-detail-html').forEach((section) => {
-    collapseVideosInSection(section)
-  })
-}
+const RICH_HTML_SELECTOR = '.storefront-rich-html, .product-detail-html, .article-body, .faq-body'
 
 function isVideoUrl(url: string) {
   const lower = url.toLowerCase()
@@ -86,6 +84,39 @@ function collapseVideosInSection(section: ParentNode) {
     replacement.alt = img?.getAttribute('alt') ?? ''
     picture.replaceWith(replacement)
   })
+}
+
+function collectRichHtmlSections(root: ParentNode): ParentNode[] {
+  const sections = new Set<ParentNode>()
+  if (root instanceof Element && root.matches(RICH_HTML_SELECTOR)) {
+    sections.add(root)
+  }
+  root.querySelectorAll(RICH_HTML_SELECTOR).forEach(el => sections.add(el))
+  return [...sections]
+}
+
+export function fixEmbeddedVideos(root: ParentNode = document) {
+  for (const section of collectRichHtmlSections(root)) {
+    collapseVideosInSection(section)
+  }
+}
+
+/** รันหลัง v-html อัปเดต — ส่ง ref ของ element ที่มี class article-body / product-detail-html */
+export function useEmbeddedVideos(
+  rootRef: Ref<HTMLElement | null | undefined>,
+  contentWatch?: WatchSource<unknown>,
+) {
+  function run() {
+    nextTick(() => {
+      if (rootRef.value) fixEmbeddedVideos(rootRef.value)
+    })
+  }
+
+  onMounted(run)
+  watch(rootRef, run)
+  if (contentWatch !== undefined) {
+    watch(contentWatch, run)
+  }
 }
 
 export function useEmbeddedVideosAfterMount() {

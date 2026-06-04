@@ -311,7 +311,7 @@ async function handleDelete() {
     <template v-else-if="promotion">
       <AdminPageHeader
         :title="promotion.title"
-        :description="`Slug: ${promotion.slug} · เลือกแล้ว ${selectedCount} SKU`"
+        :description="`Slug: ${promotion.slug} · เลือกแล้ว ${selectedCount} รหัสสินค้า`"
       />
 
       <section
@@ -342,7 +342,7 @@ async function handleDelete() {
               <li v-for="reason in storefrontStatus.reasons" :key="reason">{{ reason }}</li>
             </ul>
             <p class="mt-2 text-xs text-gray-500">
-              ต้องเผยแพร่ + เปิดใช้งาน + อยู่ในช่วงวันที่ (ถ้ากำหนด) + มีสินค้าอย่างน้อย 1 SKU
+              ต้องเผยแพร่ + เปิดใช้งาน + อยู่ในช่วงวันที่ (ถ้ากำหนด) + มีสินค้าอย่างน้อย 1 รหัสสินค้า
             </p>
           </div>
           <div class="flex shrink-0 flex-wrap gap-2">
@@ -493,12 +493,12 @@ async function handleDelete() {
           <div class="border-b border-gray-100 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 class="text-sm font-semibold text-gray-800">เลือกสินค้า (SKU)</h2>
+                <h2 class="text-sm font-semibold text-gray-800">เลือกสินค้า (รหัสสินค้า)</h2>
                 <p class="mt-0.5 text-xs text-gray-500">
                   เลือกทั้งกลุ่มได้ — เอาบางขนาดออกด้วยการ uncheck variant
                 </p>
               </div>
-              <span class="text-sm font-medium text-red-600">{{ selectedCount }} SKU</span>
+              <span class="text-sm font-medium text-red-600">{{ selectedCount }} รหัสสินค้า</span>
             </div>
             <div class="mt-3 space-y-2">
               <select
@@ -513,7 +513,7 @@ async function handleDelete() {
                     :value="c.id"
                     :disabled="!productCountByCategory(c.id)"
                   >
-                    {{ c.name }}{{ productCountByCategory(c.id) ? ` (${productCountByCategory(c.id)} SKU)` : ' — ไม่มีสินค้า' }}
+                    {{ c.name }}{{ productCountByCategory(c.id) ? ` (${productCountByCategory(c.id)} รหัสสินค้า)` : ' — ไม่มีสินค้า' }}
                   </option>
                 </optgroup>
               </select>
@@ -523,7 +523,7 @@ async function handleDelete() {
                   <input
                     v-model="pickerSearch"
                     type="search"
-                    placeholder="ค้นหา SKU / ชื่อ..."
+                    placeholder="ค้นหา รหัสสินค้า / ชื่อ..."
                     class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm disabled:opacity-50"
                     :disabled="!filterCategoryId"
                   >
@@ -558,7 +558,7 @@ async function handleDelete() {
           <div v-else-if="!filteredGroups.length" class="p-8 text-center text-sm text-gray-500">ไม่พบสินค้าตามคำค้นหา</div>
           <div v-else class="max-h-[520px] overflow-y-auto">
             <p class="border-b border-gray-100 bg-gray-50/80 px-4 py-2 text-xs text-gray-500">
-              {{ filteredGroups.length }} กลุ่ม · {{ categoryProducts.length }} SKU ในหมวดนี้
+              {{ filteredGroups.length }} กลุ่ม · {{ categoryProducts.length }} รหัสสินค้า ในหมวดนี้
               <span v-if="selectedInCategoryCount">· เลือกในหมวด {{ selectedInCategoryCount }}</span>
             </p>
             <div
@@ -577,7 +577,7 @@ async function handleDelete() {
                 <div class="min-w-0 flex-1">
                   <p class="truncate text-sm font-semibold text-gray-900">{{ group.displayName }}</p>
                   <p class="text-[10px] text-gray-400">
-                    {{ group.variants.length > 1 ? `${group.variants.length} ขนาด` : 'SKU เดี่ยว' }}
+                    {{ group.variants.length > 1 ? `${group.variants.length} ขนาด` : 'รหัสสินค้าเดี่ยว' }}
                   </p>
                 </div>
               </div>

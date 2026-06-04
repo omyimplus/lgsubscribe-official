@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Tag, TagInput } from '~~/shared/types/tag'
+import { HOME_FEATURED_TAG_NAME, isProtectedSystemTag } from '~~/shared/utils/homeFeatured'
 
 definePageMeta({
   layout: 'admin',
@@ -50,8 +51,18 @@ const form = reactive<TagInput>({
 const saving = ref(false)
 const formError = ref('')
 
+const editingTag = computed(() =>
+  (tags.value ?? []).find(t => t.id === editingId.value) ?? null,
+)
+
+const editingIsSystem = computed(() =>
+  editingTag.value ? isProtectedSystemTag(editingTag.value) : false,
+)
+
 const dialogTitle = computed(() =>
-  editingId.value ? 'แก้ไข Tag' : 'เพิ่ม Tag ใหม่',
+  editingId.value
+    ? (editingIsSystem.value ? `แก้ไขแท็กระบบ (${HOME_FEATURED_TAG_NAME})` : 'แก้ไข Tag')
+    : 'เพิ่ม Tag ใหม่',
 )
 
 function slugify(text: string) {
@@ -128,6 +139,10 @@ async function handleSave() {
 }
 
 async function handleDelete(t: Tag) {
+  if (isProtectedSystemTag(t)) {
+    alert(`ไม่สามารถลบแท็กระบบ «${HOME_FEATURED_TAG_NAME}» — ใช้แสดงสินค้าแนะนำบนหน้าแรก`)
+    return
+  }
   if (!confirm(`ลบ Tag "${t.name}" ใช่หรือไม่?`)) return
   try {
     await $fetch(`/api/tags/${t.id}`, { method: 'DELETE' })
@@ -139,6 +154,7 @@ async function handleDelete(t: Tag) {
 }
 
 async function toggleActive(t: Tag) {
+  if (isProtectedSystemTag(t)) return
   try {
     await $fetch(`/api/tags/${t.id}`, {
       method: 'PATCH',
@@ -262,12 +278,27 @@ async function toggleActive(t: Tag) {
                   {{ t.name }}
                 </span>
               </td>
-              <td class="px-6 py-4 font-medium text-gray-900">{{ t.name }}</td>
+              <td class="px-6 py-4 font-medium text-gray-900">
+                {{ t.name }}
+                <span
+                  v-if="isProtectedSystemTag(t)"
+                  class="ml-2 inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 ring-1 ring-amber-200/80"
+                >
+                  ระบบ · หน้าแรก
+                </span>
+              </td>
               <td class="px-6 py-4">
                 <code class="rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600">{{ t.slug }}</code>
               </td>
               <td class="px-6 py-4">
+                <span
+                  v-if="isProtectedSystemTag(t)"
+                  class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                >
+                  เปิด (ระบบ)
+                </span>
                 <button
+                  v-else
                   type="button"
                   class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
                   :class="t.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'"
@@ -285,6 +316,7 @@ async function toggleActive(t: Tag) {
                   <Icon name="heroicons:pencil-square" class="h-4 w-4" />
                 </button>
                 <button
+                  v-if="!isProtectedSystemTag(t)"
                   type="button"
                   class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600"
                   @click="handleDelete(t)"
@@ -300,6 +332,12 @@ async function toggleActive(t: Tag) {
 
     <AdminModal v-model="dialogOpen" :title="dialogTitle">
       <form id="tag-form" class="space-y-5" @submit.prevent="handleSave">
+        <p
+          v-if="editingIsSystem"
+          class="rounded-xl border border-amber-200/80 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-900"
+        >
+          แท็กระบบสำหรับ section «สินค้าแนะนำ» บนหน้าแรก — ติด/ถอดที่ฟอร์มสินค้าได้ แต่ห้ามลบแท็กนี้
+        </p>
         <div class="space-y-4">
           <div>
             <label class="mb-1.5 block text-sm font-medium text-gray-700">
@@ -309,8 +347,10 @@ async function toggleActive(t: Tag) {
               v-model="form.name"
               type="text"
               required
+              :readonly="editingIsSystem"
               placeholder="เช่น ลดราคา"
               class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm outline-none focus:border-red-400 focus:ring-4 focus:ring-red-500/10"
+              :class="editingIsSystem ? 'cursor-not-allowed bg-gray-50 text-gray-600' : ''"
             >
           </div>
 
@@ -322,7 +362,9 @@ async function toggleActive(t: Tag) {
               v-model="form.slug"
               type="text"
               required
+              :readonly="editingIsSystem"
               class="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 font-mono text-sm outline-none focus:border-red-400 focus:ring-4 focus:ring-red-500/10"
+              :class="editingIsSystem ? 'cursor-not-allowed bg-gray-50 text-gray-600' : ''"
             >
           </div>
 
@@ -376,8 +418,16 @@ async function toggleActive(t: Tag) {
               >
             </div>
             <div class="flex items-end pb-2.5">
-              <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
-                <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded text-red-500">
+              <label
+                class="flex items-center gap-2 text-sm text-gray-700"
+                :class="editingIsSystem ? 'cursor-default opacity-70' : 'cursor-pointer'"
+              >
+                <input
+                  v-model="form.is_active"
+                  type="checkbox"
+                  class="h-4 w-4 rounded text-red-500"
+                  :disabled="editingIsSystem"
+                >
                 เปิดใช้งาน
               </label>
             </div>

@@ -80,7 +80,7 @@ async function saveContent() {
 
       <AdminPageHeader
         :title="`ตรวจ/แก้ไข ${labels[field]}`"
-        :description="`${importItem.name} • SKU: ${importItem.sku}`"
+        :description="`${importItem.name} • รหัสสินค้า: ${importItem.sku}`"
       />
 
       <section class="mt-6 rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">

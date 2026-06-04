@@ -1,12 +1,11 @@
 import type { Product } from '~~/shared/types/product'
 import type { ProductPlan, ProductPlanPricingSummary } from '~~/shared/types/productPlan'
+import { cardMonthlyPriceForListing } from '~~/shared/utils/planPricing'
 
-export function cardMonthlyPrice(pricing: ProductPlanPricingSummary | null | undefined): number | null {
-  if (!pricing) return null
-  if (pricing.plan_count > 1 && pricing.from_monthly_price != null) {
-    return pricing.from_monthly_price
-  }
-  return pricing.display_monthly_price
+export function cardMonthlyPrice(
+  pricing: Parameters<typeof cardMonthlyPriceForListing>[0],
+): number | null {
+  return cardMonthlyPriceForListing(pricing)
 }
 
 export function cardPricePrefix(pricing: ProductPlanPricingSummary | null | undefined): string {

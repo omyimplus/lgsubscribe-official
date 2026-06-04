@@ -89,7 +89,7 @@ onMounted(loadProfile)
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl px-4 py-10">
+  <main class="index-container max-w-2xl py-10 sm:py-12">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-gray-900">บัญชีของฉัน</h1>
     </div>

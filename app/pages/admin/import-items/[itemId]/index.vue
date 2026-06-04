@@ -46,7 +46,7 @@ watch(item, (value) => {
         </a>
       </div>
 
-      <AdminPageHeader :title="item.name" :description="`Draft Item • SKU: ${item.sku}`" />
+      <AdminPageHeader :title="item.name" :description="`Draft Item • รหัสสินค้า: ${item.sku}`" />
 
       <div class="mt-6 grid gap-8 lg:grid-cols-2">
         <section>

@@ -262,7 +262,7 @@ function selectedItems(skus: string[]) {
 async function handleImportSelected() {
   const skus = [...selectedSkus.value]
   if (!skus.length) {
-    alert('เลือก SKU อย่างน้อย 1 รายการ')
+    alert('เลือก รหัสสินค้า อย่างน้อย 1 รายการ')
     return
   }
   if (!confirm(`นำเข้า ${skus.length} รายการที่เลือกเข้า Import Draft ใช่หรือไม่?`)) return
@@ -275,7 +275,7 @@ async function handleConfirmMerge() {
     return
   }
   if (!confirm(
-    'นำขึ้น Products (ผสานตาม SKU) ใช่หรือไม่?\n\n'
+    'นำขึ้น Products (ผสานตาม รหัสสินค้า) ใช่หรือไม่?\n\n'
     + '• สินค้าใหม่ → เพิ่มครบทุก field\n'
     + '• สินค้าเดิม → อัปเดตราคา/รูป/หัวข้อ (ไม่ทับ description/features/specs/faq)\n'
     + '• ไม่ลบสินค้าที่ไม่ได้อยู่ใน batch นี้',
@@ -443,7 +443,7 @@ function variantLabelFromName(name: string | null | undefined) {
       </p>
       <div v-else class="max-h-[420px] overflow-y-auto">
         <p class="border-b border-gray-100 bg-gray-50/80 px-5 py-2 text-xs text-gray-500">
-          {{ catalogGroups.length }} กลุ่ม · {{ catalog.items.length }} SKU
+          {{ catalogGroups.length }} กลุ่ม · {{ catalog.items.length }} รหัสสินค้า
           <span class="text-gray-400">· กลุ่ม = การ์ดเดียวบน LG (หลายขนาด)</span>
         </p>
         <div
@@ -464,7 +464,7 @@ function variantLabelFromName(name: string | null | undefined) {
                 {{ group.displayName }}
               </p>
               <p class="truncate font-mono text-[10px] text-gray-400">
-                {{ group.groupKey.startsWith('sku:') ? 'ไม่มี swatch — SKU เดียว' : group.groupKey }}
+                {{ group.groupKey.startsWith('sku:') ? 'ไม่มี swatch — รหัสสินค้าเดียว' : group.groupKey }}
               </p>
             </div>
             <span class="shrink-0 text-xs text-gray-500">{{ group.variants.length }} ขนาด</span>
@@ -524,7 +524,7 @@ function variantLabelFromName(name: string | null | undefined) {
           <thead>
             <tr class="border-b bg-gray-50/80 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
               <th class="px-4 py-3">สินค้า</th>
-              <th class="px-4 py-3">SKU</th>
+              <th class="px-4 py-3">รหัสสินค้า</th>
               <th class="px-4 py-3">ขนาด</th>
               <th class="px-4 py-3">ราคาเริ่มต้น</th>
               <th class="px-4 py-3">ต้นทาง</th>

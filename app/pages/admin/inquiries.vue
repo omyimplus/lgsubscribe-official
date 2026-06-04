@@ -263,7 +263,7 @@ async function exportInquiriesExcel() {
         ],
       },
       {
-        name: 'รายละเอียด SKU',
+        name: 'รายละเอียด รหัสสินค้า',
         rows: [
           [...INQUIRY_ITEM_EXPORT_HEADERS],
           ...buildInquiryItemExportRows(list),

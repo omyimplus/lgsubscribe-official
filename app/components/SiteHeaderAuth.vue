@@ -1,5 +1,12 @@
 <script setup lang="ts">
+const props = withDefaults(defineProps<{
+  compact?: boolean
+}>(), {
+  compact: false,
+})
+
 const session = useCustomerSession()
+const { openAuthDialog } = useCustomerAuthDialog()
 const menuOpen = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
 
@@ -35,22 +42,35 @@ async function handleSignOut() {
 </script>
 
 <template>
-  <div v-if="!session.ready.value" class="h-9 w-16 animate-pulse rounded-full bg-gray-100 sm:w-20" />
+  <div
+    v-if="!session.ready.value"
+    class="animate-pulse rounded-full bg-gray-100"
+    :class="compact ? 'h-10 w-10' : 'h-9 w-16 sm:w-20'"
+  />
 
   <template v-else-if="session.isLoggedIn.value">
     <div ref="menuRef" class="relative">
       <button
         type="button"
-        class="inline-flex max-w-[160px] items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-1.5 pr-3 text-sm transition hover:border-red-200 hover:bg-red-50 sm:max-w-[200px]"
+        class="inline-flex items-center justify-center rounded-full transition hover:bg-gray-50"
+        :class="compact
+          ? 'h-10 w-10'
+          : 'max-w-[160px] gap-2 border border-gray-200 bg-white py-1.5 pl-1.5 pr-3 text-sm hover:border-red-200 hover:bg-red-50 sm:max-w-[200px]'"
+        :aria-label="compact ? 'เมนูบัญชี' : undefined"
         @click.stop="menuOpen = !menuOpen"
       >
-        <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">
+        <span
+          class="flex shrink-0 items-center justify-center rounded-full bg-red-100 font-bold text-red-700"
+          :class="compact ? 'h-9 w-9 text-sm' : 'h-7 w-7 text-xs'"
+        >
           {{ session.displayName.value.charAt(0).toUpperCase() }}
         </span>
-        <span class="truncate font-medium text-gray-800">
-          {{ session.displayName.value }}
-        </span>
-        <Icon name="heroicons:chevron-down" class="h-4 w-4 shrink-0 text-gray-400" />
+        <template v-if="!compact">
+          <span class="truncate font-medium text-gray-800">
+            {{ session.displayName.value }}
+          </span>
+          <Icon name="heroicons:chevron-down" class="h-4 w-4 shrink-0 text-gray-400" />
+        </template>
       </button>
 
       <Transition
@@ -93,17 +113,30 @@ async function handleSignOut() {
   </template>
 
   <template v-else>
-    <NuxtLink
-      to="/auth/login"
-      class="text-sm text-gray-600 hover:text-red-600"
+    <button
+      v-if="compact"
+      type="button"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-50 hover:text-[#ea1917]"
+      aria-label="เข้าสู่ระบบหรือสมัครสมาชิก"
+      @click="openAuthDialog({ tab: 'login' })"
     >
-      เข้าสู่ระบบ
-    </NuxtLink>
-    <NuxtLink
-      to="/auth/register"
-      class="rounded-full bg-red-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-600"
-    >
-      สมัครสมาชิก
-    </NuxtLink>
+      <Icon name="heroicons:user-circle" class="h-6 w-6" />
+    </button>
+    <template v-else>
+      <button
+        type="button"
+        class="text-sm text-gray-600 hover:text-red-600"
+        @click="openAuthDialog({ tab: 'login' })"
+      >
+        เข้าสู่ระบบ
+      </button>
+      <button
+        type="button"
+        class="rounded-full bg-red-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-600"
+        @click="openAuthDialog({ tab: 'register' })"
+      >
+        สมัครสมาชิก
+      </button>
+    </template>
   </template>
 </template>

@@ -26,7 +26,7 @@ const {
           <input v-model="form.name" required :class="inputClass">
         </div>
         <div>
-          <label class="mb-1 block text-xs font-medium text-gray-600">รหัสสินค้า (SKU) *</label>
+          <label class="mb-1 block text-xs font-medium text-gray-600">รหัสสินค้า *</label>
           <input v-model="form.sku" required :class="[inputClass, 'font-mono']">
         </div>
         <div>

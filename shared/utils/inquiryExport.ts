@@ -25,7 +25,7 @@ export const INQUIRY_EXPORT_HEADERS = [
   'รหัสไปรษณีย์',
   'หมายเหตุลูกค้า',
   'ลูกค้า login (customer_id)',
-  'จำนวน SKU',
+  'จำนวนรหัสสินค้า',
   'Combo กลุ่มลูกค้า',
   'Combo โปรแกรม',
   'Combo ส่วนลด %',
@@ -47,7 +47,7 @@ export const INQUIRY_ITEM_EXPORT_HEADERS = [
   'รายการที่',
   'product_id',
   'plan_id',
-  'SKU',
+  'รหัสสินค้า',
   'ชื่อสินค้า',
   'Policy',
   'สัญญา',
@@ -258,7 +258,7 @@ export function buildInquirySummaryExportRows(inquiries: SubscriptionInquiry[]) 
   })
 }
 
-/** หนึ่งแถวต่อ SKU — เหมาะกรองใน Excel */
+/** หนึ่งแถวต่อรหัสสินค้า — เหมาะกรองใน Excel */
 export function buildInquiryItemExportRows(inquiries: SubscriptionInquiry[]) {
   const rows: (string | number)[][] = []
   for (const row of inquiries) {

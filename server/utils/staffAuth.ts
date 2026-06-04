@@ -48,6 +48,9 @@ const STAFF_API_PREFIXES = [
   '/api/main-categories',
   '/api/product-groups',
   '/api/promotions',
+  '/api/articles',
+  '/api/faq-items',
+  '/api/customer-experiences',
   '/api/editor/',
 ]
 

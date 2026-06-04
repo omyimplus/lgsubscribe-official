@@ -1,4 +1,4 @@
-import type { PlanBillingTier } from '~~/shared/types/productPlan'
+import type { PlanBillingTier, ProductPlanPricingSummary } from '~~/shared/types/productPlan'
 
 export function tierBillCount(tier: Pick<PlanBillingTier, 'bill_from' | 'bill_to'>): number {
   return tier.bill_to - tier.bill_from + 1
@@ -12,6 +12,17 @@ export function totalContractAmount(
 
 export function totalNetAmount(contractTotal: number, advanceAmount?: number | null): number {
   return contractTotal + (Number(advanceAmount) || 0)
+}
+
+/** ราคา/เดือนบนการ์ด PLP — ตรงกับ `useProductPlanPricing.cardMonthlyPrice` */
+export function cardMonthlyPriceForListing(
+  pricing: ProductPlanPricingSummary | null | undefined,
+): number | null {
+  if (!pricing) return null
+  if (pricing.plan_count > 1 && pricing.from_monthly_price != null) {
+    return pricing.from_monthly_price
+  }
+  return pricing.display_monthly_price
 }
 
 export function displayPriceForCard(

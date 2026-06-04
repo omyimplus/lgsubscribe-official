@@ -223,7 +223,7 @@ async function handleMoveProduct(
     await refresh()
   }
   catch (err: any) {
-    alert(err?.data?.message ?? 'ย้าย SKU ไม่สำเร็จ')
+    alert(err?.data?.message ?? 'ย้าย รหัสสินค้า ไม่สำเร็จ')
   }
   finally {
     movingProductId.value = null
@@ -235,7 +235,7 @@ async function handleMoveProduct(
   <div class="space-y-6">
     <AdminPageHeader
       title="กลุ่มสินค้า (PLP)"
-      description="จัดกลุ่ม SKU เป็นการ์ดเดียวบนหน้ารายการสินค้า — การย้ายด้วยมือจะล็อกไม่ให้ Import ทับ"
+      description="จัดกลุ่ม รหัสสินค้า เป็นการ์ดเดียวบนหน้ารายการสินค้า — การย้ายด้วยมือจะล็อกไม่ให้ Import ทับ"
     >
       <template #actions>
         <button
@@ -255,7 +255,7 @@ async function handleMoveProduct(
         <p class="mt-1 text-2xl font-bold text-gray-900">{{ stats.groups }}</p>
       </div>
       <div class="rounded-xl border border-white/80 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">SKU ในกลุ่ม</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">รหัสสินค้า ในกลุ่ม</p>
         <p class="mt-1 text-2xl font-bold text-gray-900">{{ stats.skus }}</p>
       </div>
       <div class="rounded-xl border border-white/80 bg-white p-4 shadow-sm">
@@ -263,7 +263,7 @@ async function handleMoveProduct(
         <p class="mt-1 text-2xl font-bold text-emerald-600">{{ stats.active }}</p>
       </div>
       <div class="rounded-xl border border-white/80 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">SKU ล็อกแล้ว</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">รหัสสินค้า ล็อกแล้ว</p>
         <p class="mt-1 text-2xl font-bold text-amber-600">{{ stats.locked }}</p>
       </div>
     </div>
@@ -278,7 +278,7 @@ async function handleMoveProduct(
           <input
             v-model="search"
             type="search"
-            placeholder="ค้นหาชื่อกลุ่ม SKU..."
+            placeholder="ค้นหาชื่อกลุ่ม รหัสสินค้า..."
             class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-red-300 focus:bg-white focus:ring-4 focus:ring-red-500/10"
           >
         </div>
@@ -437,7 +437,7 @@ async function handleMoveProduct(
                   </li>
                 </ul>
                 <p v-else class="mt-3 text-xs text-gray-400">
-                  ไม่มี SKU ในกลุ่มนี้
+                  ไม่มี รหัสสินค้า ในกลุ่มนี้
                 </p>
               </div>
             </div>

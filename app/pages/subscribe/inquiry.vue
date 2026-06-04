@@ -19,8 +19,6 @@ const comboQuote = computed(() =>
   cart.count.value > 0 ? combo.quote.value : null,
 )
 const { $supabase } = useNuxtApp()
-const config = useRuntimeConfig()
-
 const inquiryFormRef = ref<InstanceType<typeof SubscribeInquiryForm> | null>(null)
 const loadingProfile = ref(true)
 const submitting = ref(false)
@@ -35,7 +33,7 @@ function openItemDetail(item: InquiryItem) {
   detailOpen.value = true
 }
 
-const lineOaUrl = computed(() => String(config.public.lineOaUrl || '').trim())
+const { lineOaUrl } = useLineOa()
 const cartReady = ref(false)
 
 onMounted(async () => {
@@ -117,7 +115,7 @@ async function copySummary() {
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+    <main class="index-container max-w-3xl py-8 sm:py-12">
       <template v-if="success">
         <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
           <Icon name="heroicons:check-circle" class="mx-auto h-12 w-12 text-emerald-600" />

@@ -37,7 +37,7 @@ async function handleLogin() {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-md px-4 py-10">
+  <main class="index-container max-w-md py-10 sm:py-12">
     <NuxtLink to="/" class="text-sm text-gray-500 hover:text-red-600">← กลับหน้าแรก</NuxtLink>
     <h1 class="mt-4 text-2xl font-bold text-gray-900">เข้าสู่ระบบลูกค้า</h1>
 

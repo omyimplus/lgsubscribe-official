@@ -227,7 +227,7 @@ async function removePlan(plan: ProductPlan) {
 
     <AdminPageHeader
       :title="product ? `แผนสัญญา — ${product.name}` : 'แผนสัญญา'"
-      :description="product ? `SKU: ${product.sku}` : 'กำลังโหลด...'"
+      :description="product ? `รหัสสินค้า: ${product.sku}` : 'กำลังโหลด...'"
     />
 
     <div class="mt-4 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-900">

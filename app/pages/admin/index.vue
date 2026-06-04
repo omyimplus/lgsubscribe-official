@@ -124,8 +124,8 @@ const statCards = computed(() => [
 
 const quickActions = [
   { label: 'Import จาก LG', desc: 'ดึงสินค้าเข้า draft', icon: 'heroicons:arrow-down-tray', to: '/admin/import', color: 'text-sky-700 bg-sky-50 hover:bg-sky-100' },
-  { label: 'เพิ่มสินค้า', desc: 'สร้าง SKU ใหม่', icon: 'heroicons:plus-circle', to: '/admin/products/new', color: 'text-red-700 bg-red-50 hover:bg-red-100' },
-  { label: 'สร้างโปรโมชั่น', desc: 'เลือก SKU แสดงหน้าโปร', icon: 'heroicons:sparkles', to: '/admin/promotions', color: 'text-amber-700 bg-amber-50 hover:bg-amber-100' },
+  { label: 'เพิ่มสินค้า', desc: 'สร้าง รหัสสินค้า ใหม่', icon: 'heroicons:plus-circle', to: '/admin/products/new', color: 'text-red-700 bg-red-50 hover:bg-red-100' },
+  { label: 'สร้างโปรโมชั่น', desc: 'เลือก รหัสสินค้า แสดงหน้าโปร', icon: 'heroicons:sparkles', to: '/admin/promotions', color: 'text-amber-700 bg-amber-50 hover:bg-amber-100' },
   { label: 'จัดกลุ่ม PLP', desc: 'แก้การ์ดหลายขนาด', icon: 'heroicons:rectangle-group', to: '/admin/product-groups', color: 'text-violet-700 bg-violet-50 hover:bg-violet-100' },
   { label: 'คำขอสนใจผ่อน', desc: 'ติดตาม lead จากหน้าร้าน', icon: 'heroicons:chat-bubble-left-right', to: '/admin/inquiries', color: 'text-orange-700 bg-orange-50 hover:bg-orange-100' },
   { label: 'หมวดหมู่', desc: 'เรียงและจัดการหมวด', icon: 'heroicons:folder', to: '/admin/categories', color: 'text-gray-700 bg-gray-100 hover:bg-gray-200' },
@@ -305,7 +305,7 @@ function formatRelativeTime(iso: string) {
         <!-- Product status breakdown -->
         <section class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <h3 class="text-sm font-semibold text-gray-900">สถานะสินค้า</h3>
-          <p class="mt-0.5 text-xs text-gray-500">{{ data?.products.total ?? 0 }} SKU ทั้งหมด</p>
+          <p class="mt-0.5 text-xs text-gray-500">{{ data?.products.total ?? 0 }} รหัสสินค้า ทั้งหมด</p>
           <div v-if="data?.products.total" class="mt-4 flex h-2 overflow-hidden rounded-full bg-gray-100">
             <div
               v-for="row in productStatusRows"
@@ -387,7 +387,7 @@ function formatRelativeTime(iso: string) {
               >
                 <div class="min-w-0">
                   <p class="truncate text-sm font-medium text-gray-900">{{ promo.title }}</p>
-                  <p class="text-xs text-gray-500">{{ promo.product_count }} SKU · {{ promoStatusLabel(promo.status) }}</p>
+                  <p class="text-xs text-gray-500">{{ promo.product_count }} รหัสสินค้า · {{ promoStatusLabel(promo.status) }}</p>
                 </div>
                 <Icon name="heroicons:chevron-right" class="h-4 w-4 shrink-0 text-gray-300" />
               </NuxtLink>

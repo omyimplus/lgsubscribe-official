@@ -21,7 +21,7 @@ const { data: promotions, pending, error } = await useFetch<PromotionRow[]>('/ap
 
 <template>
   <div class="min-h-screen bg-white">
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
+    <main class="index-container py-8 sm:py-12">
       <h1 class="mb-8 text-2xl font-bold text-gray-900 sm:text-3xl">โปรโมชั่น</h1>
 
       <div v-if="pending" class="py-20 text-center text-gray-400">กำลังโหลด...</div>

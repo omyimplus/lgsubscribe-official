@@ -187,7 +187,7 @@ async function handleDeleteAll() {
 
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
       <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-        <p class="text-xs uppercase text-gray-400">SKU ทั้งหมด</p>
+        <p class="text-xs uppercase text-gray-400">รหัสสินค้า ทั้งหมด</p>
         <p class="mt-1 text-2xl font-bold">{{ stats.total }}</p>
       </div>
       <div class="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -215,7 +215,7 @@ async function handleDeleteAll() {
           <input
             v-model="search"
             type="search"
-            placeholder="ค้นหาชื่อ / SKU..."
+            placeholder="ค้นหาชื่อ / รหัสสินค้า..."
             class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-red-300 focus:ring-4 focus:ring-red-500/10"
           >
         </div>
@@ -239,7 +239,7 @@ async function handleDeleteAll() {
           v-if="!pending && displayGroups.length"
           class="border-b border-gray-100 bg-gray-50/80 px-4 py-2 text-xs text-gray-500"
         >
-          {{ displayGroups.length }} กลุ่ม · {{ filtered.length }} SKU
+          {{ displayGroups.length }} กลุ่ม · {{ filtered.length }} รหัสสินค้า
           <span class="text-gray-400">· กลุ่ม = การ์ดเดียวบน LG (หลายขนาด)</span>
         </p>
 
@@ -266,11 +266,11 @@ async function handleDeleteAll() {
                 {{ group.displayName }}
               </p>
               <p class="truncate font-mono text-[10px] text-gray-400">
-                {{ group.groupKey ?? 'ไม่มีกลุ่ม — SKU เดียว' }}
+                {{ group.groupKey ?? 'ไม่มีกลุ่ม — รหัสสินค้าเดียว' }}
               </p>
             </div>
             <span class="shrink-0 text-xs text-gray-500">
-              {{ group.variants.length > 1 ? `${group.variants.length} ขนาด` : 'SKU เดียว' }}
+              {{ group.variants.length > 1 ? `${group.variants.length} ขนาด` : 'รหัสสินค้าเดียว' }}
             </span>
           </div>
 

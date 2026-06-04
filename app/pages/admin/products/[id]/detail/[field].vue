@@ -75,7 +75,7 @@ async function saveContent() {
 
       <AdminPageHeader
         :title="`ตรวจ/แก้ไข ${labels[field]}`"
-        :description="`${formCtx.product.value.name} • SKU: ${formCtx.product.value.sku}`"
+        :description="`${formCtx.product.value.name} • รหัสสินค้า: ${formCtx.product.value.sku}`"
       />
 
       <section class="mt-6 rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">

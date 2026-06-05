@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { PRODUCT_FORM_KEY } from '~/components/admin/product/form-context'
+import AdminProductFormSubscribeValue from '~/components/admin/product/FormSubscribeValue.vue'
 import { useAdminProductForm } from '~/composables/useAdminProductForm'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -67,6 +68,7 @@ provide(PRODUCT_FORM_KEY, formCtx)
           </div>
 
           <AdminProductFormDetail />
+          <AdminProductFormSubscribeValue />
         </div>
       </div>
 

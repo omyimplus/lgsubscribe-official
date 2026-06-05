@@ -1,5 +1,6 @@
 import type { Category } from './category'
 import type { ProductPlanCardOption, ProductPlanPricingSummary } from './productPlan'
+import type { ProductSubscribeValueRow } from '~~/shared/utils/productSubscribeValue'
 import type { Tag } from './tag'
 
 export type ProductStatus = 'draft' | 'published' | 'pending'
@@ -62,6 +63,8 @@ export interface Product {
   key_features: string | null
   features: string | null
   specifications: string | null
+  subscribe_benefits_image_url: string | null
+  subscribe_value_tabs: ProductSubscribeValueRow[]
   base_price: number
   full_price: number | null
   price_range: string | null
@@ -111,6 +114,8 @@ export interface ProductInput {
   key_features?: string | null
   features?: string | null
   specifications?: string | null
+  subscribe_benefits_image_url?: string | null
+  subscribe_value_tabs?: ProductSubscribeValueRow[]
   base_price: number
   full_price?: number | null
   price_range?: string | null

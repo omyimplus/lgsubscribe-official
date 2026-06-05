@@ -1,6 +1,10 @@
 import type { Category } from '~~/shared/types/category'
 import type { Product, ProductInput } from '~~/shared/types/product'
 import type { Tag } from '~~/shared/types/tag'
+import {
+  createEmptySubscribeValueRow,
+  normalizeSubscribeValueTabs,
+} from '~~/shared/utils/productSubscribeValue'
 import { categoriesForMain as listCategoriesForMain, defaultCategoryId, sortMainCategories } from '~~/shared/utils/categoryDisplay'
 
 export function useAdminProductForm(productId?: string) {
@@ -31,6 +35,8 @@ export function useAdminProductForm(productId?: string) {
     key_features: '',
     features: '',
     specifications: '',
+    subscribe_benefits_image_url: '',
+    subscribe_value_tabs: [createEmptySubscribeValueRow()],
     image_url: '',
     image_urls: [],
     base_price: 0,
@@ -51,6 +57,7 @@ export function useAdminProductForm(productId?: string) {
   const saving = ref(false)
   const formError = ref('')
   const uploadingImage = ref(false)
+  const uploadingSubscribeImage = ref(false)
   const dragOverImageZone = ref(false)
   const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -82,6 +89,10 @@ export function useAdminProductForm(productId?: string) {
     form.key_features = p.key_features ?? ''
     form.features = p.features ?? ''
     form.specifications = p.specifications ?? ''
+    form.subscribe_benefits_image_url = p.subscribe_benefits_image_url ?? ''
+    form.subscribe_value_tabs = normalizeSubscribeValueTabs(p.subscribe_value_tabs).length
+      ? normalizeSubscribeValueTabs(p.subscribe_value_tabs)
+      : [createEmptySubscribeValueRow()]
     form.image_url = p.image_url ?? ''
     form.image_urls = p.image_urls?.length
       ? [...p.image_urls]
@@ -175,6 +186,38 @@ export function useAdminProductForm(productId?: string) {
     form.image_url = list[0] ?? ''
   }
 
+  async function uploadSubscribeBenefitsImage(file: File) {
+    uploadingSubscribeImage.value = true
+    formError.value = ''
+    try {
+      form.subscribe_benefits_image_url = await uploadOneImage(file)
+    }
+    catch (err: any) {
+      formError.value = err?.data?.message ?? 'อัพโหลดรูป Subscribe ไม่สำเร็จ'
+    }
+    finally {
+      uploadingSubscribeImage.value = false
+    }
+  }
+
+  function removeSubscribeBenefitsImage() {
+    form.subscribe_benefits_image_url = ''
+  }
+
+  function addSubscribeValueTab() {
+    form.subscribe_value_tabs = [
+      ...(form.subscribe_value_tabs ?? []),
+      createEmptySubscribeValueRow(),
+    ]
+  }
+
+  function removeSubscribeValueTab(index: number) {
+    const list = [...(form.subscribe_value_tabs ?? [])]
+    if (index < 0 || index >= list.length) return
+    list.splice(index, 1)
+    form.subscribe_value_tabs = list.length ? list : [createEmptySubscribeValueRow()]
+  }
+
   function buildPayload(): ProductInput {
     return {
       category_id: form.category_id,
@@ -186,6 +229,8 @@ export function useAdminProductForm(productId?: string) {
       key_features: form.key_features || null,
       features: form.features || null,
       specifications: form.specifications || null,
+      subscribe_benefits_image_url: form.subscribe_benefits_image_url?.trim() || null,
+      subscribe_value_tabs: normalizeSubscribeValueTabs(form.subscribe_value_tabs ?? []),
       image_url: form.image_url || null,
       image_urls: form.image_urls ?? [],
       base_price: Number(form.base_price) || 0,
@@ -270,6 +315,7 @@ export function useAdminProductForm(productId?: string) {
     saving,
     formError,
     uploadingImage,
+    uploadingSubscribeImage,
     dragOverImageZone,
     fileInput,
     inputClass,
@@ -288,6 +334,10 @@ export function useAdminProductForm(productId?: string) {
     handleImageDrop,
     moveImage,
     removeImage,
+    uploadSubscribeBenefitsImage,
+    removeSubscribeBenefitsImage,
+    addSubscribeValueTab,
+    removeSubscribeValueTab,
     saveSingleDetailField,
     save,
   }

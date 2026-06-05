@@ -25,6 +25,12 @@ export default defineEventHandler(async (event) => {
     key_features: body.key_features !== undefined ? body.key_features : existing.key_features,
     features: body.features !== undefined ? body.features : existing.features,
     specifications: body.specifications !== undefined ? body.specifications : existing.specifications,
+    subscribe_benefits_image_url: body.subscribe_benefits_image_url !== undefined
+      ? body.subscribe_benefits_image_url
+      : existing.subscribe_benefits_image_url,
+    subscribe_value_tabs: body.subscribe_value_tabs !== undefined
+      ? body.subscribe_value_tabs
+      : existing.subscribe_value_tabs,
     image_url: body.image_url !== undefined ? body.image_url : existing.image_url,
     image_urls: body.image_urls !== undefined ? body.image_urls : (Array.isArray(existing.image_urls) ? existing.image_urls : []),
     base_price: body.base_price ?? Number(existing.base_price),

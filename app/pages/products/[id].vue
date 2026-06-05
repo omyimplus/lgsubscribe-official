@@ -180,6 +180,8 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
             </p>
           </section>
 
+          <ProductSubscribeValueSection :product="product" />
+
           <section
             v-if="hasPricing"
             class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"

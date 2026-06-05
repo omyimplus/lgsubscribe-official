@@ -59,6 +59,7 @@ git push origin main
    ```text
    0036_customer_experiences.sql
    0037_customer_experience_image_urls.sql
+   0038_product_subscribe_value.sql
    … (ไฟล์ใหม่กว่า ALL_MIGRATIONS)
    ```
 

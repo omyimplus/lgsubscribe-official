@@ -1,4 +1,5 @@
 import type { ProductInput } from '~~/shared/types/product'
+import { normalizeSubscribeValueTabs } from '~~/shared/utils/productSubscribeValue'
 import { computeProductPricing } from './productPricing'
 
 export function buildProductRow(body: ProductInput) {
@@ -24,6 +25,8 @@ export function buildProductRow(body: ProductInput) {
     key_features: body.key_features ?? null,
     features: body.features ?? null,
     specifications: body.specifications ?? null,
+    subscribe_benefits_image_url: body.subscribe_benefits_image_url?.trim() || null,
+    subscribe_value_tabs: normalizeSubscribeValueTabs(body.subscribe_value_tabs ?? []),
     image_url: primaryImage,
     image_urls: imageUrls,
     base_price: body.base_price,
@@ -94,6 +97,10 @@ export function mapProduct<T extends Record<string, unknown>>(row: T) {
     features: typeof r.features === 'string' ? r.features : null,
     specifications: typeof r.specifications === 'string' ? r.specifications : null,
     faq_html: typeof r.faq_html === 'string' ? r.faq_html : null,
+    subscribe_benefits_image_url: typeof r.subscribe_benefits_image_url === 'string'
+      ? r.subscribe_benefits_image_url
+      : null,
+    subscribe_value_tabs: normalizeSubscribeValueTabs(r.subscribe_value_tabs),
     tags: productTags?.map(pt => pt.tag).filter(Boolean) ?? [],
     product_tags: undefined,
   }

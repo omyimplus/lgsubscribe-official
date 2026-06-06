@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import type { InquiryItem } from '~~/shared/types/inquiry'
+import {
+  lineAdvanceTotal,
+  lineMonthlyTotal,
+  lineUnitAdvanceAmount,
+  lineUnitMonthlyPrice,
+} from '~~/shared/utils/cartQuantity'
 
 const cart = useInterestCart()
 const route = useRoute()
@@ -50,6 +56,10 @@ function openItemDetail(item: InquiryItem) {
   detailItem.value = item
   detailOpen.value = true
 }
+
+function lineQty(item: InquiryItem) {
+  return cart.getQuantity(item.product_id, item.plan_id)
+}
 </script>
 
 <template>
@@ -93,7 +103,10 @@ function openItemDetail(item: InquiryItem) {
                 สนใจผ่อน
               </h2>
               <p class="mt-0.5 text-sm text-gray-500">
-                {{ cart.count.value }} รายการ
+                {{ cart.count.value }} ชิ้น
+                <span v-if="cart.lineCount.value > 1" class="text-gray-400">
+                  · {{ cart.lineCount.value }} รายการ
+                </span>
               </p>
             </div>
             <button
@@ -128,7 +141,7 @@ function openItemDetail(item: InquiryItem) {
               <ul class="space-y-3 px-4 py-4 sm:px-5">
                 <li
                   v-for="item in cart.items.value"
-                  :key="item.product_id"
+                  :key="`${item.product_id}:${item.plan_id}`"
                   class="rounded-xl border border-gray-200/90 bg-white p-3 shadow-sm"
                 >
                   <div class="flex gap-3">
@@ -155,7 +168,7 @@ function openItemDetail(item: InquiryItem) {
                           type="button"
                           class="shrink-0 p-1 text-gray-400 transition hover:text-red-600"
                           aria-label="เอาออก"
-                          @click="cart.removeProduct(item.product_id)"
+                          @click="cart.removeLine(item.product_id, item.plan_id)"
                         >
                           <Icon name="heroicons:trash" class="h-4 w-4" />
                         </button>
@@ -166,10 +179,34 @@ function openItemDetail(item: InquiryItem) {
                       <p class="mt-0.5 text-xs text-gray-600">
                         {{ item.contract_label }}
                       </p>
-                      <p class="mt-1.5 text-sm font-bold text-[#ea1917]">
-                        {{ formatBaht(item.display_monthly_price) }}
-                        <span class="text-xs font-medium text-gray-500">/เดือน</span>
-                      </p>
+                      <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
+                        <CartQuantityStepper
+                          :quantity="cart.getQuantity(item.product_id, item.plan_id)"
+                          @increment="cart.incrementQuantity(item.product_id, item.plan_id)"
+                          @decrement="cart.decrementQuantity(item.product_id, item.plan_id)"
+                        />
+                        <div class="text-right">
+                          <p class="text-sm font-bold text-[#ea1917]">
+                            {{ formatBaht(lineMonthlyTotal(item)) }}
+                            <span class="text-xs font-medium text-gray-500">/เดือน</span>
+                          </p>
+                          <p
+                            v-if="lineQty(item) > 1"
+                            class="text-[11px] text-gray-500"
+                          >
+                            {{ lineQty(item) }} ชิ้น × {{ formatBaht(lineUnitMonthlyPrice(item)) }}
+                          </p>
+                          <p
+                            v-if="lineAdvanceTotal(item) > 0"
+                            class="mt-0.5 text-xs font-medium text-gray-700"
+                          >
+                            มัดจำ {{ formatBaht(lineAdvanceTotal(item)) }}
+                            <span v-if="lineQty(item) > 1" class="text-gray-500">
+                              ({{ lineQty(item) }} × {{ formatBaht(lineUnitAdvanceAmount(item)) }})
+                            </span>
+                          </p>
+                        </div>
+                      </div>
                       <button
                         type="button"
                         class="mt-1.5 inline-flex items-center gap-0.5 text-xs font-semibold text-[#ea1917] hover:underline"

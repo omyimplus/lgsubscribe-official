@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
 import type { ProductPlanCardOption } from '~~/shared/types/productPlan'
+import { planToInquiryItem } from '~~/shared/utils/cartItemFromPlan'
+import {
+  CART_ITEM_QUANTITY_MAX,
+  CART_ITEM_QUANTITY_MIN,
+  lineAdvanceTotal,
+  lineMonthlyTotal,
+  lineUnitAdvanceAmount,
+  lineUnitMonthlyPrice,
+} from '~~/shared/utils/cartQuantity'
 
 const props = defineProps<{
   open: boolean
@@ -15,6 +24,7 @@ const emit = defineEmits<{
 const cart = useInterestCart()
 const dialogRef = ref<HTMLDialogElement | null>(null)
 const selectedPlan = ref<ProductPlanCardOption | null>(null)
+const pickerQuantity = ref(1)
 const justAdded = ref(false)
 const scheduleOpen = ref(false)
 
@@ -26,6 +36,41 @@ const inCartWithSelection = computed(() =>
     ? cart.hasProductPlan(props.product.id, selectedPlan.value.id)
     : false,
 )
+
+const cartQuantity = computed(() =>
+  selectedPlan.value
+    ? cart.getQuantity(props.product.id, selectedPlan.value.id)
+    : 0,
+)
+
+function syncPickerQuantity() {
+  if (!selectedPlan.value) {
+    pickerQuantity.value = CART_ITEM_QUANTITY_MIN
+    return
+  }
+  const inCart = cart.getQuantity(props.product.id, selectedPlan.value.id)
+  pickerQuantity.value = inCart > 0 ? inCart : CART_ITEM_QUANTITY_MIN
+}
+
+function incrementPickerQuantity() {
+  pickerQuantity.value = Math.min(CART_ITEM_QUANTITY_MAX, pickerQuantity.value + 1)
+}
+
+function decrementPickerQuantity() {
+  pickerQuantity.value = Math.max(CART_ITEM_QUANTITY_MIN, pickerQuantity.value - 1)
+}
+
+watch(selectedPlan, () => syncPickerQuantity())
+
+watch(() => props.open, (open) => {
+  if (open) syncPickerQuantity()
+})
+
+const pickerPreviewItem = computed(() => {
+  const plan = selectedPlan.value
+  if (!plan) return null
+  return { ...planToInquiryItem(props.product, plan), quantity: pickerQuantity.value }
+})
 
 function close() {
   emit('update:open', false)
@@ -86,12 +131,7 @@ function addToCart() {
   const plan = selectedPlan.value
   if (!plan) return
 
-  if (inCartWithSelection.value) {
-    cart.removeProduct(props.product.id)
-    return
-  }
-
-  cart.addProductPlan(props.product, plan)
+  cart.setProductPlanQuantity(props.product, plan, pickerQuantity.value)
   justAdded.value = true
   emit('added')
   setTimeout(() => {
@@ -177,6 +217,51 @@ function addToCart() {
             </tbody>
           </table>
         </div>
+
+        <div
+          v-if="selectedPlan"
+          class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2.5"
+        >
+          <div>
+            <p class="text-sm font-medium text-gray-800">จำนวน</p>
+            <p v-if="inCartWithSelection" class="text-xs text-gray-500">
+              ในรายการปัจจุบัน {{ cartQuantity }} ชิ้น
+            </p>
+          </div>
+          <CartQuantityStepper
+            :quantity="pickerQuantity"
+            @increment="incrementPickerQuantity"
+            @decrement="decrementPickerQuantity"
+          />
+        </div>
+
+        <div
+          v-if="pickerPreviewItem"
+          class="mt-3 rounded-xl border border-red-100 bg-red-50/60 px-3 py-2.5 text-sm"
+        >
+          <div class="flex items-baseline justify-between gap-2">
+            <span class="text-gray-600">รวม/เดือน (ช่วงแรก)</span>
+            <span class="font-bold text-[#ea1917]">
+              {{ formatBaht(lineMonthlyTotal(pickerPreviewItem)) }}
+              <span class="text-xs font-medium text-gray-500">/เดือน</span>
+            </span>
+          </div>
+          <p v-if="pickerQuantity > 1" class="mt-0.5 text-right text-[11px] text-gray-500">
+            {{ pickerQuantity }} ชิ้น × {{ formatBaht(lineUnitMonthlyPrice(pickerPreviewItem)) }}
+          </p>
+          <div
+            v-if="lineAdvanceTotal(pickerPreviewItem) > 0"
+            class="mt-2 flex items-baseline justify-between gap-2 border-t border-red-100/80 pt-2"
+          >
+            <span class="text-gray-600">มัดจำรวม</span>
+            <span class="font-semibold text-gray-900">
+              {{ formatBaht(lineAdvanceTotal(pickerPreviewItem)) }}
+              <span v-if="pickerQuantity > 1" class="text-[11px] font-normal text-gray-500">
+                ({{ pickerQuantity }} × {{ formatBaht(lineUnitAdvanceAmount(pickerPreviewItem)) }})
+              </span>
+            </span>
+          </div>
+        </div>
       </div>
 
       <div class="flex shrink-0 flex-col gap-2 border-t border-gray-100 bg-gray-50 px-4 py-4 sm:px-5">
@@ -209,9 +294,9 @@ function addToCart() {
         >
           <Icon v-if="inCartWithSelection" name="heroicons:check" class="h-4 w-4" />
           <Icon v-else name="heroicons:shopping-cart" class="h-4 w-4" />
-          <span v-if="inCartWithSelection">เอาออกจากรายการ</span>
-          <span v-else-if="justAdded">เพิ่มแล้ว!</span>
-          <span v-else>ใส่ตะกร้า</span>
+          <span v-if="justAdded">เพิ่มแล้ว!</span>
+          <span v-else-if="inCartWithSelection">อัปเดตรายการ ({{ pickerQuantity }} ชิ้น)</span>
+          <span v-else>ใส่ตะกร้า{{ pickerQuantity > 1 ? ` (${pickerQuantity} ชิ้น)` : '' }}</span>
         </button>
         </div>
       </div>

@@ -27,6 +27,7 @@ const navGroups = [
       { label: 'คำขอสนใจผ่อน', icon: 'heroicons:chat-bubble-left-right', to: '/admin/inquiries' },
       { label: 'โปรโมชั่น', icon: 'heroicons:gift', to: '/admin/promotions' },
       { label: 'บทความ', icon: 'heroicons:newspaper', to: '/admin/articles' },
+      { label: 'YouTube หน้าแรก', icon: 'heroicons:play-circle', to: '/admin/home-youtube' },
       { label: 'Customer Experiences', icon: 'heroicons:sparkles', to: '/admin/customer-experiences' },
       { label: 'FAQ', icon: 'heroicons:question-mark-circle', to: '/admin/faq' },
       { label: 'Combo ส่วนลด', icon: 'heroicons:squares-plus', to: '/admin/combo-programs' },

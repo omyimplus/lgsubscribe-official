@@ -1,4 +1,5 @@
 import type { InquiryItem } from '~~/shared/types/inquiry'
+import { getCartItemQuantity } from '~~/shared/utils/cartQuantity'
 
 export type DueTodayLine = {
   id: string
@@ -28,6 +29,7 @@ export type DueTodayItemInput = Pick<
   | 'advance_note'
   | 'display_monthly_price'
   | 'display_price_note'
+  | 'quantity'
 >
 
 /** ยอดที่ลูกค้ามักต้องชำระเมื่อเริ่มสัญญา = มัดจำ (ถ้ามี) + ค่างวดบิลที่ 1 */
@@ -61,18 +63,30 @@ export function dueTodayTotalForItem(item: DueTodayItemInput): number {
 
 export function buildDueTodaySummary(items: DueTodayItemInput[]): DueTodaySummary {
   const breakdowns: DueTodayItemBreakdown[] = items.map((item) => {
-    const lines = dueTodayLinesForItem(item)
+    const qty = getCartItemQuantity(item)
+    const lines = dueTodayLinesForItem(item).map(line => ({
+      ...line,
+      amount: line.amount * qty,
+      label: qty > 1 ? `${line.label} (×${qty})` : line.label,
+    }))
     return {
       product_id: item.product_id,
-      name: item.name,
+      name: qty > 1 ? `${item.name} (×${qty})` : item.name,
       lines,
       total: lines.reduce((sum, line) => sum + line.amount, 0),
     }
   })
 
-  const totalAdvance = items.reduce((sum, i) => sum + (Number(i.advance_amount) || 0), 0)
-  const totalFirstBill = items.reduce((sum, i) => sum + (Number(i.display_monthly_price) || 0), 0)
-  const multi = items.length > 1
+  const totalAdvance = items.reduce(
+    (sum, i) => sum + (Number(i.advance_amount) || 0) * getCartItemQuantity(i),
+    0,
+  )
+  const totalFirstBill = items.reduce(
+    (sum, i) => sum + (Number(i.display_monthly_price) || 0) * getCartItemQuantity(i),
+    0,
+  )
+  const totalPieces = items.reduce((sum, i) => sum + getCartItemQuantity(i), 0)
+  const multi = items.length > 1 || totalPieces > 1
 
   const aggregateLines: DueTodayLine[] = []
   if (totalAdvance > 0) {
@@ -84,7 +98,7 @@ export function buildDueTodaySummary(items: DueTodayItemInput[]): DueTodaySummar
   }
   aggregateLines.push({
     id: 'first-bill-total',
-    label: multi ? `ค่างวดเดือนแรก (รวม ${items.length} รายการ)` : 'ค่างวดเดือนแรก (บิลที่ 1)',
+    label: multi ? `ค่างวดเดือนแรก (รวม ${totalPieces} ชิ้น)` : 'ค่างวดเดือนแรก (บิลที่ 1)',
     amount: totalFirstBill,
   })
 

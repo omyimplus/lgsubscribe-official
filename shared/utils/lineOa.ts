@@ -1,5 +1,7 @@
-/** Line Official Account — ID ชั่วคราวสำหรับ dev/demo */
-export const DEFAULT_LINE_OA_ID = 'aisuru_oat'
+import { SITE_LINE_OA_ID, SITE_LINE_OA_URL } from './siteContact'
+
+export const DEFAULT_LINE_OA_ID = SITE_LINE_OA_ID
+export const DEFAULT_LINE_OA_URL = SITE_LINE_OA_URL
 
 export function normalizeLineOaId(raw: string): string {
   return raw.trim().replace(/^@/, '')
@@ -12,10 +14,11 @@ export function lineOaAddFriendUrl(lineId: string): string {
   return `https://line.me/R/ti/p/@${id}`
 }
 
-/** ใช้ URL จาก env ก่อน — ไม่มี URL จึงสร้างจาก Line ID (ค่าเริ่มต้น aisuru_oat) */
+/** ใช้ URL จาก env ก่อน — ไม่มี URL ใช้ lin.ee / Line ID เริ่มต้น */
 export function resolveLineOaUrl(explicitUrl?: string, lineId?: string): string {
   const url = String(explicitUrl ?? '').trim()
   if (url) return url
+  if (DEFAULT_LINE_OA_URL) return DEFAULT_LINE_OA_URL
   const id = normalizeLineOaId(String(lineId ?? '')) || DEFAULT_LINE_OA_ID
   return lineOaAddFriendUrl(id)
 }

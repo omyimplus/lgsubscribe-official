@@ -2,6 +2,12 @@ export const HOME_EXPERIENCES_SECTION_TITLE = 'LG Subscribe Customer Experiences
 
 export const EXPERIENCES_PAGE_PATH = '/experiences'
 
+/** หัวข้อบล็อกรีวิวลูกค้าบนหน้า PDP */
+export const PDP_CUSTOMER_REVIEWS_TITLE = 'รีวิวจากลูกค้า'
+
+export const PDP_CUSTOMER_REVIEWS_SUBTITLE =
+  'ขอบคุณพระคุณลูกค้าทุกท่านที่อนุญาติให้ใช้รูปเพื่อแสดงความยินดีกับลูกค้าทุกท่าน'
+
 /** จำนวนสูงสุดบนหน้าแรก (สไลเดอร์) */
 export const HOME_EXPERIENCES_LIMIT = 12
 

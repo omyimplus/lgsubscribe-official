@@ -5,9 +5,10 @@ import {
   type ComboBillLine,
   type ComboQuoteResult,
 } from '~~/shared/utils/comboPricing'
+import { cartLineKey, getCartItemQuantity, normalizeCartItems } from '~~/shared/utils/cartQuantity'
 
 export type InstallmentScheduleColumn = {
-  /** คีย์ไม่ซ้ำต่อคอลัมน์ (plan_id หรือ product_id) */
+  /** คีย์ไม่ซ้ำต่อคอลัมน์ (product_id:plan_id) */
   column_key: string
   product_id: string
   plan_id?: string
@@ -15,15 +16,18 @@ export type InstallmentScheduleColumn = {
   sku: string
   image_url: string | null
   contract_condition: string
+  /** มัดจำรวมทุกชิ้นในคอลัมน์ (ถ้ามี) */
   advance_amount: number | null
   advance_note: string | null
   contract_months: number
-  /** มีมัดจำ → งวดที่ 1 ในตาราง = มัดจำ */
+  /** จำนวนชิ้นในคอลัมน์นี้ */
+  quantity: number
+  /** มีมัดจำ → แถววันทำรายการ = มัดจำ · เดือนที่ 1 ยังเป็นบิลแผน 1 */
   has_advance: boolean
 }
 
 function itemScheduleKey(item: InquiryItem) {
-  return item.plan_id || item.product_id
+  return cartLineKey(item)
 }
 
 const itemHasAdvance = inquiryItemHasAdvance
@@ -40,8 +44,12 @@ export type InstallmentScheduleCell = {
   percent: number
   deferred_discount: number
   own_discount: number
-  /** แถวมัดจำ = ชำระงวดที่ 1 */
+  /** แถวมัดจำ = ชำระวันทำรายการ */
   is_advance: boolean
+  /** ไม่มีมัดจำ — งวด 1 ชำระวันทำรายการ (แถวแรก) */
+  is_signup_payment: boolean
+  /** เดือนที่ 1 ชำระแล้ววันทำรายการ → แสดง — */
+  prepaid_at_signup: boolean
   /** @deprecated ใช้ is_advance */
   bill_number: number
   prepaid_note: boolean
@@ -76,38 +84,72 @@ type ScheduleBillLine = {
   deferred_discount: number
   own_discount: number
   is_advance: boolean
+  is_signup_payment: boolean
+  prepaid_at_signup: boolean
 }
+
+/** แถวมัดจำ (วันทำรายการ) — แยกจากเดือนที่ 1 ของแผน */
+const TRANSACTION_DISPLAY_MONTH = 0
 
 function billSnapshotKey(line: ScheduleBillLine) {
-  return `${line.base}|${line.charged}|${line.combo_applied}|${line.is_advance}|${line.deferred_discount}|${line.own_discount}`
+  return `${line.base}|${line.charged}|${line.combo_applied}|${line.is_advance}|${line.is_signup_payment}|${line.prepaid_at_signup}|${line.deferred_discount}|${line.own_discount}`
 }
 
-function billsForItem(item: InquiryItem, quote: ComboQuoteResult | null): ComboBillLine[] {
+function billsForItem(item: InquiryItem, quote: ComboQuoteResult | null, quoteIndex?: number): ComboBillLine[] {
+  if (quote?.per_item.length && quoteIndex != null && quoteIndex >= 0 && quoteIndex < quote.per_item.length) {
+    const fromQuote = quote.per_item[quoteIndex]?.bills
+    if (fromQuote?.length) return fromQuote
+  }
   const fromQuote = quote?.per_item.find(p => p.product_id === item.product_id)?.bills
   if (fromQuote?.length) return fromQuote
   return buildComboQuoteForItem(item, quote?.percent ?? 0).bills
 }
 
 /**
- * มีมัดจำ → งวดที่ 1 = มัดจำ · งวดที่ 2 ขึ้นไป = บิลแผน 2,3,… (ไม่แสดงบิล 1 — มัดจำแทนงวดแรกแล้ว)
+ * มีมัดจำ → วันทำรายการ = มัดจำ · เดือนที่ 1,2,… = บิลแผน 1,2,…
+ * ไม่มีมัดจำ → วันทำรายการ = งวด 1 · เดือนที่ 1 = — (ชำระแล้ว) · เดือนที่ 2 ขึ้นไปตามแผน/combo
  */
 function toDisplayBills(item: InquiryItem, contractBills: ComboBillLine[]): ScheduleBillLine[] {
   const advance = Number(item.advance_amount) || 0
   if (advance <= 0) {
-    return contractBills.map(b => ({
-      display_month: b.bill,
-      source_bill: b.bill,
-      base: b.base,
-      charged: b.charged,
-      combo_applied: b.combo_applied,
-      deferred_discount: b.deferred_discount ?? 0,
-      own_discount: b.own_discount ?? 0,
-      is_advance: false,
-    }))
+    const bill1 = contractBills.find(b => b.bill === 1)
+    const rows: ScheduleBillLine[] = []
+
+    if (bill1) {
+      rows.push({
+        display_month: TRANSACTION_DISPLAY_MONTH,
+        source_bill: 1,
+        base: bill1.base,
+        charged: bill1.base,
+        combo_applied: false,
+        deferred_discount: 0,
+        own_discount: 0,
+        is_advance: false,
+        is_signup_payment: true,
+        prepaid_at_signup: false,
+      })
+    }
+
+    for (const b of contractBills) {
+      rows.push({
+        display_month: b.bill,
+        source_bill: b.bill,
+        base: b.base,
+        charged: b.bill === 1 ? 0 : b.charged,
+        combo_applied: b.combo_applied,
+        deferred_discount: b.deferred_discount ?? 0,
+        own_discount: b.own_discount ?? 0,
+        is_advance: false,
+        is_signup_payment: false,
+        prepaid_at_signup: b.bill === 1,
+      })
+    }
+
+    return rows
   }
 
   const rows: ScheduleBillLine[] = [{
-    display_month: 1,
+    display_month: TRANSACTION_DISPLAY_MONTH,
     source_bill: null,
     base: advance,
     charged: advance,
@@ -115,10 +157,11 @@ function toDisplayBills(item: InquiryItem, contractBills: ComboBillLine[]): Sche
     deferred_discount: 0,
     own_discount: 0,
     is_advance: true,
+    is_signup_payment: false,
+    prepaid_at_signup: false,
   }]
 
   for (const b of contractBills) {
-    if (b.bill === 1) continue
     rows.push({
       display_month: b.bill,
       source_bill: b.bill,
@@ -128,6 +171,8 @@ function toDisplayBills(item: InquiryItem, contractBills: ComboBillLine[]): Sche
       deferred_discount: b.deferred_discount ?? 0,
       own_discount: b.own_discount ?? 0,
       is_advance: false,
+      is_signup_payment: false,
+      prepaid_at_signup: false,
     })
   }
 
@@ -151,12 +196,27 @@ function sameDisplayPattern(
   return true
 }
 
+function scheduleHasTransactionRow(
+  items: InquiryItem[],
+  linesByKey: Map<string, ScheduleBillLine[]>,
+) {
+  return items.some((item) => {
+    const lines = linesByKey.get(itemScheduleKey(item)) ?? []
+    return lines.some(l => l.display_month === TRANSACTION_DISPLAY_MONTH)
+  })
+}
+
 function buildRanges(
   items: InquiryItem[],
   maxDisplayMonth: number,
   linesByKey: Map<string, ScheduleBillLine[]>,
 ) {
   const ranges: { bill_from: number, bill_to: number }[] = []
+
+  if (scheduleHasTransactionRow(items, linesByKey)) {
+    ranges.push({ bill_from: TRANSACTION_DISPLAY_MONTH, bill_to: TRANSACTION_DISPLAY_MONTH })
+  }
+
   if (maxDisplayMonth < 1) return ranges
 
   let from = 1
@@ -170,9 +230,27 @@ function buildRanges(
   return ranges
 }
 
-function rowLabel(bill_from: number, bill_to: number) {
+function deriveRowLabel(
+  bill_from: number,
+  bill_to: number,
+): string {
+  if (bill_from === TRANSACTION_DISPLAY_MONTH && bill_to === TRANSACTION_DISPLAY_MONTH) {
+    return 'วันที่ทำรายการ'
+  }
+
   if (bill_from === bill_to) return `เดือนที่ ${bill_from}`
   return `เดือนที่ ${bill_from} – ${bill_to}`
+}
+
+function scaleScheduleLine(line: ScheduleBillLine, quantity: number): ScheduleBillLine {
+  if (quantity <= 1) return line
+  return {
+    ...line,
+    base: line.base * quantity,
+    charged: line.charged * quantity,
+    deferred_discount: line.deferred_discount * quantity,
+    own_discount: line.own_discount * quantity,
+  }
 }
 
 function buildCell(
@@ -192,6 +270,8 @@ function buildCell(
       deferred_discount: 0,
       own_discount: 0,
       is_advance: false,
+      is_signup_payment: false,
+      prepaid_at_signup: false,
       prepaid_note: false,
       defer_combo_note: false,
     }
@@ -210,7 +290,9 @@ function buildCell(
     deferred_discount: line.deferred_discount,
     own_discount: line.own_discount,
     is_advance: line.is_advance,
-    prepaid_note: line.is_advance,
+    is_signup_payment: line.is_signup_payment,
+    prepaid_at_signup: line.prepaid_at_signup,
+    prepaid_note: line.is_advance || line.is_signup_payment || line.prepaid_at_signup,
     defer_combo_note: line.source_bill === 2 && line.deferred_discount > 0,
   }
 }
@@ -219,51 +301,62 @@ export function buildInstallmentSchedule(
   items: InquiryItem[],
   quote: ComboQuoteResult | null,
 ): InstallmentSchedule | null {
-  if (!items.length) return null
+  const lines = normalizeCartItems(items)
+  if (!lines.length) return null
 
   const percent = quote?.percent ?? 0
   const linesByKey = new Map<string, ScheduleBillLine[]>()
+  let quoteIndex = 0
 
-  for (const item of items) {
+  for (const item of lines) {
+    const qty = getCartItemQuantity(item)
+    const unitBills = billsForItem(item, quote, quoteIndex)
+    quoteIndex += qty
+    const unitDisplay = toDisplayBills(item, unitBills)
     linesByKey.set(
       itemScheduleKey(item),
-      toDisplayBills(item, billsForItem(item, quote)),
+      unitDisplay.map(line => scaleScheduleLine(line, qty)),
     )
   }
 
   const maxDisplayMonth = Math.max(
-    ...items.map((item) => {
-      const lines = linesByKey.get(itemScheduleKey(item)) ?? []
-      return lines.length ? lines[lines.length - 1]!.display_month : 0
+    ...lines.map((item) => {
+      const displayLines = linesByKey.get(itemScheduleKey(item)) ?? []
+      return displayLines.length ? displayLines[displayLines.length - 1]!.display_month : 0
     }),
   )
 
-  const ranges = buildRanges(items, maxDisplayMonth, linesByKey)
-  const has_advance_shift = items.some(itemHasAdvance)
+  const ranges = buildRanges(lines, maxDisplayMonth, linesByKey)
+  const has_advance_shift = lines.some(itemHasAdvance)
 
-  const columns: InstallmentScheduleColumn[] = items.map(item => ({
-    column_key: itemScheduleKey(item),
-    product_id: item.product_id,
-    plan_id: item.plan_id,
-    name: item.name,
-    sku: item.sku,
-    image_url: item.image_url,
-    contract_condition: item.contract_label || `${item.contract_years} ปี`,
-    advance_amount: item.advance_amount != null ? Number(item.advance_amount) : null,
-    advance_note: item.advance_note,
-    contract_months: item.contract_months,
-    has_advance: itemHasAdvance(item),
-  }))
+  const columns: InstallmentScheduleColumn[] = lines.map((item) => {
+    const qty = getCartItemQuantity(item)
+    const unitAdvance = item.advance_amount != null ? Number(item.advance_amount) : null
+    return {
+      column_key: itemScheduleKey(item),
+      product_id: item.product_id,
+      plan_id: item.plan_id,
+      name: item.name,
+      sku: item.sku,
+      image_url: item.image_url,
+      contract_condition: item.contract_label || `${item.contract_years} ปี`,
+      advance_amount: unitAdvance != null ? unitAdvance * qty : null,
+      advance_note: item.advance_note,
+      contract_months: item.contract_months,
+      quantity: qty,
+      has_advance: itemHasAdvance(item),
+    }
+  })
 
   const rows: InstallmentScheduleRow[] = ranges.map(({ bill_from, bill_to }) => {
-    const cells = items.map((item) => {
-      const lines = linesByKey.get(itemScheduleKey(item)) ?? []
-      const line = lines.find(l => l.display_month === bill_from)
+    const cells = lines.map((item) => {
+      const displayLines = linesByKey.get(itemScheduleKey(item)) ?? []
+      const line = displayLines.find(l => l.display_month === bill_from)
       return buildCell(line, percent)
     })
     const total_charged = cells.reduce((sum, c) => sum + (c.in_contract ? c.charged : 0), 0)
     return {
-      label: rowLabel(bill_from, bill_to),
+      label: deriveRowLabel(bill_from, bill_to),
       bill_from,
       bill_to,
       cells,
@@ -274,7 +367,7 @@ export function buildInstallmentSchedule(
   const promo_headline = percent > 0 && quote?.program_name
     ? `ส่วนลด Combo ${percent}% · ${quote.program_name}`
     : percent > 0
-      ? `ส่วนลด Combo ${percent}% ตลอดสัญญา (ตามบิลแผน${has_advance_shift ? ' — มีมัดจำ: งวด 1 = มัดจำ' : ' ตั้งแต่บิลที่ 2'})`
+      ? `ส่วนลด Combo ${percent}% ตลอดสัญญา (ตามบิลแผน${has_advance_shift ? ' — วันทำรายการ = มัดจำ · เดือนที่ 1 = บิล 1' : ' — วันทำรายการ = งวด 1 · เดือนที่ 1 ไม่ต้องชำระ'})`
       : null
 
   return {

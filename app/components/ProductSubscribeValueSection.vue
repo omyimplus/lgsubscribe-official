@@ -67,28 +67,19 @@ function formatValueBaht(n: number | null | undefined) {
       class="mt-5 border-t border-dashed border-gray-200 pt-5"
     >
       <div
-        class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e3354] to-[#152842] px-5 py-4 shadow-md sm:px-6 sm:py-5"
+        class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#ea1917] to-[#c41412] px-5 py-4 shadow-md sm:px-6 sm:py-5"
       >
         <div
-          class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-[#ea1917]/20 blur-2xl"
+          class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/15 blur-2xl"
           aria-hidden="true"
         />
-        <div class="relative flex items-center justify-between gap-4">
-          <div class="min-w-0">
-            <p class="text-xs font-medium tracking-wide text-white/70">
-              สรุปมูลค่าทั้งหมด
-            </p>
-            <p class="mt-0.5 text-base font-semibold text-white sm:text-lg">
-              รวมมูลค่า
-            </p>
-          </div>
-          <p class="shrink-0 text-right">
-            <span class="block text-2xl font-bold leading-none tabular-nums text-white sm:text-3xl">
-              {{ formatNumber(totalValue) }}
-            </span>
-            <span class="mt-1 block text-xs font-medium text-[#ea1917] sm:text-sm">
-              บาท
-            </span>
+        <div class="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p class="min-w-0 text-sm font-semibold leading-snug text-white sm:text-base">
+            รวมมูลค่า Subscribe ที่ได้รับโดยประมาณ
+          </p>
+          <p class="shrink-0 text-right text-xl font-bold tabular-nums text-white sm:text-2xl">
+            {{ formatNumber(totalValue) }}
+            <span class="text-sm font-semibold sm:text-base"> บาท</span>
           </p>
         </div>
       </div>

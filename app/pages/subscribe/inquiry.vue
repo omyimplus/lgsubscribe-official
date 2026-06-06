@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CustomerProfile } from '~~/shared/types/customer'
 import type { InquiryItem, SubscriptionInquiryInput } from '~~/shared/types/inquiry'
+import { lineAdvanceTotal, lineMonthlyTotal, lineUnitMonthlyPrice } from '~~/shared/utils/cartQuantity'
 import type SubscribeInquiryForm from '~/components/subscribe/SubscribeInquiryForm.vue'
 
 definePageMeta({
@@ -86,6 +87,7 @@ async function handleFormSubmit(payload: SubscriptionInquiryInput) {
         items: cart.items.value.map(i => ({
           product_id: i.product_id,
           plan_id: i.plan_id,
+          quantity: cart.getQuantity(i.product_id, i.plan_id),
         })),
         combo_customer_segment: combo.segment.value,
       },
@@ -165,9 +167,9 @@ async function copySummary() {
         </p>
 
         <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 class="text-sm font-semibold text-gray-800">รายการที่เลือก ({{ cart.count.value }})</h2>
+          <h2 class="text-sm font-semibold text-gray-800">รายการที่เลือก ({{ cart.count.value }} ชิ้น)</h2>
           <ul class="mt-3 divide-y divide-gray-100">
-            <li v-for="item in cart.items.value" :key="item.product_id" class="py-3">
+            <li v-for="item in cart.items.value" :key="`${item.product_id}:${item.plan_id}`" class="py-3">
               <div class="flex gap-3">
                 <div class="h-14 w-14 shrink-0 overflow-hidden rounded-lg border bg-gray-50">
                   <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="h-full w-full object-cover">
@@ -176,12 +178,35 @@ async function copySummary() {
                   <p class="truncate text-sm font-medium">{{ item.name }}</p>
                   <p class="font-mono text-xs text-gray-500">{{ item.sku }}</p>
                   <p class="text-xs text-gray-600">{{ item.contract_label }}</p>
-                  <p class="text-sm font-semibold text-red-600">{{ formatBaht(item.display_monthly_price) }}/เดือน</p>
+                  <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
+                    <CartQuantityStepper
+                      :quantity="cart.getQuantity(item.product_id, item.plan_id)"
+                      @increment="cart.incrementQuantity(item.product_id, item.plan_id)"
+                      @decrement="cart.decrementQuantity(item.product_id, item.plan_id)"
+                    />
+                    <div class="text-right">
+                      <p class="text-sm font-semibold text-red-600">
+                        {{ formatBaht(lineMonthlyTotal(item)) }}/เดือน
+                      </p>
+                      <p
+                        v-if="cart.getQuantity(item.product_id, item.plan_id) > 1"
+                        class="text-[11px] text-gray-500"
+                      >
+                        {{ cart.getQuantity(item.product_id, item.plan_id) }} ชิ้น × {{ formatBaht(lineUnitMonthlyPrice(item)) }}
+                      </p>
+                      <p
+                        v-if="lineAdvanceTotal(item) > 0"
+                        class="mt-0.5 text-xs font-medium text-gray-700"
+                      >
+                        มัดจำ {{ formatBaht(lineAdvanceTotal(item)) }}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <button
                   type="button"
                   class="self-start text-xs text-red-500 hover:underline"
-                  @click="cart.removeProduct(item.product_id)"
+                  @click="cart.removeLine(item.product_id, item.plan_id)"
                 >
                   เอาออก
                 </button>

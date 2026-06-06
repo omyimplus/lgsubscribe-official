@@ -141,6 +141,11 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
               >
             </button>
           </div>
+
+          <ProductCustomerReviewsSection
+            v-if="product.category_id"
+            :category-id="product.category_id"
+          />
         </div>
 
         <!-- ขวา: ชื่อ · คุณลักษณะที่สำคัญ (รวม รหัสสินค้า) · ราคาผ่อน -->
@@ -232,10 +237,10 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
       <!-- ล่าง: แท็บที่มีข้อมูลเท่านั้น -->
       <section
         v-if="visibleTabs.length"
-        class="mt-10 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+        class="mt-10 overflow-hidden rounded-2xl border border-gray-200 bg-[#f1eee6] shadow-sm"
       >
         <div
-          class="flex gap-2 overflow-x-auto border-b border-gray-200 bg-gray-50/80 px-3 py-1.5 sm:px-4"
+          class="flex gap-2 overflow-x-auto border-b border-gray-200/80 bg-[#f1eee6] px-3 py-1.5 sm:px-4"
           role="tablist"
           aria-label="รายละเอียดสินค้า"
         >
@@ -248,7 +253,7 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
             class="shrink-0 rounded-lg px-5 py-2 text-base font-semibold transition sm:px-7 sm:py-2.5 sm:text-lg"
             :class="activeTab === tab.key
               ? 'bg-[#ea1917] text-white shadow-sm'
-              : 'bg-transparent text-gray-600 hover:bg-white/80 hover:text-gray-900'"
+              : 'bg-transparent text-gray-600 hover:bg-white/60 hover:text-gray-900'"
             @click="activeTab = tab.key"
           >
             {{ tab.label }}

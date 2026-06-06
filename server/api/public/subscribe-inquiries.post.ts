@@ -41,20 +41,26 @@ export default defineEventHandler(async (event) => {
 
   const rawCartItems = body.items?.length
     ? body.items
-    : (body.product_ids ?? []).map(product_id => ({ product_id, plan_id: '' }))
+    : (body.product_ids ?? []).map(product_id => ({ product_id, plan_id: '', quantity: 1 }))
 
-  const cartItemsByProduct = new Map<string, { product_id: string, plan_id: string }>()
+  const cartItemsByKey = new Map<string, { product_id: string, plan_id: string, quantity: number }>()
   for (const entry of rawCartItems) {
     const product_id = entry.product_id?.trim()
     if (!product_id) continue
-    cartItemsByProduct.set(product_id, {
-      product_id,
-      plan_id: entry.plan_id?.trim() ?? '',
-    })
+    const plan_id = entry.plan_id?.trim() ?? ''
+    const key = `${product_id}:${plan_id}`
+    const qty = Math.max(1, Math.min(99, Math.floor(Number(entry.quantity) || 1)))
+    const existing = cartItemsByKey.get(key)
+    if (existing) {
+      existing.quantity = Math.min(99, existing.quantity + qty)
+    }
+    else {
+      cartItemsByKey.set(key, { product_id, plan_id, quantity: qty })
+    }
   }
-  const cartItems = [...cartItemsByProduct.values()]
+  const cartItems = [...cartItemsByKey.values()]
 
-  const productIds = [...cartItems.map(i => i.product_id)]
+  const productIds = [...new Set(cartItems.map(i => i.product_id))]
   if (!productIds.length) {
     throw createError({ statusCode: 400, message: 'กรุณาเลือกสินค้าอย่างน้อย 1 รายการ' })
   }
@@ -104,7 +110,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    items.push(planToInquirySnapshot(product, plan))
+    items.push({
+      ...planToInquirySnapshot(product, plan),
+      quantity: entry.quantity,
+    })
   }
 
   if (!items.length) {

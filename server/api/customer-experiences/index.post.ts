@@ -1,5 +1,9 @@
 import type { CustomerExperienceInput } from '~~/shared/types/customerExperience'
-import { mapCustomerExperienceRow, syncCustomerExperienceImageFields } from '~~/server/utils/customerExperienceDb'
+import {
+  fetchCustomerExperienceById,
+  syncCustomerExperienceCategories,
+  syncCustomerExperienceImageFields,
+} from '~~/server/utils/customerExperienceDb'
 import { normalizeCustomerExperienceImageUrls } from '~~/shared/utils/customerExperienceImages'
 
 export default defineEventHandler(async (event) => {
@@ -30,5 +34,10 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error) throw createError({ statusCode: 400, message: error.message })
-  return mapCustomerExperienceRow(data)
+
+  if (body.category_ids?.length) {
+    await syncCustomerExperienceCategories(supabase, data.id, body.category_ids)
+  }
+
+  return fetchCustomerExperienceById(supabase, data.id)
 })

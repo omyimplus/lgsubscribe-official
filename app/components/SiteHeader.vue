@@ -9,7 +9,6 @@ const navLinks = [
   { label: 'หน้าแรก', to: '/' },
   { label: 'สินค้าทั้งหมด', to: '/products' },
   { label: 'ความน่าเชื่อถือ', to: '/trust' },
-  { label: 'เงื่อนไขการผ่อน', to: '/installment' },
   { label: 'ติดต่อเรา', to: '/contact' },
 ]
 

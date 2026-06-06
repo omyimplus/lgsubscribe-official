@@ -1,4 +1,5 @@
 import type { InquiryApplicantType, InquiryComboSnapshot, InquiryContactProfile, InquiryItem } from '~~/shared/types/inquiry'
+import { getCartItemQuantity, lineAdvanceTotal, lineMonthlyTotal, lineNetTotal } from '~~/shared/utils/cartQuantity'
 import { comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
 import { formatContactAddress } from '~~/shared/utils/inquiryForm'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
@@ -7,12 +8,6 @@ import { serviceModeLabels } from '~~/shared/utils/planDisplay'
 function formatBahtLine(n: number | null | undefined) {
   if (n == null || Number.isNaN(Number(n))) return '—'
   return `${Math.round(Number(n)).toLocaleString('th-TH')} บ.`
-}
-
-function formatMonthlyBaht(item: InquiryItem) {
-  const raw = item.display_monthly_price ?? item.monthly_price
-  if (raw == null || Number.isNaN(Number(raw))) return null
-  return Number(raw).toLocaleString('th-TH')
 }
 
 export function buildLineSummary(
@@ -47,8 +42,9 @@ export function buildLineSummary(
   if (contact.lineId) lines.push(`Line: ${contact.lineId}`)
   lines.push('', 'รายการสินค้า:')
   for (const item of items) {
+    const qty = getCartItemQuantity(item)
     const mode = serviceModeLabels[item.service_mode] ?? item.service_mode ?? '—'
-    lines.push(`- ${item.name ?? 'สินค้า'} (${item.sku ?? '—'})`)
+    lines.push(`- ${item.name ?? 'สินค้า'}${qty > 1 ? ` ×${qty}` : ''} (${item.sku ?? '—'})`)
     lines.push(
       `  สัญญา: ${item.contract_label ?? '—'} · ${item.contract_years ?? '?'} ปี · ${mode}`,
     )
@@ -56,14 +52,26 @@ export function buildLineSummary(
       lines.push(`  ราคา: ${item.display_price_note}`)
     }
     else {
-      const monthly = formatMonthlyBaht(item)
-      if (monthly) lines.push(`  ราคาเริ่ม: ${monthly} บ./เดือน`)
+      const monthly = lineMonthlyTotal(item)
+      if (monthly) {
+        lines.push(
+          qty > 1
+            ? `  ราคาเริ่ม: ${formatBahtLine(monthly)} บ./เดือน (รวม ${qty} ชิ้น)`
+            : `  ราคาเริ่ม: ${formatBahtLine(monthly)} บ./เดือน`,
+        )
+      }
     }
-    if (item.computed_net_total != null && !Number.isNaN(Number(item.computed_net_total))) {
-      lines.push(`  ยอดสุทธิก่อน combo: ${formatBahtLine(item.computed_net_total)}`)
+    const netTotal = lineNetTotal(item)
+    if (netTotal != null && !Number.isNaN(netTotal)) {
+      lines.push(`  ยอดสุทธิก่อน combo: ${formatBahtLine(netTotal)}`)
     }
-    if (item.advance_amount) {
-      lines.push(`  มัดจำ: ${Number(item.advance_amount).toLocaleString('th-TH')} บ.`)
+    const advanceTotal = lineAdvanceTotal(item)
+    if (advanceTotal > 0) {
+      lines.push(
+        qty > 1
+          ? `  มัดจำ: ${formatBahtLine(advanceTotal)} (รวม ${qty} ชิ้น)`
+          : `  มัดจำ: ${formatBahtLine(advanceTotal)}`,
+      )
     }
     if (item.advance_note) {
       lines.push(`  หมายเหตุมัดจำ: ${item.advance_note}`)

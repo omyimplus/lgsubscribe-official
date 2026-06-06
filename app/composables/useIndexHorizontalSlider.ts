@@ -240,3 +240,10 @@ export function experiencesVisibleCount() {
   if (window.innerWidth >= 640) return 2
   return 1
 }
+
+/** รีวิวลูกค้าบน PDP — 3 การ์ดต่อแถว */
+export function pdpCustomerReviewsVisibleCount() {
+  if (!import.meta.client) return 3
+  if (window.innerWidth >= 640) return 3
+  return 1
+}

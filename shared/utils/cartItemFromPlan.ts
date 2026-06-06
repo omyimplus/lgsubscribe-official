@@ -36,6 +36,7 @@ export function planToInquiryItem(
     computed_total,
     computed_net_total: computed_total != null ? totalNetAmount(computed_total, plan.advance_amount) : undefined,
     monthly_price: display_monthly_price,
+    quantity: 1,
   }
 }
 

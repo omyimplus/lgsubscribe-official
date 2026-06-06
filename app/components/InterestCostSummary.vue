@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InquiryItem } from '~~/shared/types/inquiry'
 import type { ComboQuoteResult } from '~~/shared/utils/comboPricing'
+import { getCartItemQuantity } from '~~/shared/utils/cartQuantity'
 import { buildDueTodaySummary } from '~~/shared/utils/orderDueToday'
 
 const props = withDefaults(
@@ -21,7 +22,10 @@ const props = withDefaults(
 
 const contractAfterCombo = computed(() => {
   if (!props.comboQuote) return props.totalContract
-  const advance = props.items.reduce((s, i) => s + (Number(i.advance_amount) || 0), 0)
+  const advance = props.items.reduce(
+    (s, i) => s + (Number(i.advance_amount) || 0) * getCartItemQuantity(i),
+    0,
+  )
   return props.comboQuote.order_total_charged + advance
 })
 

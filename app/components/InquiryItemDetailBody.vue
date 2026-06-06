@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import type { InquiryItem } from '~~/shared/types/inquiry'
+import {
+  getCartItemQuantity,
+  lineAdvanceTotal,
+  lineContractTotal,
+  lineMonthlyTotal,
+  lineNetTotal,
+  lineUnitAdvanceAmount,
+  lineUnitMonthlyPrice,
+} from '~~/shared/utils/cartQuantity'
 import { serviceModeLabels } from '~~/shared/utils/planDisplay'
 
 const props = defineProps<{
@@ -7,6 +16,7 @@ const props = defineProps<{
 }>()
 
 const serviceLabel = computed(() => serviceModeLabels[props.item.service_mode])
+const qty = computed(() => getCartItemQuantity(props.item))
 </script>
 
 <template>
@@ -47,15 +57,20 @@ const serviceLabel = computed(() => serviceModeLabels[props.item.service_mode])
 
     <InterestCostSummary
       :items="[item]"
-      :total-contract="item.computed_total ?? 0"
-      :total-net="item.computed_net_total ?? 0"
+      :total-contract="lineContractTotal(item) ?? 0"
+      :total-net="lineNetTotal(item) ?? 0"
     />
 
     <div class="rounded-xl border border-red-100 bg-red-50/60 px-3 py-3">
-      <p class="text-xs font-medium text-gray-500">ราคา/เดือน (ช่วงแรก)</p>
+      <p class="text-xs font-medium text-gray-500">
+        ราคา/เดือน (ช่วงแรก){{ qty > 1 ? ` — รวม ${qty} ชิ้น` : '' }}
+      </p>
       <p class="mt-1 text-2xl font-bold text-red-600">
-        {{ formatBaht(item.display_monthly_price) }}
+        {{ formatBaht(lineMonthlyTotal(item)) }}
         <span class="text-sm font-medium text-gray-600">/ เดือน</span>
+      </p>
+      <p v-if="qty > 1" class="mt-0.5 text-xs text-gray-500">
+        {{ qty }} ชิ้น × {{ formatBaht(lineUnitMonthlyPrice(item)) }}
       </p>
       <p v-if="item.display_price_note" class="mt-1 text-xs text-gray-600">
         {{ item.display_price_note }}
@@ -92,18 +107,21 @@ const serviceLabel = computed(() => serviceModeLabels[props.item.service_mode])
       <p class="text-xs font-semibold text-gray-700">ภาพรวมตลอดสัญญา</p>
       <div v-if="item.computed_total != null" class="flex justify-between gap-2 text-gray-600">
         <span>รวมค่างวดทุกบิล</span>
-        <span class="font-medium text-gray-900">{{ formatBaht(item.computed_total) }}</span>
+        <span class="font-medium text-gray-900">{{ formatBaht(lineContractTotal(item)) }}</span>
       </div>
-      <div v-if="item.advance_amount" class="flex justify-between gap-2 text-gray-600">
+      <div v-if="lineAdvanceTotal(item) > 0" class="flex justify-between gap-2 text-gray-600">
         <span>รวมมัดจำ (รวมในยอดสุทธิ)</span>
-        <span class="font-medium text-gray-900">{{ formatBaht(item.advance_amount) }}</span>
+        <span class="font-medium text-gray-900">{{ formatBaht(lineAdvanceTotal(item)) }}</span>
       </div>
+      <p v-if="qty > 1 && lineUnitAdvanceAmount(item) > 0" class="text-[11px] text-gray-500">
+        {{ qty }} ชิ้น × {{ formatBaht(lineUnitAdvanceAmount(item)) }}
+      </p>
       <div
-        v-if="item.computed_net_total != null"
+        v-if="lineNetTotal(item) != null"
         class="flex justify-between gap-2 border-t border-gray-200 pt-2"
       >
         <span class="font-semibold text-gray-800">ยอดสุทธิโดยประมาณ</span>
-        <span class="text-base font-bold text-red-700">{{ formatBaht(item.computed_net_total) }}</span>
+        <span class="text-base font-bold text-red-700">{{ formatBaht(lineNetTotal(item)) }}</span>
       </div>
       <p class="text-[11px] text-gray-500">
         งวดเดือนที่ 2 เป็นต้นไป ชำระตามตารางช่วงบิลด้านบน

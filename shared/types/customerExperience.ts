@@ -8,8 +8,16 @@ export interface CustomerExperience {
   event_date: string | null
   sort_order: number
   is_active: boolean
+  /** หมวดสินค้าที่แสดงบนหน้า PDP */
+  categories: CustomerExperienceCategory[]
   created_at: string
   updated_at: string
+}
+
+export interface CustomerExperienceCategory {
+  id: string
+  name: string
+  slug: string
 }
 
 export interface CustomerExperienceInput {
@@ -20,6 +28,7 @@ export interface CustomerExperienceInput {
   event_date?: string | null
   sort_order?: number
   is_active?: boolean
+  category_ids?: string[]
 }
 
 export type CustomerExperiencePublic = Pick<

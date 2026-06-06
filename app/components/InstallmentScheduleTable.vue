@@ -11,20 +11,30 @@ function formatPrice(n: number) {
   return Math.round(n).toLocaleString('th-TH')
 }
 
+function formatNormalBaht(base: number) {
+  return `ปกติ ${formatPrice(base)} บาท`
+}
+
 const showTotalColumn = computed(() => props.variant === 'cart')
 
 const cartComboActive = computed(
   () => props.variant === 'cart' && props.schedule.combo_percent > 0,
 )
 
-/** งวดบิลแผน 1 ที่ยังไม่หัก combo — ไม่ใช้เมื่อมีมัดจำ (งวด 1 = มัดจำแล้ว) */
+/** งวดบิลแผน 1 ที่ยังไม่หัก combo — ไม่ใช้เมื่อแสดง — วันทำรายการแล้ว */
 function showBill1FullPriceNote(
-  cell: { source_bill: number | null, in_contract: boolean, is_advance: boolean },
+  cell: {
+    source_bill: number | null
+    in_contract: boolean
+    is_advance: boolean
+    prepaid_at_signup: boolean
+  },
   colHasAdvance: boolean,
 ) {
   return cartComboActive.value
     && cell.in_contract
     && !cell.is_advance
+    && !cell.prepaid_at_signup
     && cell.source_bill === 1
     && !colHasAdvance
 }
@@ -60,12 +70,12 @@ function showSimpleComboDiscount(
 
 const footnote = computed(() => {
   if (props.variant !== 'cart') {
-    return 'แต่ละคอลัมน์ = แผนสัญญาหนึ่งแบบ · ราคาตามช่วงบิลของแผน (ยังไม่รวมส่วนลด Combo)'
+    return 'แต่ละคอลัมน์ = แผนสัญญาหนึ่งแบบ · วันทำรายการ = มัดจำ (ถ้ามี) หรืองวด 1 (ถ้าไม่มีมัดจำ) · เดือนที่ 1 = — ถ้างวด 1 ชำระแล้ววันทำรายการ'
   }
   if (props.schedule.has_advance_shift) {
-    return 'มีมัดจำ: งวดที่ 1 = มัดจำ · งวดที่ 2 = บิลแผน 2 (ไม่แสดงบิล 1) · combo ตามสูตรบิลแผน (งวด 2 หัก % บิล 1 + งวดนี้) · ยอดรวมต่อแถว = ผลรวมทุกรายการ'
+    return 'วันทำรายการ = มัดจำ · เดือนที่ 1 = บิลแผน 1 · เดือนที่ 2 = บิลแผน 2 · combo ตามสูตรบิลแผน (เดือนที่ 2 หัก % บิล 1 + งวดนี้) · ยอดรวมต่อแถว = ผลรวมทุกรายการ'
   }
-  return 'งวด 1 ชำระราคาเต็ม · งวด 2 หัก % ของงวด 1 (เลื่อน) + % ของงวด 2 · งวด 3 เป็นต้นไป หัก % ของงวดนั้น · ยอดรวมต่อแถว = ผลรวมทุกรายการในตะกร้า'
+  return 'วันทำรายการ = งวดที่ 1 · เดือนที่ 1 = ไม่ต้องชำระ (—) · เดือนที่ 2 หัก % ของงวด 1 (เลื่อน) + % ของงวด 2 · เดือนที่ 3 เป็นต้นไป หัก % ของงวดนั้น · ยอดรวมต่อแถว = ผลรวมทุกรายการในตะกร้า'
 })
 </script>
 
@@ -115,6 +125,12 @@ const footnote = computed(() => {
                 <p class="line-clamp-2 text-[10px] font-medium leading-tight sm:text-xs">
                   {{ col.name }}
                 </p>
+                <p
+                  v-if="col.quantity > 1"
+                  class="mt-0.5 text-[10px] font-semibold text-amber-200 sm:text-xs"
+                >
+                  ×{{ col.quantity }} ชิ้น
+                </p>
                 <p class="mt-0.5 font-mono text-[9px] text-white/80 sm:text-[10px]">
                   {{ col.sku }}
                 </p>
@@ -158,7 +174,7 @@ const footnote = computed(() => {
                 v-if="col.has_advance && col.advance_amount"
                 class="mt-1 font-medium text-amber-200"
               >
-                มัดจำ {{ formatPrice(col.advance_amount) }} บ. (งวด 1)
+                มัดจำ {{ formatPrice(col.advance_amount) }} บ. (วันทำรายการ)
               </p>
             </td>
             <td class="schedule-table__total px-3 py-2" />
@@ -193,12 +209,26 @@ const footnote = computed(() => {
                     {{ formatPrice(cell.charged) }}
                   </p>
                   <p class="mt-0.5 text-[10px] font-medium text-[#ea1917] sm:mt-1">
-                    ชำระงวดที่ 1
+                    ชำระวันทำรายการ
                   </p>
+                </template>
+                <template v-else-if="cell.is_signup_payment">
+                  <p class="text-[10px] text-gray-500 sm:text-xs">
+                    งวดที่ 1
+                  </p>
+                  <p class="mt-0.5 text-sm font-bold text-[#ea1917] sm:text-lg">
+                    {{ formatPrice(cell.charged) }}
+                  </p>
+                  <p class="mt-0.5 text-[10px] font-medium text-[#ea1917] sm:mt-1">
+                    ชำระวันทำรายการ
+                  </p>
+                </template>
+                <template v-else-if="cell.prepaid_at_signup">
+                  <span class="text-gray-300">—</span>
                 </template>
                 <template v-else-if="showBill1FullPriceNote(cell, schedule.columns[colIndex]!.has_advance)">
                   <p class="text-[10px] text-gray-500 sm:text-xs">
-                    {{ formatPrice(cell.base) }}
+                    {{ formatNormalBaht(cell.base) }}
                   </p>
                   <p class="text-[10px] text-gray-400 sm:text-xs">
                     ยังไม่หัก combo
@@ -206,37 +236,20 @@ const footnote = computed(() => {
                 </template>
                 <template v-else-if="showBill2ComboBreakdown(cell)">
                   <p class="text-[10px] text-gray-500 sm:text-xs">
-                    {{ formatPrice(cell.base) }}
+                    {{ formatNormalBaht(cell.base) }}
                   </p>
-                  <p
-                    v-if="cell.deferred_discount > 0"
-                    class="text-[10px] text-sky-700 sm:text-xs"
-                  >
-                    − {{ formatPrice(cell.deferred_discount) }}
-                    <span class="text-gray-500">({{ cell.percent }}% งวด 1)</span>
-                  </p>
-                  <p
-                    v-if="cell.own_discount > 0"
-                    class="text-[10px] text-sky-700 sm:text-xs"
-                  >
-                    − {{ formatPrice(cell.own_discount) }}
-                    <span class="text-gray-500">({{ cell.percent }}% งวดนี้)</span>
+                  <p class="text-[10px] text-gray-500 sm:text-xs">
+                    รวม combo งวดแรก
                   </p>
                 </template>
                 <p
-                  v-else-if="showSimpleComboDiscount(cell, schedule.columns[colIndex]!.has_advance)"
+                  v-else-if="showSimpleComboDiscount(cell, schedule.columns[colIndex]!.has_advance) || cell.base > 0"
                   class="text-[10px] text-gray-500 sm:text-xs"
                 >
-                  {{ formatPrice(cell.base) }} − {{ cell.percent }}%
+                  {{ formatNormalBaht(cell.base) }}
                 </p>
                 <p
-                  v-else-if="cell.base > 0"
-                  class="text-[10px] text-gray-500 sm:text-xs"
-                >
-                  {{ formatPrice(cell.base) }}
-                </p>
-                <p
-                  v-if="!cell.is_advance"
+                  v-if="!cell.is_advance && !cell.is_signup_payment && !cell.prepaid_at_signup"
                   class="mt-0.5 text-sm font-bold text-[#ea1917] sm:text-lg"
                 >
                   {{ formatPrice(cell.charged) }}

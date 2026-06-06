@@ -34,6 +34,7 @@ export function buildProductInstallmentSchedule(product: Product): InstallmentSc
       name: plan.contract_label,
       sku: plan.policy_code ? `Policy ${plan.policy_code}` : product.sku,
       contract_condition: formatPlanCondition(plan),
+      quantity: 1,
     }
   })
 

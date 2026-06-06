@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InquiryItem } from '~~/shared/types/inquiry'
 import { buildInstallmentSchedule } from '~~/shared/utils/installmentSchedule'
+import { cartTotalQuantity } from '~~/shared/utils/cartQuantity'
 
 const props = defineProps<{
   open: boolean
@@ -70,7 +71,7 @@ onBeforeUnmount(() => {
             ตารางชำระรายเดือน (ตะกร้า)
           </h2>
           <p class="mt-0.5 text-xs text-gray-500">
-            {{ items.length }} รายการในตะกร้า · รวมส่วนลด Combo
+            {{ cartTotalQuantity(items) }} ชิ้น · {{ items.length }} รายการ · รวมส่วนลด Combo
           </p>
         </div>
         <button

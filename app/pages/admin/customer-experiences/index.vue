@@ -109,7 +109,7 @@ async function toggleActive(item: CustomerExperience) {
   <div class="space-y-6">
     <AdminPageHeader
       title="Customer Experiences"
-      description="กิจกรรมและประสบการณ์ลูกค้า — อัปโหลดได้หลายรูปต่อรายการ · รายการที่เปิดจะแสดงบนหน้าแรก"
+      description="อัปโหลดได้หลายรูป — เลือกหมวดสินค้าเพื่อแสดงบนหน้า PDP · รายการที่เปิดจะแสดงบนหน้าแรก"
     >
       <template #actions>
         <NuxtLink
@@ -167,6 +167,7 @@ async function toggleActive(item: CustomerExperience) {
               <th class="px-4 py-3">รูป</th>
               <th class="px-4 py-3">จำนวนรูป</th>
               <th class="px-4 py-3">ชื่อกิจกรรม</th>
+              <th class="px-4 py-3">หมวด PDP</th>
               <th class="px-4 py-3">ลำดับ</th>
               <th class="px-4 py-3">แสดงบนหน้าแรก</th>
               <th class="px-4 py-3 text-right">จัดการ</th>
@@ -174,10 +175,10 @@ async function toggleActive(item: CustomerExperience) {
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="pending">
-              <td colspan="6" class="py-16 text-center text-gray-400">กำลังโหลด...</td>
+              <td colspan="7" class="py-16 text-center text-gray-400">กำลังโหลด...</td>
             </tr>
             <tr v-else-if="!(filtered?.length)">
-              <td colspan="6" class="py-16 text-center text-gray-500">
+              <td colspan="7" class="py-16 text-center text-gray-500">
                 {{ search ? 'ไม่พบรายการที่ค้นหา' : 'ยังไม่มีกิจกรรม — กด «เพิ่มกิจกรรม»' }}
               </td>
             </tr>
@@ -203,6 +204,18 @@ async function toggleActive(item: CustomerExperience) {
                 <p v-if="item.description" class="mt-0.5 line-clamp-1 text-xs text-gray-500">
                   {{ item.description }}
                 </p>
+              </td>
+              <td class="px-4 py-3">
+                <div v-if="item.categories?.length" class="flex flex-wrap gap-1">
+                  <span
+                    v-for="category in item.categories"
+                    :key="category.id"
+                    class="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600"
+                  >
+                    {{ category.name }}
+                  </span>
+                </div>
+                <span v-else class="text-xs text-gray-400">—</span>
               </td>
               <td class="px-4 py-3 text-gray-600">{{ item.sort_order }}</td>
               <td class="px-4 py-3">

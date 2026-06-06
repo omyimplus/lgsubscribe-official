@@ -1,5 +1,7 @@
 import { formatLineOaIdDisplay, resolveLineOaUrl } from '~~/shared/utils/lineOa'
 
+import { SITE_LINE_QR_IMAGE } from '~~/shared/utils/siteContact'
+
 function useLineOaConfig() {
   const config = useRuntimeConfig()
 
@@ -18,7 +20,9 @@ function useLineOaConfig() {
 export function useLineOaQr() {
   const { lineOaUrl, lineOaIdDisplay, config } = useLineOaConfig()
 
-  const staticQrImage = computed(() => String(config.public.lineOaQrImage || '').trim())
+  const staticQrImage = computed(() =>
+    String(config.public.lineOaQrImage || '').trim() || SITE_LINE_QR_IMAGE,
+  )
   const useStaticQr = computed(() => !!staticQrImage.value)
 
   const qrDataUrl = ref('')

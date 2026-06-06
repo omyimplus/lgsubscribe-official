@@ -56,6 +56,8 @@ export type InquiryItem = {
   display_price_note: string | null
   computed_total?: number
   computed_net_total?: number
+  /** จำนวนชิ้นในรายการ (default 1) */
+  quantity?: number
 }
 
 export interface SubscriptionInquiry {
@@ -78,6 +80,7 @@ export interface SubscriptionInquiry {
 export type InquiryCartItemInput = {
   product_id: string
   plan_id: string
+  quantity?: number
 }
 
 export interface SubscriptionInquiryInput {

@@ -1,5 +1,6 @@
 import type { ComboCustomerSegment, ComboProgramTier } from '~~/shared/types/comboProgram'
 import type { InquiryItem } from '~~/shared/types/inquiry'
+import { expandInquiryItemsByQuantity } from '~~/shared/utils/cartQuantity'
 import { COMBO_EFFECTIVE_FROM_BILL, formatTierRange } from '~~/shared/utils/comboProgramDisplay'
 import { monthlyPriceAtBill } from '~~/shared/utils/planPricing'
 
@@ -191,7 +192,8 @@ export function buildComboQuote(
   program: ComboProgramForQuote | null,
   segment: ComboCustomerSegment,
 ): ComboQuoteResult {
-  const item_count = items.length
+  const expanded = expandInquiryItemsByQuantity(items)
+  const item_count = expanded.length
   const tierRows: ComboTierPick[] = (program?.tiers ?? []).map(t => ({
     min_items: t.min_items,
     max_items: t.max_items,
@@ -201,7 +203,7 @@ export function buildComboQuote(
   const tier = pickComboTier(tierRows, item_count)
   const percent = tier?.extra_discount_percent ?? 0
 
-  const per_item = items.map(item => buildComboQuoteForItem(item, percent))
+  const per_item = expanded.map(item => buildComboQuoteForItem(item, percent))
   const order_total_base = per_item.reduce((s, i) => s + i.contract_total_base, 0)
   const order_total_charged = per_item.reduce((s, i) => s + i.contract_total_charged, 0)
 

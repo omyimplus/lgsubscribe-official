@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Category } from '~~/shared/types/category'
 import type { CustomerExperience, CustomerExperienceInput } from '~~/shared/types/customerExperience'
 import { customerExperienceImageSrc } from '~~/shared/utils/customerExperienceDisplay'
 import {
@@ -11,6 +12,22 @@ definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 const route = useRoute()
 const id = route.params.id as string
 
+const { data: categories } = await useFetch<Category[]>('/api/categories', {
+  default: () => [],
+})
+
+const categoriesByMain = computed(() => {
+  const groups = new Map<string, Category[]>()
+  for (const category of categories.value ?? []) {
+    if (!category.is_active) continue
+    const key = category.main_category?.name ?? 'อื่นๆ'
+    const list = groups.get(key) ?? []
+    list.push(category)
+    groups.set(key, list)
+  }
+  return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b, 'th'))
+})
+
 const { data: item, pending, error: fetchError, refresh } = await useFetch<CustomerExperience>(
   () => `/api/customer-experiences/${id}`,
   { key: `customer-experience-admin-${id}` },
@@ -20,6 +37,7 @@ const form = reactive({
   title: '',
   description: '',
   image_urls: [] as string[],
+  category_ids: [] as string[],
   event_date: '',
   sort_order: 0,
   is_active: true,
@@ -43,6 +61,7 @@ watch(item, (row) => {
   form.event_date = row.event_date ?? ''
   form.sort_order = row.sort_order
   form.is_active = row.is_active
+  form.category_ids = row.categories?.map(c => c.id) ?? []
 }, { immediate: true })
 
 watch(
@@ -148,6 +167,12 @@ function removeImage(index: number) {
   imagePreviewKey.value++
 }
 
+function toggleCategory(categoryId: string) {
+  const index = form.category_ids.indexOf(categoryId)
+  if (index >= 0) form.category_ids.splice(index, 1)
+  else form.category_ids.push(categoryId)
+}
+
 async function handleSave() {
   formError.value = ''
   if (!form.title.trim()) {
@@ -161,6 +186,7 @@ async function handleSave() {
       title: form.title.trim(),
       description: form.description.trim() || null,
       image_urls: [...form.image_urls],
+      category_ids: [...form.category_ids],
       event_date: form.event_date || null,
       sort_order: form.sort_order,
       is_active: form.is_active,
@@ -242,6 +268,34 @@ async function handleDelete() {
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">วันที่จัดกิจกรรม (ไม่บังคับ)</label>
             <input v-model="form.event_date" type="date" class="w-full max-w-xs rounded-xl border border-gray-200 px-3 py-2.5 text-sm">
+          </div>
+
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">หมวดสินค้า (แสดงบนหน้า PDP)</label>
+            <p class="mb-2 text-xs text-gray-500">
+              เลือกหมวดที่ต้องการให้แสดงรูปนี้ใต้รูปสินค้า เช่น ทีวี, ตู้เย็น — ไม่เลือก = แสดงเฉพาะหน้าแรก
+            </p>
+            <div class="space-y-3 rounded-xl border border-gray-200 bg-gray-50/60 p-3">
+              <div v-for="[mainName, list] in categoriesByMain" :key="mainName">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {{ mainName }}
+                </p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <button
+                    v-for="category in list"
+                    :key="category.id"
+                    type="button"
+                    class="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                    :class="form.category_ids.includes(category.id)
+                      ? 'border-red-500 bg-red-500 text-white'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'"
+                    @click="toggleCategory(category.id)"
+                  >
+                    {{ category.name }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 

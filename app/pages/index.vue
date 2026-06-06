@@ -57,6 +57,7 @@ const featuredGroups = computed(() => groupProducts(featuredProducts.value ?? []
       :loading="homeCategoriesPending"
     />
     <HomeBannerPair />
+    <HomeYoutubeVideo />
     <HomePromotions
       :promotions="promotions ?? []"
       :loading="promotionsPending"
@@ -67,5 +68,6 @@ const featuredGroups = computed(() => groupProducts(featuredProducts.value ?? []
     />
     <HomeArticles />
     <HomeExperiences />
+    <HomePaymentBanks />
   </main>
 </template>

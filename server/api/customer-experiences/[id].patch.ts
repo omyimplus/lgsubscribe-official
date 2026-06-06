@@ -1,6 +1,9 @@
 import type { CustomerExperienceInput } from '~~/shared/types/customerExperience'
-import { mapCustomerExperienceRow, syncCustomerExperienceImageFields } from '~~/server/utils/customerExperienceDb'
-import { normalizeCustomerExperienceImageUrls } from '~~/shared/utils/customerExperienceImages'
+import {
+  fetchCustomerExperienceById,
+  syncCustomerExperienceCategories,
+  syncCustomerExperienceImageFields,
+} from '~~/server/utils/customerExperienceDb'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -26,18 +29,24 @@ export default defineEventHandler(async (event) => {
   if (body.sort_order !== undefined) patch.sort_order = body.sort_order
   if (body.is_active !== undefined) patch.is_active = body.is_active
 
-  if (!Object.keys(patch).length) {
+  const supabase = useSupabaseAdmin()
+
+  if (body.category_ids !== undefined) {
+    await syncCustomerExperienceCategories(supabase, id, body.category_ids)
+  }
+
+  if (!Object.keys(patch).length && body.category_ids === undefined) {
     throw createError({ statusCode: 400, message: 'ไม่มีข้อมูลที่จะอัปเดต' })
   }
 
-  const supabase = useSupabaseAdmin()
-  const { data, error } = await supabase
-    .from('customer_experiences')
-    .update(patch)
-    .eq('id', id)
-    .select()
-    .single()
+  if (Object.keys(patch).length) {
+    const { error } = await supabase
+      .from('customer_experiences')
+      .update(patch)
+      .eq('id', id)
 
-  if (error) throw createError({ statusCode: 400, message: error.message })
-  return mapCustomerExperienceRow(data)
+    if (error) throw createError({ statusCode: 400, message: error.message })
+  }
+
+  return fetchCustomerExperienceById(supabase, id)
 })

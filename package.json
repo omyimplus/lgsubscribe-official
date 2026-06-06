@@ -13,7 +13,8 @@
     "postinstall": "nuxt prepare",
     "verify:catalog": "node scripts/verify-tv-catalog.mjs",
     "test:pdp-images": "tsx scripts/test-pdp-images.mjs",
-    "test:categories": "tsx scripts/test-all-category-samples.mjs"
+    "test:categories": "tsx scripts/test-all-category-samples.mjs",
+    "test:washers-import": "npx tsx scripts/test-washers-import.mjs"
   },
   "dependencies": {
     "@nuxt/icon": "^2.2.2",

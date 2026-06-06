@@ -81,6 +81,7 @@ const selectedLgSlug = ref('tvs')
 const catalog = ref<CatalogResponse | null>(null)
 const selectedSkus = ref<Set<string>>(new Set())
 const scanning = ref(false)
+const scanProgress = ref('')
 
 onMounted(async () => {
   try {
@@ -123,8 +124,8 @@ const blockingLoader = computed(() => {
   if (scanning.value) {
     return {
       title: 'กำลังดึงรายการจาก LG',
-      message: `หมวด ${selectedSourceLabel.value} — กำลังเปิดหน้ารายการและอ่านราคา (อาจใช้เวลา 1–5 นาที)`,
-      hint: 'ห้ามปิดแท็บ รีเฟรช หรือออกจากหน้านี้จนกว่าจะเสร็จ',
+      message: scanProgress.value || `หมวด ${selectedSourceLabel.value} — กำลังเปิดหน้ารายการและอ่านราคา (อาจใช้เวลา 2–10 นาที)`,
+      hint: 'ห้ามปิดแท็บหรือรีเฟรชจนกว่าจะเสร็จ — ระบบดึงข้อมูลแบบ background ไม่โดน gateway timeout',
     }
   }
   if (importing.value) {
@@ -193,15 +194,40 @@ function selectNewOnly() {
 
 async function handleScanCatalog() {
   scanning.value = true
+  scanProgress.value = 'เริ่มงานดึงรายการ…'
   catalog.value = null
   try {
-    catalog.value = await $fetch<CatalogResponse>('/api/admin/import/catalog', {
-      query: { lgSlug: selectedLgSlug.value },
-      timeout: 300_000,
+    const { jobId } = await $fetch<{ jobId: string }>('/api/admin/import/catalog/scan', {
+      method: 'POST',
+      body: { lgSlug: selectedLgSlug.value },
     })
-    selectedSkus.value = new Set(
-      catalog.value.items.filter(i => i.status === 'new').map(i => i.sku),
-    )
+
+    const deadline = Date.now() + 900_000
+    while (Date.now() < deadline) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      const job = await $fetch<{
+        status: string
+        message: string | null
+        error: string | null
+        result: CatalogResponse | null
+      }>(`/api/admin/import/catalog/scan/${jobId}`)
+
+      if (job.message) scanProgress.value = job.message
+
+      if (job.status === 'done' && job.result) {
+        catalog.value = job.result
+        selectedSkus.value = new Set(
+          job.result.items.filter(i => i.status === 'new').map(i => i.sku),
+        )
+        return
+      }
+
+      if (job.status === 'error') {
+        throw new Error(job.error ?? 'ดึงรายการจาก LG ไม่สำเร็จ')
+      }
+    }
+
+    throw new Error('ดึงรายการใช้เวลานานเกินไป — ลองใหม่อีกครั้ง')
   }
   catch (err: any) {
     const msg = err?.data?.message ?? err?.message ?? 'ดึงรายการจาก LG ไม่สำเร็จ'
@@ -210,6 +236,7 @@ async function handleScanCatalog() {
   }
   finally {
     scanning.value = false
+    scanProgress.value = ''
   }
 }
 

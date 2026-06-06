@@ -473,11 +473,11 @@ export async function collectTvListCardsWithBrowser(
     const domCardsRaw: DomCardRaw[] = []
     const seenSkus = new Set<string>()
 
-    const scrapePageWithPriceWait = async (pageIndex: number) => {
+    const scrapePageWithPriceWait = async (pageIndex: number, maxUniqueSkus?: number) => {
       for (let attempt = 1; attempt <= PRICE_RENDER_MAX_RETRIES; attempt += 1) {
         log.info(`page ${pageIndex + 1} price attempt ${attempt}/${PRICE_RENDER_MAX_RETRIES}`)
         await page.waitForFunction(hasVisibleCardPricesFn(), { timeout: PRICE_RENDER_WAIT_TIMEOUT_MS }).catch(() => false)
-        const rows = await scrapeTvPlpVariants(page)
+        const rows = await scrapeTvPlpVariants(page, { maxUniqueSkus })
         if (rows.some(row => row.discountedPrice !== null || row.fullPrice !== null)) {
           return rows
         }
@@ -487,7 +487,7 @@ export async function collectTvListCardsWithBrowser(
           await page.waitForTimeout(2500)
         }
       }
-      return await scrapeTvPlpVariants(page)
+      return await scrapeTvPlpVariants(page, { maxUniqueSkus })
     }
 
     for (let pageIndex = 0; pageIndex < MAX_PLP_PAGES; pageIndex += 1) {
@@ -511,14 +511,15 @@ export async function collectTvListCardsWithBrowser(
         break
       }
 
+      const remainingSkus = limit > 0 ? Math.max(0, limit - seenSkus.size) : undefined
       const pageRows = pageIndex === 0
         ? await (async () => {
             log.step('scrape PLP page 1')
-            const rows = await scrapePageWithPriceWait(0)
+            const rows = await scrapePageWithPriceWait(0, remainingSkus)
             log.done(`scrape PLP page 1 (${rows.length} variant rows)`)
             return rows
           })()
-        : await scrapePageWithPriceWait(pageIndex)
+        : await scrapePageWithPriceWait(pageIndex, remainingSkus)
 
       if (!pageRows.length) {
         log.info(`PLP page ${pageIndex + 1} no variant rows — stop pagination`)
@@ -536,6 +537,10 @@ export async function collectTvListCardsWithBrowser(
       }
       log.info(`PLP page ${pageIndex + 1}: +${newSkuCount} new SKU(s), ${pageRows.length} rows (total ${domCardsRaw.length})`)
 
+      if (limit > 0 && seenSkus.size >= limit) {
+        log.info(`reached limit ${limit} unique SKU(s) — stop PLP pagination`)
+        break
+      }
       if (pageIndex > 0 && newSkuCount === 0) {
         log.info('no new SKUs on this page — stop pagination')
         break

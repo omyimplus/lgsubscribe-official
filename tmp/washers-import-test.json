@@ -1,0 +1,36 @@
+{
+  "source": {
+    "lgSlug": "washers",
+    "label": "เครื่องซักผ้า",
+    "categorySlug": "washing-machine",
+    "listUrl": "https://www.lg.com/th/subscription/washers/?ec_model_status_code=ACTIVE"
+  },
+  "options": {
+    "limit": 1,
+    "plpOnly": true,
+    "fullCatalog": false,
+    "pdpOnly": false
+  },
+  "phases": [
+    {
+      "phase": "plp",
+      "status": "OK",
+      "count": 1,
+      "ms": 23752
+    }
+  ],
+  "cards": [
+    {
+      "sku": "WT1410NHEN",
+      "name": "Wash Tower รุ่น WT1410NHEN ระบบ AI DD™ ความจุเครื่องซักผ้า 14 กก./ เครื่องอบผ้า 10 กก. พร้อม Smart WI-FI control ควบคุมสั่งงานผ่านสมาร์ทโฟน",
+      "detailUrl": "https://www.lg.com/th/laundry/wash-tower/wt1410nhen/lgsubscribe",
+      "base_price": 699,
+      "variant_label": null,
+      "missing": [],
+      "status": "OK"
+    }
+  ],
+  "status": "OK",
+  "error": null,
+  "elapsedMs": 23753
+}

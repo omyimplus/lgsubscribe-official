@@ -157,15 +157,32 @@ function pickDetailHref(
 /**
  * ทีวี PLP: คลิก swatch → อ่านป้าย + ราคา + URL จากปุ่ม subscribe (ไม่สร้าง URL จาก SKU)
  */
-export async function scrapeTvPlpVariants(page: Page): Promise<DomCardRaw[]> {
+export async function scrapeTvPlpVariants(
+  page: Page,
+  options?: { maxUniqueSkus?: number },
+): Promise<DomCardRaw[]> {
   const log = createImportLogger('plp-scrape')
   const rows: DomCardRaw[] = []
+  const seenSkus = new Set<string>()
+  const maxUniqueSkus = options?.maxUniqueSkus
   const cards = page.locator('li.c-product-list__item.neo-card')
   const cardCount = await cards.count()
 
-  log.info(`scraping ${cardCount} PLP card(s)`)
+  const trackSku = (sku: string | null | undefined) => {
+    if (!sku) return seenSkus.size
+    seenSkus.add(sku.toUpperCase())
+    return seenSkus.size
+  }
 
-  for (let i = 0; i < cardCount; i++) {
+  const limitReached = () => maxUniqueSkus != null && maxUniqueSkus > 0 && seenSkus.size >= maxUniqueSkus
+
+  log.info(`scraping ${cardCount} PLP card(s)${maxUniqueSkus ? ` (stop at ${maxUniqueSkus} SKU)` : ''}`)
+
+  for (let i = 0; i < cardCount; i += 1) {
+    if (limitReached()) {
+      log.info(`reached SKU limit ${maxUniqueSkus} — stop card scrape`)
+      break
+    }
     log.step(`card ${i + 1}/${cardCount}`)
     const card = cards.nth(i)
     const shared = await evalOnCard<{ detailUrl: string, name: string | null, sku: string | null } | null>(card, 'readNeoCardShared')
@@ -209,13 +226,16 @@ export async function scrapeTvPlpVariants(page: Page): Promise<DomCardRaw[]> {
         discountedPrice: prices.discountedPrice,
         fullPrice: prices.fullPrice,
       })
+      trackSku(sku)
       log.done(`card ${i + 1}/${cardCount} no swatches → 1 row sku=${sku} url=${detailUrl} (total ${rows.length})`)
+      if (limitReached()) break
       continue
     }
 
     log.info(`card ${i + 1}/${cardCount} ${swatchMeta.length} swatch(es) group=${groupKey}`)
     const seenModelIds = new Set<string>()
     for (let j = 0; j < swatchMeta.length; j += 1) {
+      if (limitReached()) break
       const { modelId, label, detailUrl: swatchHref } = swatchMeta[j]!
       if (!modelId || seenModelIds.has(modelId)) continue
       seenModelIds.add(modelId)
@@ -251,6 +271,7 @@ export async function scrapeTvPlpVariants(page: Page): Promise<DomCardRaw[]> {
         discountedPrice: prices.discountedPrice,
         fullPrice: prices.fullPrice,
       })
+      trackSku(variantSku)
       const activeAfter = await evalOnCard<string | null>(card, 'readActiveSwatchModelId')
       log.info(
         `card ${i + 1}/${cardCount} swatch ${j + 1} → sku=${variantSku} price=${prices.discountedPrice ?? '?'} label=${label || '?'} active=${activeAfter?.split('.')[0] ?? '?'}`,

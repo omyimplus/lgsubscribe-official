@@ -166,6 +166,10 @@ server {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
+    # import นำเข้าสินค้า (เปิด PDP หลายรายการ) อาจใช้เวลานาน
+    proxy_read_timeout 900s;
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 900s;
   }
 }
 ```
@@ -174,6 +178,8 @@ server {
 sudo nginx -t && sudo systemctl reload nginx
 sudo certbot --nginx -d your-domain.com
 ```
+
+**504 ตอนดึงรายการ LG:** deploy โค้ดที่ใช้ `POST /api/admin/import/catalog/scan` + poll (ไม่รอ scrape ใน GET เดียว) และตั้ง `proxy_read_timeout` ตามด้านบน — ขั้นตอน **นำเข้าดราฟ** ยังใช้ request ยาว ต้อง timeout 900s เช่นกัน
 
 ---
 

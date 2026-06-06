@@ -477,7 +477,7 @@ export async function collectTvListCardsWithBrowser(
       for (let attempt = 1; attempt <= PRICE_RENDER_MAX_RETRIES; attempt += 1) {
         log.info(`page ${pageIndex + 1} price attempt ${attempt}/${PRICE_RENDER_MAX_RETRIES}`)
         await page.waitForFunction(hasVisibleCardPricesFn(), { timeout: PRICE_RENDER_WAIT_TIMEOUT_MS }).catch(() => false)
-        const rows = await scrapeTvPlpVariants(page, { maxUniqueSkus })
+        const rows = await scrapeTvPlpVariants(page, { maxUniqueSkus, pageIndex })
         if (rows.some(row => row.discountedPrice !== null || row.fullPrice !== null)) {
           return rows
         }
@@ -487,7 +487,7 @@ export async function collectTvListCardsWithBrowser(
           await page.waitForTimeout(2500)
         }
       }
-      return await scrapeTvPlpVariants(page, { maxUniqueSkus })
+      return await scrapeTvPlpVariants(page, { maxUniqueSkus, pageIndex })
     }
 
     for (let pageIndex = 0; pageIndex < MAX_PLP_PAGES; pageIndex += 1) {

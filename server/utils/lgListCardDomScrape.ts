@@ -51,7 +51,10 @@ export function normalizeLgDetailHref(href: string) {
   return `https://www.lg.com${trimmed.startsWith('/') ? '' : '/'}${trimmed}`.replace(/\/$/, '')
 }
 
-/** คีย์กลุ่ม variant จาก path ก่อน slug รุ่น เช่น th/tv-soundbars/nano-4k-uhd */
+/** คีย์กลุ่ม variant จาก URL รายละเอียด
+ * - ทีวี/มี family path: th/tv-soundbars/oled-evo (ก่อน slug รุ่น)
+ * - หมวดที่ path สั้น (th/washers/model): ใช้ path ถึง slug รุ่น — ไม่รวมทั้งหมวดเป็นกลุ่มเดียว
+ */
 export function variantGroupKeyFromDetailUrl(url: string) {
   const normalized = normalizeLgDetailHref(url)
   if (!normalized) return ''
@@ -59,7 +62,14 @@ export function variantGroupKeyFromDetailUrl(url: string) {
     const parts = new URL(normalized).pathname.split('/').filter(Boolean)
     const subIdx = parts.findIndex(p => p.toLowerCase() === 'lgsubscribe')
     if (subIdx < 2) return ''
-    return parts.slice(0, subIdx - 1).join('/').toLowerCase()
+
+    const modelIdx = subIdx - 1
+    // th/category/model → กลุ่มต่อการ์ด/รุ่น (ไม่ใช่ทั้งหมวด)
+    if (modelIdx <= 2) {
+      return parts.slice(0, subIdx).join('/').toLowerCase()
+    }
+    // th/category/family/model → กลุ่มตาม family (หลาย swatch ในการ์ดเดียว)
+    return parts.slice(0, modelIdx).join('/').toLowerCase()
   }
   catch {
     return ''
@@ -159,12 +169,13 @@ function pickDetailHref(
  */
 export async function scrapeTvPlpVariants(
   page: Page,
-  options?: { maxUniqueSkus?: number },
+  options?: { maxUniqueSkus?: number, pageIndex?: number },
 ): Promise<DomCardRaw[]> {
   const log = createImportLogger('plp-scrape')
   const rows: DomCardRaw[] = []
   const seenSkus = new Set<string>()
   const maxUniqueSkus = options?.maxUniqueSkus
+  const pageIndex = options?.pageIndex ?? 0
   const cards = page.locator('li.c-product-list__item.neo-card')
   const cardCount = await cards.count()
 
@@ -191,7 +202,8 @@ export async function scrapeTvPlpVariants(
       continue
     }
 
-    const groupKey = variantGroupKeyFromDetailUrl(shared.detailUrl) || `plp-card-${i}`
+    const fallbackGroupKey = `plp-card:p${pageIndex}:c${i}`
+    let groupKey = variantGroupKeyFromDetailUrl(shared.detailUrl) || fallbackGroupKey
     const cardRowsStart = rows.length
 
     await card.scrollIntoViewIfNeeded({ timeout: 5000 }).catch(() => {})
@@ -281,8 +293,12 @@ export async function scrapeTvPlpVariants(
     const cardRows = rows.slice(cardRowsStart)
     const sharedDetailUrl = cardRows.find(r => r.detailUrl)?.detailUrl
       || normalizeLgDetailHref(shared.detailUrl)
+    groupKey = variantGroupKeyFromDetailUrl(sharedDetailUrl)
+      || variantGroupKeyFromDetailUrl(cardRows[0]?.detailUrl ?? '')
+      || groupKey
     for (const row of cardRows) {
       row.sharedDetailUrl = sharedDetailUrl
+      row.variantGroupKey = groupKey
     }
 
     log.done(`card ${i + 1}/${cardCount} → ${cardRows.length} variant(s) sharedDetail=${sharedDetailUrl ?? '?'}`)

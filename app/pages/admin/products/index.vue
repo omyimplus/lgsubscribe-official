@@ -17,6 +17,7 @@ const search = ref('')
 const filterStatus = ref<ProductStatus | ''>('')
 const filterCategory = ref('')
 const clearingAll = ref(false)
+const clearingCategory = ref(false)
 const publishingAll = ref(false)
 
 const statusOptions: { value: ProductStatus | '', label: string }[] = [
@@ -60,6 +61,26 @@ function categoriesForMainGroup(mainId: string) {
 }
 
 const sortedMainCategories = computed(() => sortMainCategories(mainCategories.value ?? []))
+
+const selectedCategoryName = computed(() =>
+  categories.value?.find(c => c.id === filterCategory.value)?.name ?? '',
+)
+
+const productsInSelectedCategory = computed(() => {
+  const catId = filterCategory.value
+  if (!catId) return []
+  return (products.value ?? []).filter(
+    p => p.category_id === catId || p.category?.id === catId,
+  )
+})
+
+const categoryDeleteCount = computed(() => productsInSelectedCategory.value.length)
+
+const deleteCategoryButtonTitle = computed(() => {
+  if (!filterCategory.value) return 'เลือกหมวดหมู่ก่อน'
+  const name = selectedCategoryName.value || 'หมวดที่เลือก'
+  return `ลบสินค้า ${categoryDeleteCount.value} รายการในหมวด "${name}"`
+})
 
 function statusLabel(s: ProductStatus) {
   if (s === 'published') return 'เผยแพร่'
@@ -112,6 +133,46 @@ async function handlePublishAll() {
   }
 }
 
+async function handleDeleteByCategory() {
+  if (!filterCategory.value) {
+    alert('เลือกหมวดหมู่จากตัวกรองก่อน')
+    return
+  }
+  const count = categoryDeleteCount.value
+  if (!count) {
+    alert(`ไม่มีสินค้าในหมวด "${selectedCategoryName.value}"`)
+    return
+  }
+  if (!confirm(
+    `ลบสินค้า ${count} รายการในหมวด "${selectedCategoryName.value}" ใช่หรือไม่?\n\n`
+    + 'รูป/วิดีโอใน Storage ที่ผูกกับสินค้าเหล่านี้จะถูกลบด้วย\n'
+    + '(ไม่กระทบสินค้าในหมวดอื่น)',
+  )) return
+
+  clearingCategory.value = true
+  try {
+    const res = await $fetch<{
+      categoryName: string
+      deleted: number
+      storage: { removedFiles: number, errors: string[] }
+    }>('/api/admin/products/by-category', {
+      method: 'DELETE',
+      body: { categoryId: filterCategory.value },
+    })
+    const storageNote = res.storage.removedFiles
+      ? ` (ลบไฟล์ Storage ${res.storage.removedFiles} ไฟล์)`
+      : ''
+    alert(`ลบสินค้าในหมวด "${res.categoryName}" แล้ว ${res.deleted} รายการ${storageNote}`)
+    await refresh()
+  }
+  catch (err: any) {
+    alert(err?.data?.message ?? 'ลบสินค้าในหมวดไม่สำเร็จ')
+  }
+  finally {
+    clearingCategory.value = false
+  }
+}
+
 async function handleDeleteAll() {
   const total = products.value?.length ?? 0
   if (!total) {
@@ -153,7 +214,7 @@ async function handleDeleteAll() {
         <button
           type="button"
           class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-60"
-          :disabled="publishingAll || clearingAll || !stats.total"
+          :disabled="publishingAll || clearingAll || clearingCategory || !stats.total"
           @click="handlePublishAll"
         >
           <Icon name="heroicons:globe-alt" class="h-4 w-4" />
@@ -162,7 +223,7 @@ async function handleDeleteAll() {
         <button
           type="button"
           class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
-          :disabled="clearingAll || publishingAll || !stats.total"
+          :disabled="clearingAll || clearingCategory || publishingAll || !stats.total"
           @click="handleDeleteAll"
         >
           <Icon name="heroicons:trash" class="h-4 w-4" />
@@ -228,6 +289,18 @@ async function handleDeleteAll() {
             <option v-for="c in categoriesForMainGroup(main.id)" :key="c.id" :value="c.id">{{ c.name }}</option>
           </optgroup>
         </select>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+          :disabled="!filterCategory || categoryDeleteCount < 1 || clearingCategory || clearingAll || publishingAll"
+          :title="deleteCategoryButtonTitle"
+          @click="handleDeleteByCategory"
+        >
+          <Icon name="heroicons:trash" class="h-4 w-4 shrink-0" />
+          <span v-if="clearingCategory">กำลังลบ...</span>
+          <span v-else-if="filterCategory">ลบในหมวด ({{ categoryDeleteCount }})</span>
+          <span v-else>ลบในหมวด</span>
+        </button>
       </div>
 
       <div v-if="fetchError" class="m-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">

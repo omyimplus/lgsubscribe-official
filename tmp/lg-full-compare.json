@@ -1,0 +1,558 @@
+{
+  "startedAt": "2026-06-06T08:49:50.263Z",
+  "elapsedSec": 749,
+  "options": {
+    "limit": 500,
+    "quick": false,
+    "onlySlugs": []
+  },
+  "unitTests": {
+    "failures": []
+  },
+  "summary": {
+    "ok": 12,
+    "warn": 1,
+    "fail": 0,
+    "empty": 1,
+    "unitFail": 0
+  },
+  "results": [
+    {
+      "lgSlug": "tvs",
+      "label": "โทรทัศน์",
+      "categorySlug": "television",
+      "listUrl": "https://www.lg.com/th/subscription/tvs/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 9,
+      "groupCount": 3,
+      "multiVariantGroups": 3,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "OLED77C6PSA",
+        "OLED65C6PSA",
+        "OLED55C6PSA",
+        "OLED48C6PSA",
+        "85QNED80BSA"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/tv-soundbars/oled-evo",
+          "name": "ทีวี 48\" LG OLED evo C6 4K Smart TV 2026",
+          "skus": [
+            "OLED48C6PSA",
+            "OLED55C6PSA",
+            "OLED65C6PSA",
+            "OLED77C6PSA"
+          ]
+        },
+        {
+          "key": "th/tv-soundbars/nano-4k-uhd",
+          "name": "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026",
+          "skus": [
+            "65NU855BPSA",
+            "75NU855BPSA"
+          ]
+        },
+        {
+          "key": "th/tv-soundbars/qned-evo",
+          "name": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026",
+          "skus": [
+            "65QNED80BSA",
+            "75QNED86BSA",
+            "85QNED80BSA"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 36072
+    },
+    {
+      "lgSlug": "soundbars",
+      "label": "ลำโพง Soundbars",
+      "categorySlug": "soundbar",
+      "listUrl": "https://www.lg.com/th/subscription/soundbars/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 1,
+      "groupCount": 1,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "S70TY"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/speakers/soundbars",
+          "name": "ลำโพง SoundBar",
+          "skus": [
+            "S70TY"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 20829
+    },
+    {
+      "lgSlug": "washers",
+      "label": "เครื่องซักผ้า",
+      "categorySlug": "washing-machine",
+      "listUrl": "https://www.lg.com/th/subscription/washers/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 13,
+      "groupCount": 4,
+      "multiVariantGroups": 3,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "WT2116SHEG",
+        "FV1413H4M",
+        "WT2520NHEG",
+        "WT1410NHEG",
+        "TX2725AT9G"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/laundry/front-load-washing-machine",
+          "name": "เครื่องซักผ้า 13 กก. / อบ 8 กก.",
+          "skus": [
+            "FV1413H4M",
+            "F2520RNTB",
+            "FV1409H4W",
+            "FV1413S4M"
+          ]
+        },
+        {
+          "key": "th/laundry/top-load-washing-machine",
+          "name": "เครื่องซักผ้าฝาบน 25 กก",
+          "skus": [
+            "TX2725AT9G",
+            "TX2723ST5J",
+            "TX2315DT5G"
+          ]
+        },
+        {
+          "key": "th/laundry/dryer",
+          "name": "เครื่องอบผ้า Heat Pump™ RV10VHP4B จุ 10 กก.",
+          "skus": [
+            "RV10VHP4B"
+          ]
+        },
+        {
+          "key": "th/laundry/wash-tower",
+          "name": "WashTower ซักผ้า 21 กก. และอบ 16 กก.",
+          "skus": [
+            "WT2116SHEG",
+            "WT2520NHEG",
+            "WT1410NHEG",
+            "WT2520NHEN",
+            "WT1410NHEN"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 150098
+    },
+    {
+      "lgSlug": "dryers",
+      "label": "เครื่องอบผ้า",
+      "categorySlug": "dryer",
+      "listUrl": "https://www.lg.com/th/subscription/dryers/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 1,
+      "groupCount": 1,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "RV10VHP4B"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/laundry/dryer",
+          "name": "เครื่องอบผ้า Heat Pump™ RV10VHP4B จุ 10 กก.",
+          "skus": [
+            "RV10VHP4B"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 28648
+    },
+    {
+      "lgSlug": "styler",
+      "label": "ตู้ถนอมผ้า",
+      "categorySlug": "styler",
+      "listUrl": "https://www.lg.com/th/subscription/styler/?ec_model_status_code=ACTIVE",
+      "status": "EMPTY",
+      "skuCount": 0,
+      "groupCount": 0,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [],
+      "sampleGroups": [],
+      "error": "ไม่มีสินค้าบน PLP",
+      "ms": 39206
+    },
+    {
+      "lgSlug": "refrigerators",
+      "label": "ตู้เย็น",
+      "categorySlug": "refrigerator",
+      "listUrl": "https://www.lg.com/th/subscription/refrigerators/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 13,
+      "groupCount": 3,
+      "multiVariantGroups": 3,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "X257CMEW",
+        "L24FFCBB",
+        "B257SQYL",
+        "X24FFCRB",
+        "V22FFQMB"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/refrigerators/2-door-refrigerator",
+          "name": "ตู้เย็น 2 ประตู 13.9 คิว",
+          "skus": [
+            "F392PQAK",
+            "F452PQAK",
+            "V389FQEF"
+          ]
+        },
+        {
+          "key": "th/refrigerators/side-by-side-refrigerator",
+          "name": "ตู้เย็น Instaview Side by Side 22.4 คิว GC-X257CMEW Smart Inverter Compressor™",
+          "skus": [
+            "X257CMEW",
+            "B257SQYL",
+            "J257SQZW",
+            "L257KQKW",
+            "L257SFZW"
+          ]
+        },
+        {
+          "key": "th/refrigerators/multi-door-refrigerator",
+          "name": "ตู้เย็น Multi-Door GC-L24FFCBB 22.6 คิว ระบบ Smart Inverter Compressor",
+          "skus": [
+            "L24FFCBB",
+            "X24FFCRB",
+            "V22FFQMB",
+            "V25FFGRB",
+            "G24FFQKB"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 143792
+    },
+    {
+      "lgSlug": "vacuum-cleaners",
+      "label": "เครื่องดูดฝุ่น",
+      "categorySlug": "vacuum-cleaner",
+      "listUrl": "https://www.lg.com/th/subscription/vacuum-cleaners/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 1,
+      "groupCount": 1,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "ULTRA"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/vacuum-cleaner/cordless-vacuum-cleaner",
+          "name": "เครื่องดูดฝุ่น LG CordZero™",
+          "skus": [
+            "ULTRA"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 29049
+    },
+    {
+      "lgSlug": "microwave-ovens",
+      "label": "ไมโครเวฟ",
+      "categorySlug": "microwave-oven",
+      "listUrl": "https://www.lg.com/th/subscription/microwave-ovens/",
+      "status": "OK",
+      "skuCount": 1,
+      "groupCount": 1,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "MC4295DIS"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/microwave-ovens/solo-microwave",
+          "name": "ไมโครเวฟระบบอุ่นอาหาร",
+          "skus": [
+            "MC4295DIS"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 18906
+    },
+    {
+      "lgSlug": "dishwashers",
+      "label": "เครื่องล้างจาน",
+      "categorySlug": "dishwasher",
+      "listUrl": "https://www.lg.com/th/subscription/dishwashers/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 2,
+      "groupCount": 2,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "DFC533FV",
+        "DFC335HM"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/dishwasher/dfc335hm",
+          "name": "เครื่องล้างจาน DFC335HM สีดำ มี WI-FI control",
+          "skus": [
+            "DFC335HM"
+          ]
+        },
+        {
+          "key": "th/dishwasher/dfc533fv",
+          "name": "เครื่องล้างจาน DFC533FV สีเงิน WI-FI control",
+          "skus": [
+            "DFC533FV"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 27659
+    },
+    {
+      "lgSlug": "water-purifiers",
+      "label": "เครื่องกรองน้ำ",
+      "categorySlug": "water-purifier",
+      "listUrl": "https://www.lg.com/th/subscription/water-purifiers/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 4,
+      "groupCount": 4,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "WS510SN",
+        "WD516AN",
+        "WD518AN",
+        "WD110MN"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/water-purifiers/ws510sn",
+          "name": "เครื่องกรองน้ำแบบตั้งพื้น",
+          "skus": [
+            "WS510SN"
+          ]
+        },
+        {
+          "key": "th/water-purifiers/wd110mn",
+          "name": "เครื่องกรองน้ำ สีเบจ LG PuriCare Objet Collection",
+          "skus": [
+            "WD110MN"
+          ]
+        },
+        {
+          "key": "th/water-purifiers/wd516an-aslplmt",
+          "name": "เครื่องกรองน้ำ LG PuriCare",
+          "skus": [
+            "WD516AN"
+          ]
+        },
+        {
+          "key": "th/water-purifiers/wd518an-awhplmt",
+          "name": "เครื่องกรองน้ำ LG PuriCare Objet Collection",
+          "skus": [
+            "WD518AN"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 85592
+    },
+    {
+      "lgSlug": "air-conditioners",
+      "label": "เครื่องปรับอากาศ",
+      "categorySlug": "air-conditioner",
+      "listUrl": "https://www.lg.com/th/subscription/air-conditioners/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "skuCount": 12,
+      "groupCount": 2,
+      "multiVariantGroups": 2,
+      "missingFields": 0,
+      "warnings": [
+        "suspicious-group: กลุ่ม \"แอร์อินเวอร์เตอร์ 9,200 BTU LG DUALCOOL AI Air\" มี 8/12 SKU"
+      ],
+      "sampleSkus": [
+        "SIQ11B",
+        "SIQ13B",
+        "SIQ18B",
+        "SIQ24B",
+        "SAQ24B"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/air-conditioner-inverter/energy-saving-air-conditioner",
+          "name": "แอร์อินเวอร์เตอร์ 9,200 BTU LG DUALCOOL AI Air",
+          "skus": [
+            "SAQ11A",
+            "IXY11A",
+            "SAQ13A",
+            "IXY13A",
+            "SAQ18B",
+            "IXY18A",
+            "SAQ24B",
+            "IXY24A"
+          ]
+        },
+        {
+          "key": "th/air-conditioner-inverter/air-conditioner-with-air-purifier",
+          "name": "แอร์อินเวอร์เตอร์ 9,212 BTU LG DUALCOOL AI Air",
+          "skus": [
+            "SIQ11B",
+            "SIQ13B",
+            "SIQ18B",
+            "SIQ24B"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 22706
+    },
+    {
+      "lgSlug": "air-purifiers",
+      "label": "เครื่องฟอกอากาศ",
+      "categorySlug": "air-purifier",
+      "listUrl": "https://www.lg.com/th/subscription/air-purifiers/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 5,
+      "groupCount": 2,
+      "multiVariantGroups": 1,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "AS60GHWG0",
+        "AS65GDBY0",
+        "AS35GGW10",
+        "AS10GDBY0",
+        "AS25GCBY0"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/air-puricare/puricare-360",
+          "name": "เครื่องฟอกอากาศ LG PuriCare 360 Hit",
+          "skus": [
+            "AS60GHWG0",
+            "AS65GDBY0",
+            "AS35GGW10",
+            "AS10GDBY0"
+          ]
+        },
+        {
+          "key": "th/air-puricare/puricare-aerotower",
+          "name": "เครื่องฟอกอากาศ LG PuriCare AeroCat Tower",
+          "skus": [
+            "AS25GCBY0"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 57839
+    },
+    {
+      "lgSlug": "dehumidifier",
+      "label": "เครื่องลดความชื้น",
+      "categorySlug": "dehumidifier",
+      "listUrl": "https://www.lg.com/th/subscription/dehumidifier/",
+      "status": "OK",
+      "skuCount": 2,
+      "groupCount": 2,
+      "multiVariantGroups": 0,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "MD19GQGA1",
+        "DD23GMWE1"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/dehumidifier/md19gqga1",
+          "name": "เครื่องลดความชื้น LG PuriCare Dehumidifier 19",
+          "skus": [
+            "MD19GQGA1"
+          ]
+        },
+        {
+          "key": "th/dehumidifier/dd23gmwe1",
+          "name": "เครื่องลดความชื้น LG PuriCare Dehumidifier 23",
+          "skus": [
+            "DD23GMWE1"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 27784
+    },
+    {
+      "lgSlug": "monitors",
+      "label": "จอมอนิเตอร์",
+      "categorySlug": "monitor",
+      "listUrl": "https://www.lg.com/th/subscription/monitors/?ec_model_status_code=ACTIVE",
+      "status": "OK",
+      "skuCount": 5,
+      "groupCount": 3,
+      "multiVariantGroups": 1,
+      "missingFields": 0,
+      "warnings": [],
+      "sampleSkus": [
+        "32U889SA",
+        "27GX704A",
+        "45GX950A",
+        "40U990A",
+        "52G930B"
+      ],
+      "sampleGroups": [
+        {
+          "key": "th/monitors/smart-monitors",
+          "name": "จอมอนิเตอร์ 31.5\" 4K IPS Smart Monitor Swing จอสัมผัส ขาตั้งหมุนได้",
+          "skus": [
+            "32U889SA"
+          ]
+        },
+        {
+          "key": "th/monitors/uhd-4k-5k",
+          "name": "LG UltraFine™ 40 นิ้ว |40U990A| Nano IPS Black 5K2K with Thunderbolt™ 5",
+          "skus": [
+            "40U990A"
+          ]
+        },
+        {
+          "key": "th/monitors/gaming",
+          "name": "LG UltraGear™ GX7 27 นิ้ว240Hz OLED QHD Gaming Monitor 27GX704A DisplayHDR™ True Black 400",
+          "skus": [
+            "27GX704A",
+            "45GX950A",
+            "52G930B"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 60629
+    }
+  ]
+}

@@ -1,22 +1,243 @@
 {
-  "elapsed": 147,
+  "elapsed": 387,
   "results": [
     {
-      "lgSlug": "washers",
-      "label": "เครื่องซักผ้า",
-      "categorySlug": "washing-machine",
-      "listUrl": "https://www.lg.com/th/subscription/washers/?ec_model_status_code=ACTIVE",
+      "lgSlug": "tvs",
+      "label": "โทรทัศน์",
+      "categorySlug": "television",
+      "listUrl": "https://www.lg.com/th/subscription/tvs/?ec_model_status_code=ACTIVE",
       "status": "WARN",
-      "sku": "WT1410NHEN",
-      "detailUrl": "https://www.lg.com/th/laundry/wash-tower/wt1410nhen/lgsubscribe",
-      "plpPrice": 699,
+      "sku": "OLED77C6PSA",
+      "detailUrl": "https://www.lg.com/th/tv-soundbars/oled-evo/oled77c6psa/lgsubscribe",
+      "plpPrice": 999,
       "pdpImages": 20,
       "imageProbe": 200,
       "missing": [
         "pdp:price"
       ],
       "error": null,
-      "ms": 146598
+      "ms": 19839
+    },
+    {
+      "lgSlug": "soundbars",
+      "label": "ลำโพง Soundbars",
+      "categorySlug": "soundbar",
+      "listUrl": "https://www.lg.com/th/subscription/soundbars/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "S70TY",
+      "detailUrl": "https://www.lg.com/th/speakers/soundbars/s70ty/lgsubscribe",
+      "plpPrice": 189,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 23459
+    },
+    {
+      "lgSlug": "washers",
+      "label": "เครื่องซักผ้า",
+      "categorySlug": "washing-machine",
+      "listUrl": "https://www.lg.com/th/subscription/washers/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "WT2116SHEG",
+      "detailUrl": "https://www.lg.com/th/laundry/wash-tower/wt2116sheg/lgsubscribe",
+      "plpPrice": 874,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 29583
+    },
+    {
+      "lgSlug": "dryers",
+      "label": "เครื่องอบผ้า",
+      "categorySlug": "dryer",
+      "listUrl": "https://www.lg.com/th/subscription/dryers/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "RV10VHP4B",
+      "detailUrl": "https://www.lg.com/th/laundry/dryer/rv10vhp4b/lgsubscribe",
+      "plpPrice": 374,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 32125
+    },
+    {
+      "lgSlug": "styler",
+      "label": "ตู้ถนอมผ้า",
+      "categorySlug": "styler",
+      "listUrl": "https://www.lg.com/th/subscription/styler/?ec_model_status_code=ACTIVE",
+      "status": "EMPTY",
+      "sku": null,
+      "detailUrl": null,
+      "plpPrice": null,
+      "pdpImages": 0,
+      "imageProbe": null,
+      "missing": [
+        "plp:no_items"
+      ],
+      "error": "ไม่มีสินค้าบนหน้ารายการ",
+      "ms": 44705
+    },
+    {
+      "lgSlug": "refrigerators",
+      "label": "ตู้เย็น",
+      "categorySlug": "refrigerator",
+      "listUrl": "https://www.lg.com/th/subscription/refrigerators/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "X257CMEW",
+      "detailUrl": "https://www.lg.com/th/refrigerators/side-by-side-refrigerator/gc-x257cmew/lgsubscribe",
+      "plpPrice": 524,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 26383
+    },
+    {
+      "lgSlug": "vacuum-cleaners",
+      "label": "เครื่องดูดฝุ่น",
+      "categorySlug": "vacuum-cleaner",
+      "listUrl": "https://www.lg.com/th/subscription/vacuum-cleaners/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "ULTRA",
+      "detailUrl": "https://www.lg.com/th/vacuum-cleaner/cordless-vacuum-cleaner/a9t-ultra/lgsubscribe",
+      "plpPrice": 374,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 40741
+    },
+    {
+      "lgSlug": "microwave-ovens",
+      "label": "ไมโครเวฟ",
+      "categorySlug": "microwave-oven",
+      "listUrl": "https://www.lg.com/th/subscription/microwave-ovens/",
+      "status": "WARN",
+      "sku": "MC4295DIS",
+      "detailUrl": "https://www.lg.com/th/microwave-ovens/solo-microwave/mc4295dis/lgsubscribe",
+      "plpPrice": 99,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 29082
+    },
+    {
+      "lgSlug": "dishwashers",
+      "label": "เครื่องล้างจาน",
+      "categorySlug": "dishwasher",
+      "listUrl": "https://www.lg.com/th/subscription/dishwashers/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "DFC533FV",
+      "detailUrl": "https://www.lg.com/th/dishwasher/dfc533fv/lgsubscribe",
+      "plpPrice": 324,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 26028
+    },
+    {
+      "lgSlug": "water-purifiers",
+      "label": "เครื่องกรองน้ำ",
+      "categorySlug": "water-purifier",
+      "listUrl": "https://www.lg.com/th/subscription/water-purifiers/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "WS510SN",
+      "detailUrl": "https://www.lg.com/th/water-purifiers/ws510sn/lgsubscribe",
+      "plpPrice": 149,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 23928
+    },
+    {
+      "lgSlug": "air-conditioners",
+      "label": "เครื่องปรับอากาศ",
+      "categorySlug": "air-conditioner",
+      "listUrl": "https://www.lg.com/th/subscription/air-conditioners/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "SIQ11B",
+      "detailUrl": "https://www.lg.com/th/air-conditioner-inverter/air-conditioner-with-air-purifier/siq11b/lgsubscribe",
+      "plpPrice": 299,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 14354
+    },
+    {
+      "lgSlug": "air-purifiers",
+      "label": "เครื่องฟอกอากาศ",
+      "categorySlug": "air-purifier",
+      "listUrl": "https://www.lg.com/th/subscription/air-purifiers/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "AS60GHWG0",
+      "detailUrl": "https://www.lg.com/th/air-puricare/puricare-360/as60ghwg0/lgsubscribe",
+      "plpPrice": 224,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 27070
+    },
+    {
+      "lgSlug": "dehumidifier",
+      "label": "เครื่องลดความชื้น",
+      "categorySlug": "dehumidifier",
+      "listUrl": "https://www.lg.com/th/subscription/dehumidifier/",
+      "status": "WARN",
+      "sku": "MD19GQGA1",
+      "detailUrl": "https://www.lg.com/th/dehumidifier/md19gqga1/lgsubscribe",
+      "plpPrice": 449,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 23801
+    },
+    {
+      "lgSlug": "monitors",
+      "label": "จอมอนิเตอร์",
+      "categorySlug": "monitor",
+      "listUrl": "https://www.lg.com/th/subscription/monitors/?ec_model_status_code=ACTIVE",
+      "status": "WARN",
+      "sku": "32U889SA",
+      "detailUrl": "https://www.lg.com/th/monitors/smart-monitors/32u889sa-w/lgsubscribe",
+      "plpPrice": 349,
+      "pdpImages": 20,
+      "imageProbe": 200,
+      "missing": [
+        "pdp:price"
+      ],
+      "error": null,
+      "ms": 25422
     }
   ]
 }

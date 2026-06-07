@@ -15,7 +15,10 @@ import {
 import {
   collectTvListCardsWithBrowser,
 } from '../server/utils/lgTvImport.ts'
-import { variantGroupKeyFromDetailUrl } from '../server/utils/lgListCardDomScrape.ts'
+import {
+  variantGroupKeyFromDetailUrl,
+  variantGroupKeyForPlpCard,
+} from '../server/utils/lgListCardDomScrape.ts'
 
 function parseVariantSort(label) {
   const m = label?.match(/(\d+)/)
@@ -58,18 +61,22 @@ const onlySlugs = args.filter(a => !a.startsWith('--')).map(s => s.toLowerCase()
 const GROUP_KEY_CASES = [
   {
     url: 'https://www.lg.com/th/laundry/wash-tower/wt1410nhen/lgsubscribe',
+    scope: 'model',
+    expect: 'th/laundry/wash-tower/wt1410nhen',
+  },
+  {
+    url: 'https://www.lg.com/th/laundry/wash-tower/wt1410nhen/lgsubscribe',
+    scope: 'family',
     expect: 'th/laundry/wash-tower',
   },
   {
-    url: 'https://www.lg.com/th/laundry/front-load-washing-machine/fv9v11w2v/lgsubscribe',
-    expect: 'th/laundry/front-load-washing-machine',
-  },
-  {
     url: 'https://www.lg.com/th/tv-soundbars/oled-evo/oled65c6psa/lgsubscribe',
+    scope: 'family',
     expect: 'th/tv-soundbars/oled-evo',
   },
   {
     url: 'https://www.lg.com/th/washers/wt1410nhen/lgsubscribe',
+    scope: 'model',
     expect: 'th/washers/wt1410nhen',
   },
 ]
@@ -84,9 +91,13 @@ function auditCard(card) {
   return missing
 }
 
-function detectOverGrouping(items, groups) {
+function detectOverGrouping(items, groups, plpCardCount) {
   const warnings = []
   if (!items.length) return warnings
+
+  if (plpCardCount > 0 && groups.length !== plpCardCount) {
+    warnings.push(`card-group-mismatch: PLP ${plpCardCount} การ์ด vs ${groups.length} กลุ่ม`)
+  }
 
   const uniqueKeys = new Set(items.map(i => i.variant_group_key).filter(Boolean))
   if (items.length >= 4 && uniqueKeys.size === 1) {
@@ -113,7 +124,7 @@ function detectOverGrouping(items, groups) {
 function runGroupKeyUnitTests() {
   const failures = []
   for (const c of GROUP_KEY_CASES) {
-    const got = variantGroupKeyFromDetailUrl(c.url)
+    const got = variantGroupKeyFromDetailUrl(c.url, c.scope ?? 'family')
     if (got !== c.expect) {
       failures.push({ url: c.url, expect: c.expect, got })
     }
@@ -163,6 +174,7 @@ for (let i = 0; i < sources.length; i += 1) {
     listUrl: source.listUrl,
     status: 'ERROR',
     skuCount: 0,
+    plpCardCount: 0,
     groupCount: 0,
     multiVariantGroups: 0,
     missingFields: 0,
@@ -190,14 +202,19 @@ for (let i = 0; i < sources.length; i += 1) {
       continue
     }
 
+    const plpCardCount = new Set(
+      cards.map(c => c.plp_card_key).filter(Boolean),
+    ).size
+
     const items = cards.map(card => ({
       sku: (card.model_key || '').toUpperCase(),
       name: card.name,
       source_url: card.source_url,
       base_price: card.base_price,
       variant_label: card.variant_label ?? null,
+      plp_card_key: card.plp_card_key ?? null,
       variant_group_key: card.variant_group_key
-        ?? variantGroupKeyFromDetailUrl(card.shared_detail_url || card.source_url),
+        ?? variantGroupKeyFromDetailUrl(card.shared_detail_url || card.source_url, 'model'),
     })).filter(i => i.sku)
 
     const groups = groupCatalogItems(items)
@@ -209,11 +226,12 @@ for (let i = 0; i < sources.length; i += 1) {
       variant_group_key: item.variant_group_key,
     }).length, 0)
 
+    row.plpCardCount = plpCardCount
     row.skuCount = items.length
     row.groupCount = groups.length
     row.multiVariantGroups = groups.filter(g => g.products.length > 1).length
     row.missingFields = auditMissing
-    row.warnings = detectOverGrouping(items, groups)
+    row.warnings = detectOverGrouping(items, groups, plpCardCount)
     row.sampleSkus = items.slice(0, 5).map(i => i.sku)
     row.sampleGroups = groups.slice(0, 5).map(g => ({
       key: g.group_key,
@@ -221,13 +239,15 @@ for (let i = 0; i < sources.length; i += 1) {
       skus: g.products.map(p => p.sku),
     }))
 
-    const hasFail = row.warnings.some(w => w.startsWith('over-group'))
+    const hasFail = row.warnings.some(w =>
+      w.startsWith('over-group') || w.startsWith('card-group-mismatch'),
+    )
     const hasWarn = row.warnings.length > 0 || auditMissing > 0
     row.status = hasFail ? 'FAIL' : hasWarn ? 'WARN' : 'OK'
     row.ms = Date.now() - t0
 
     console.log(
-      `  → ${row.status} ${row.skuCount} SKU · ${row.groupCount} กลุ่ม`
+      `  → ${row.status} cards=${row.plpCardCount} ${row.skuCount} SKU · ${row.groupCount} กลุ่ม`
       + ` (${row.multiVariantGroups} กลุ่มหลายขนาด) · ${(row.ms / 1000).toFixed(1)}s`,
     )
     if (row.warnings.length) console.log(`     warn: ${row.warnings.join(' | ')}`)

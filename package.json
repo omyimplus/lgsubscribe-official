@@ -17,6 +17,7 @@
     "test:washers-import": "npx tsx scripts/test-washers-import.mjs",
     "test:lg-full": "tsx scripts/test-lg-full-compare.mjs",
     "test:lg-full-quick": "tsx scripts/test-lg-full-compare.mjs --quick",
+    "test:lg-card-groups": "tsx scripts/test-lg-import-card-groups.mjs",
     "test:admin-category-label": "node scripts/test-admin-category-delete-label.mjs"
   },
   "dependencies": {

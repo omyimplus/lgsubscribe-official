@@ -1,0 +1,71 @@
+{
+  "startedAt": "2026-06-07T00:20:42.550Z",
+  "elapsedSec": 55,
+  "unitFailures": [],
+  "results": [
+    {
+      "lgSlug": "tvs",
+      "label": "โทรทัศน์",
+      "status": "OK",
+      "plpCardCount": 4,
+      "importGroupCount": 4,
+      "skuCount": 9,
+      "multiSkuGroups": 3,
+      "issues": [],
+      "cards": [
+        {
+          "plpKey": "plp-card:p0:c0",
+          "groupKey": "th/tv-soundbars/oled-evo",
+          "skus": [
+            "OLED77C6PSA",
+            "OLED65C6PSA",
+            "OLED55C6PSA",
+            "OLED48C6PSA"
+          ],
+          "names": [
+            "ทีวี 77\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED77C6PSA",
+            "ทีวี 65\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED65C6PSA",
+            "ทีวี 55\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED55C6PSA",
+            "ทีวี 48\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED48C6PSA"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c1",
+          "groupKey": "th/tv-soundbars/nano-4k-uhd",
+          "skus": [
+            "75NU855BPSA",
+            "65NU855BPSA"
+          ],
+          "names": [
+            "ทีวี 75\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 75NU85",
+            "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU85"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c2",
+          "groupKey": "th/tv-soundbars/qned-evo/75qned86bsa",
+          "skus": [
+            "75QNED86BSA"
+          ],
+          "names": [
+            "ทีวี 75\" LG QNED evo AI Mini LED QNED86 4K Smart TV 2026 รุ่"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c3",
+          "groupKey": "th/tv-soundbars/qned-evo",
+          "skus": [
+            "85QNED80BSA",
+            "65QNED80BSA"
+          ],
+          "names": [
+            "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่",
+            "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 55185
+    }
+  ]
+}

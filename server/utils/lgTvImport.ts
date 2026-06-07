@@ -187,6 +187,8 @@ export type TvListCard = {
   variant_group_key?: string | null
   /** PDP ร่วมของทุกขนาดจอในการ์ดเดียวกัน */
   shared_detail_url?: string | null
+  /** ตำแหน่งการ์ดบน PLP (audit 1 card = 1 group) */
+  plp_card_key?: string | null
 }
 
 function pickTextByHints(values: string[], hints: string[]) {
@@ -214,7 +216,8 @@ function mapRawCard(raw: any): TvListCard | null {
   const sharedDetailHref = String(raw?.sharedDetailUrl || '').trim()
   const sharedDetailUrl = sharedDetailHref ? toLgSubscribeUrl(sharedDetailHref) : null
   const groupKey = String(raw?.variantGroupKey || '').trim()
-    || variantGroupKeyFromDetailUrl(sharedDetailUrl || sourceUrl)
+    || variantGroupKeyFromDetailUrl(sourceUrl, 'model')
+    || String(raw?.plpCardKey || '').trim()
     || null
 
   const normalizedRaw = asRecord(raw)
@@ -284,6 +287,7 @@ function mapRawCard(raw: any): TvListCard | null {
     variant_label: raw?.variantLabel ? String(raw.variantLabel).trim() : null,
     variant_group_key: groupKey,
     shared_detail_url: sharedDetailUrl && isValidTvDetailUrl(sharedDetailUrl) ? sharedDetailUrl : null,
+    plp_card_key: raw?.plpCardKey ? String(raw.plpCardKey).trim() : null,
   }
 }
 
@@ -611,6 +615,7 @@ export async function collectTvListCardsWithBrowser(
         lg_model_id: card.lg_model_id ?? prev.lg_model_id,
         variant_group_key: card.variant_group_key ?? prev.variant_group_key,
         shared_detail_url: card.shared_detail_url ?? prev.shared_detail_url,
+        plp_card_key: card.plp_card_key ?? prev.plp_card_key,
       })
     }
 

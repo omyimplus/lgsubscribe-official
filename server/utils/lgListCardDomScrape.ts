@@ -42,6 +42,8 @@ export type DomCardRaw = {
   variantGroupKey?: string | null
   /** URL ชุดรายละเอียดร่วม — มักเป็นปุ่ม subscribe หลังเลือก swatch แรกที่โหลดได้ */
   sharedDetailUrl?: string | null
+  /** ตำแหน่งการ์ดบน PLP — ใช้ audit ว่า 1 การ์ด = 1 กลุ่ม */
+  plpCardKey?: string | null
 }
 
 export function normalizeLgDetailHref(href: string) {
@@ -52,10 +54,10 @@ export function normalizeLgDetailHref(href: string) {
 }
 
 /** คีย์กลุ่ม variant จาก URL รายละเอียด
- * - ทีวี/มี family path: th/tv-soundbars/oled-evo (ก่อน slug รุ่น)
- * - หมวดที่ path สั้น (th/washers/model): ใช้ path ถึง slug รุ่น — ไม่รวมทั้งหมวดเป็นกลุ่มเดียว
+ * - model: path ถึง slug รุ่น (1 การ์ด PLP = 1 กลุ่ม เมื่อไม่มี swatch)
+ * - family: path ถึง family (หลาย swatch ในการ์ดเดียว เช่น OLED หลายนิ้ว)
  */
-export function variantGroupKeyFromDetailUrl(url: string) {
+export function variantGroupKeyFromDetailUrl(url: string, scope: 'family' | 'model' = 'family') {
   const normalized = normalizeLgDetailHref(url)
   if (!normalized) return ''
   try {
@@ -64,16 +66,32 @@ export function variantGroupKeyFromDetailUrl(url: string) {
     if (subIdx < 2) return ''
 
     const modelIdx = subIdx - 1
-    // th/category/model → กลุ่มต่อการ์ด/รุ่น (ไม่ใช่ทั้งหมวด)
+    if (scope === 'model') {
+      return parts.slice(0, subIdx).join('/').toLowerCase()
+    }
+    // family — th/category/model → กลุ่มต่อการ์ด (path สั้น)
     if (modelIdx <= 2) {
       return parts.slice(0, subIdx).join('/').toLowerCase()
     }
-    // th/category/family/model → กลุ่มตาม family (หลาย swatch ในการ์ดเดียว)
     return parts.slice(0, modelIdx).join('/').toLowerCase()
   }
   catch {
     return ''
   }
+}
+
+/** เลือก group key ตามจำนวน swatch บนการ์ด PLP */
+export function variantGroupKeyForPlpCard(
+  swatchCount: number,
+  detailUrl: string,
+  sharedDetailUrl: string,
+  plpCardKey: string,
+) {
+  if (swatchCount > 1) {
+    return variantGroupKeyFromDetailUrl(sharedDetailUrl || detailUrl, 'family') || plpCardKey
+  }
+  const modelUrl = detailUrl || sharedDetailUrl
+  return variantGroupKeyFromDetailUrl(modelUrl, 'model') || plpCardKey
 }
 
 export function hasVisibleCardPricesFn() {
@@ -202,8 +220,7 @@ export async function scrapeTvPlpVariants(
       continue
     }
 
-    const fallbackGroupKey = `plp-card:p${pageIndex}:c${i}`
-    let groupKey = variantGroupKeyFromDetailUrl(shared.detailUrl) || fallbackGroupKey
+    const plpCardKey = `plp-card:p${pageIndex}:c${i}`
     const cardRowsStart = rows.length
 
     await card.scrollIntoViewIfNeeded({ timeout: 5000 }).catch(() => {})
@@ -228,10 +245,12 @@ export async function scrapeTvPlpVariants(
         continue
       }
       const inchFromName = shared.name?.match(/ทีวี\s*(\d+)\s*"/i)?.[1]
+      const groupKey = variantGroupKeyForPlpCard(0, detailUrl, detailUrl, plpCardKey)
       rows.push({
         detailUrl,
         sharedDetailUrl: detailUrl,
         variantGroupKey: groupKey,
+        plpCardKey,
         name: shared.name,
         sku,
         variantLabel: inchFromName ? `${inchFromName} inch` : null,
@@ -244,7 +263,7 @@ export async function scrapeTvPlpVariants(
       continue
     }
 
-    log.info(`card ${i + 1}/${cardCount} ${swatchMeta.length} swatch(es) group=${groupKey}`)
+    log.info(`card ${i + 1}/${cardCount} ${swatchMeta.length} swatch(es) plp=${plpCardKey}`)
     const seenModelIds = new Set<string>()
     for (let j = 0; j < swatchMeta.length; j += 1) {
       if (limitReached()) break
@@ -275,7 +294,7 @@ export async function scrapeTvPlpVariants(
 
       rows.push({
         detailUrl,
-        variantGroupKey: groupKey,
+        plpCardKey,
         name: button?.name || shared.name,
         sku: variantSku,
         lgModelId: modelId,
@@ -293,12 +312,16 @@ export async function scrapeTvPlpVariants(
     const cardRows = rows.slice(cardRowsStart)
     const sharedDetailUrl = cardRows.find(r => r.detailUrl)?.detailUrl
       || normalizeLgDetailHref(shared.detailUrl)
-    groupKey = variantGroupKeyFromDetailUrl(sharedDetailUrl)
-      || variantGroupKeyFromDetailUrl(cardRows[0]?.detailUrl ?? '')
-      || groupKey
+    const groupKey = variantGroupKeyForPlpCard(
+      swatchMeta.length,
+      sharedDetailUrl,
+      sharedDetailUrl,
+      plpCardKey,
+    )
     for (const row of cardRows) {
       row.sharedDetailUrl = sharedDetailUrl
       row.variantGroupKey = groupKey
+      row.plpCardKey = plpCardKey
     }
 
     log.done(`card ${i + 1}/${cardCount} → ${cardRows.length} variant(s) sharedDetail=${sharedDetailUrl ?? '?'}`)

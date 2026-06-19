@@ -71,8 +71,8 @@ export const LG_SUBSCRIPTION_SOURCES: LgSubscriptionSource[] = [
   { lgSlug: 'monitors', label: 'จอมอนิเตอร์', categorySlug: 'monitor', listUrl: listUrl('monitors'), variantChipSelector: LG_VARIANT_SWATCH_SELECTOR, variantAxis: 'other' },
 ]
 
-/** รูปแบบ SKU ทีวี/แอร์ LG บนเว็บ (ไม่เอาข้อความปุ่ม copy) */
-const LG_SKU_RE = /^[A-Z0-9]{5,24}$/
+/** รูปแบบ SKU LG บนเว็บ — รองรับรุ่นสั้น เช่น GRAB (ลำโพงพกพา) */
+const LG_SKU_RE = /^(?=.*[A-Z])[A-Z0-9]{4,24}$/
 
 /** แปลง data-model-id LG เป็น SKU สั้น (OLED65C6PSA.ATM.EATH.TH.C → OLED65C6PSA) */
 export function skuFromLgModelId(modelId: string) {

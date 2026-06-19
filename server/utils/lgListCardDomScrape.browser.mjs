@@ -8,8 +8,11 @@ export function hasVisibleCardPrices() {
 export function toLgSubscribeUrl(href) {
   const trimmed = (href || '').trim()
   if (!trimmed || !trimmed.includes('/th/')) return ''
-  if (trimmed.includes('/lgsubscribe')) return trimmed.replace(/\/$/, '')
-  const base = trimmed.replace(/\/$/, '')
+  let base = trimmed.replace(/\/$/, '')
+  if (/\/lgsubscribe-buy$/i.test(base)) {
+    return base.replace(/\/lgsubscribe-buy$/i, '/lgsubscribe')
+  }
+  if (/\/lgsubscribe$/i.test(base)) return base
   if (/\/subscription\//i.test(base)) return ''
   return `${base}/lgsubscribe`
 }
@@ -123,7 +126,7 @@ export function readNeoCardModelSku(el) {
   if (fromCopy) return fromCopy
 
   const title = cardTitle(el) || ''
-  const fromLabel = title.match(/รุ่น\s+([A-Z0-9]{5,24})/i)?.[1]
+  const fromLabel = title.match(/รุ่น\s+([A-Z0-9]{3,24})/i)?.[1]
   if (fromLabel && !/copy/i.test(fromLabel)) return fromLabel.toUpperCase()
   const embedded = title.match(/\b([A-Z]{2,}\d{2}[A-Z0-9]{4,})\b/)
   if (embedded?.[1] && !/copy/i.test(embedded[1])) return embedded[1].toUpperCase()
@@ -182,10 +185,12 @@ export function readNeoCardSubscribeButtonUrl(el) {
   const a = el.querySelector('.neo-card--ufn a[href*="/lgsubscribe"]')
   const href = (a?.getAttribute('href') || '').trim()
   if (!href) return null
+  const detailUrl = toLgSubscribeUrl(href)
+  if (!detailUrl) return null
   return {
-    detailUrl: href,
+    detailUrl,
     name: cardTitle(el),
-    sku: readCopySkuText(el),
+    sku: readNeoCardCopySku(el) || readNeoCardModelSku(el),
   }
 }
 
@@ -196,11 +201,12 @@ export function readNeoCardShared(el) {
 
   const imgLink = el.querySelector('.neo-card--img a[href*="/lgsubscribe"]')
   const imgHref = (imgLink?.getAttribute('href') || '').trim()
-  if (imgHref) {
+  const imgSubscribeUrl = imgHref ? toLgSubscribeUrl(imgHref) : ''
+  if (imgSubscribeUrl) {
     return {
-      detailUrl: imgHref,
+      detailUrl: imgSubscribeUrl,
       name: cardTitle(el),
-      sku: readCopySkuText(el),
+      sku: readNeoCardCopySku(el) || readNeoCardModelSku(el),
     }
   }
 

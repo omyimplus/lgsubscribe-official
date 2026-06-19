@@ -49,8 +49,14 @@ export type DomCardRaw = {
 export function normalizeLgDetailHref(href: string) {
   const trimmed = href.trim()
   if (!trimmed) return ''
-  if (trimmed.startsWith('http')) return trimmed.replace(/\/$/, '')
-  return `https://www.lg.com${trimmed.startsWith('/') ? '' : '/'}${trimmed}`.replace(/\/$/, '')
+  if (trimmed.startsWith('http')) {
+    return trimmed
+      .replace(/\/$/, '')
+      .replace(/\/lgsubscribe-buy\/?$/i, '/lgsubscribe')
+  }
+  return `https://www.lg.com${trimmed.startsWith('/') ? '' : '/'}${trimmed}`
+    .replace(/\/$/, '')
+    .replace(/\/lgsubscribe-buy\/?$/i, '/lgsubscribe')
 }
 
 /** คีย์กลุ่ม variant จาก URL รายละเอียด
@@ -259,7 +265,7 @@ export async function scrapeTvPlpVariants(
         : await evalOnCard<{ discountedPrice: number | null, fullPrice: number | null }>(card, 'readNeoCardPrices')
       const detailUrl = normalizeLgDetailHref(shared.detailUrl)
       const titleSku = await evalOnCard<string | null>(card, 'readNeoCardModelSku')
-      const slugMatch = detailUrl.match(/\/([^/]+)\/lgsubscribe\/?$/i)
+      const slugMatch = detailUrl.match(/\/([^/]+)\/lgsubscribe(?:-buy)?\/?$/i)
       const slugSku = slugMatch?.[1] ? skuFromLgModelId(slugMatch[1]) : ''
       // slug ใน URL แม่นที่สุด (65qned80bsa) — ชื่อการ์ดมักเหลือแค่ QNED80
       const sku = slugSku || resolveLgProductSku(null, titleSku) || resolveLgProductSku(null, shared.sku) || null

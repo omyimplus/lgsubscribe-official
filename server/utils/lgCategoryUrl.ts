@@ -22,6 +22,10 @@ const LG_PATH_SEGMENT_TO_CATEGORY: Record<string, string> = {
   'dehumidifier': 'dehumidifier',
   'monitors': 'monitor',
   'computing': 'monitor',
+  'speakers': 'portable-speaker',
+  'portable-speakers': 'portable-speaker',
+  'xboom': 'portable-speaker',
+  'xboom-go': 'portable-speaker',
 }
 
 function inferFromPathSegments(pathname: string) {
@@ -42,6 +46,9 @@ function inferFromPathSegments(pathname: string) {
   }
   if (lower.includes('refrigerator') || lower.includes('side-by-side')) return 'refrigerator'
   if (lower.includes('soundbar')) return 'soundbar'
+  if (lower.includes('/speakers/') || lower.includes('portable-speaker') || lower.includes('/xboom')) {
+    return 'portable-speaker'
+  }
   if (lower.includes('monitor')) return 'monitor'
 
   return null

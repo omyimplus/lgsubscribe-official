@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { InstallmentSchedule } from '~~/shared/utils/installmentSchedule'
+import { formatMoneyAmount } from '~~/shared/utils/moneyFormat'
 
 const props = defineProps<{
   schedule: InstallmentSchedule
@@ -8,7 +9,7 @@ const props = defineProps<{
 }>()
 
 function formatPrice(n: number) {
-  return Math.round(n).toLocaleString('th-TH')
+  return formatMoneyAmount(n, '0')
 }
 
 function formatNormalBaht(base: number) {

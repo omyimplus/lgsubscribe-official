@@ -4,7 +4,10 @@ import {
   availableContractYears,
   availableServiceModes,
   findPlanByYearAndMode,
+  formatPlanPromoPeriod,
+  isPlanPromoActiveToday,
   pickInitialPlanSelection,
+  planShowsServiceInterval,
   serviceModeLabels,
   serviceModeShortLabels,
 } from '~~/shared/utils/planDisplay'
@@ -62,6 +65,12 @@ watch(selectedYears, (years) => {
 })
 
 watch(selectedPlan, plan => emit('update:selectedPlan', plan), { immediate: true })
+
+const selectedPromoLabel = computed(() => {
+  const plan = selectedPlan.value
+  if (!plan || !isPlanPromoActiveToday(plan)) return null
+  return formatPlanPromoPeriod(plan)
+})
 
 const dueTodayItem = computed(() => {
   const plan = selectedPlan.value
@@ -155,7 +164,10 @@ function modePriceHint(mode: ServiceMode) {
       <p v-if="selectedPlan.display_price_note" class="mt-1 text-xs text-gray-600">
         {{ selectedPlan.display_price_note }}
       </p>
-      <p v-if="selectedPlan.service_interval_months" class="mt-0.5 text-[11px] text-gray-500">
+      <p v-if="selectedPromoLabel" class="mt-1 text-xs font-medium text-amber-800">
+        โปรโมชัน {{ selectedPromoLabel }}
+      </p>
+      <p v-if="selectedPlan && planShowsServiceInterval(selectedPlan)" class="mt-0.5 text-[11px] text-gray-500">
         รอบบริการทุก {{ selectedPlan.service_interval_months }} เดือน
       </p>
 

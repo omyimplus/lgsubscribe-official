@@ -262,6 +262,12 @@ function addToCart() {
             </span>
           </div>
         </div>
+
+        <ProductSubscribeValueSection
+          variant="embedded"
+          :product="product"
+          class="mt-5 border-t border-gray-100 pt-5"
+        />
       </div>
 
       <div class="flex shrink-0 flex-col gap-2 border-t border-gray-100 bg-gray-50 px-4 py-4 sm:px-5">
@@ -330,7 +336,7 @@ function addToCart() {
 
 .installment-dialog__panel {
   display: flex;
-  max-height: min(90vh, 640px);
+  max-height: min(90vh, 720px);
   flex-direction: column;
   overflow: hidden;
   border-radius: 1rem;

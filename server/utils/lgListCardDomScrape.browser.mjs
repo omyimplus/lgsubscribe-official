@@ -5,14 +5,59 @@ export function hasVisibleCardPrices() {
   return prices.some(node => /\d/.test((node.textContent || '').trim()))
 }
 
+export function toLgSubscribeUrl(href) {
+  const trimmed = (href || '').trim()
+  if (!trimmed || !trimmed.includes('/th/')) return ''
+  if (trimmed.includes('/lgsubscribe')) return trimmed.replace(/\/$/, '')
+  const base = trimmed.replace(/\/$/, '')
+  if (/\/subscription\//i.test(base)) return ''
+  return `${base}/lgsubscribe`
+}
+
 function readHrefFromSwatchButton(b) {
   const attrs = ['data-url', 'data-href', 'data-link', 'data-link-url', 'data-detail-url']
   for (const name of attrs) {
     const v = (b.getAttribute(name) || '').trim()
-    if (v && v.includes('/lgsubscribe')) return v
+    if (v) {
+      const sub = toLgSubscribeUrl(v)
+      if (sub) return sub
+    }
   }
   const parentHref = b.closest('a')?.getAttribute('href') || ''
-  if (parentHref.includes('/lgsubscribe')) return parentHref.trim()
+  const sub = toLgSubscribeUrl(parentHref)
+  if (sub) return sub
+  return ''
+}
+
+/** การ์ดหมวดธรรมดาที่รองรับ Subscribe — มี badge Subscription */
+export function hasSubscriptionBadge(el) {
+  // LG PLP จริง: .neo-tag--box > span.tag-gr "Subscription" (ไม่ใช่ class badge)
+  for (const tag of el.querySelectorAll('.neo-tag--box span.tag-gr, .neo-tag--box .tag-gr')) {
+    const text = (tag.textContent || '').replace(/\s+/g, ' ').trim()
+    if (/^subscription$/i.test(text)) return true
+  }
+
+  // สำรอง: data-pim-flag บนปุ่มการ์ด เช่น "OMS,gradient,Subscription,..."
+  for (const node of el.querySelectorAll('[data-pim-flag]')) {
+    const flags = (node.getAttribute('data-pim-flag') || '').split(',')
+    if (flags.some(f => f.trim().toLowerCase() === 'subscription')) return true
+  }
+
+  return false
+}
+
+function readProductDetailHref(el) {
+  const selectors = [
+    '.neo-card--ufn a[href*="/th/"]',
+    '.neo-card--img a[href*="/th/"]',
+    'a.cmp-image__link[href*="/th/"]',
+    'h3 a[href*="/th/"]',
+  ]
+  for (const sel of selectors) {
+    const href = (el.querySelector(sel)?.getAttribute('href') || '').trim()
+    const sub = toLgSubscribeUrl(href)
+    if (sub) return sub
+  }
   return ''
 }
 
@@ -149,15 +194,26 @@ export function readNeoCardShared(el) {
   const fromButton = readNeoCardSubscribeButtonUrl(el)
   if (fromButton?.detailUrl) return fromButton
 
-  const text = (node) => (node?.textContent || '').replace(/\s+/g, ' ').trim()
   const imgLink = el.querySelector('.neo-card--img a[href*="/lgsubscribe"]')
-  const href = (imgLink?.getAttribute('href') || '').trim()
-  if (!href) return null
-  return {
-    detailUrl: href,
-    name: cardTitle(el),
-    sku: readCopySkuText(el),
+  const imgHref = (imgLink?.getAttribute('href') || '').trim()
+  if (imgHref) {
+    return {
+      detailUrl: imgHref,
+      name: cardTitle(el),
+      sku: readCopySkuText(el),
+    }
   }
+
+  const productSub = readProductDetailHref(el)
+  if (productSub) {
+    return {
+      detailUrl: productSub,
+      name: cardTitle(el),
+      sku: readNeoCardCopySku(el) || readCopySkuText(el),
+    }
+  }
+
+  return null
 }
 
 /** ราคารายเดือน + ราคาเต็มบนการ์ด (หลังคลิก swatch) */

@@ -1,0 +1,275 @@
+{
+  "elapsedSec": 163,
+  "results": [
+    {
+      "lgSlug": "tvs",
+      "label": "โทรทัศน์",
+      "status": "OK",
+      "skuCount": 8,
+      "issueCount": 0,
+      "items": [
+        {
+          "sku": "OLED77C6PSA",
+          "variant_label": "77 inch",
+          "finalName": "ทีวี 77\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED77C6PSA",
+          "importName": "ทีวี 77\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED77C6PSA",
+          "base_price": 999,
+          "issues": []
+        },
+        {
+          "sku": "OLED65C6PSA",
+          "variant_label": "65 inch",
+          "finalName": "ทีวี 65\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED65C6PSA",
+          "importName": "ทีวี 65\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED65C6PSA",
+          "base_price": 649,
+          "issues": []
+        },
+        {
+          "sku": "OLED55C6PSA",
+          "variant_label": "55 inch",
+          "finalName": "ทีวี 55\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED55C6PSA",
+          "importName": "ทีวี 55\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED55C6PSA",
+          "base_price": 549,
+          "issues": []
+        },
+        {
+          "sku": "75NU855BPSA",
+          "variant_label": "75 inch",
+          "finalName": "ทีวี 75\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 75NU855BPSA",
+          "importName": "ทีวี 75\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 75NU855BPSA",
+          "base_price": 699,
+          "issues": []
+        },
+        {
+          "sku": "65NU855BPSA",
+          "variant_label": "65 inch",
+          "finalName": "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU855BPSA",
+          "importName": "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU855BPSA",
+          "base_price": 549,
+          "issues": []
+        },
+        {
+          "sku": "85QNED80BSA",
+          "variant_label": "85 inch",
+          "finalName": "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 85QNED80BSA",
+          "importName": "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 85QNED80BSA",
+          "base_price": 1349,
+          "issues": []
+        },
+        {
+          "sku": "65QNED80BSA",
+          "variant_label": "65 inch",
+          "finalName": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 65QNED80BSA",
+          "importName": "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่น 65QNED80BSA",
+          "base_price": 649,
+          "issues": []
+        },
+        {
+          "sku": "100QNED86BS",
+          "variant_label": "100 inch",
+          "finalName": "ทีวี 100\" LG QNED evo AI Mini LED QNED86 4K Smart TV 2026 รุ่น 100QNED86BS",
+          "importName": "ทีวี 100\" LG QNED evo AI Mini LED QNED86 4K Smart TV 2026 รุ่น 100QNED86BS",
+          "base_price": 1299,
+          "issues": []
+        }
+      ],
+      "summary": {
+        "missingPrice": 0,
+        "duplicateImportNames": 0,
+        "nameMissingSku": 0,
+        "btuMismatches": 0,
+        "inchMismatches": 0
+      },
+      "error": null,
+      "ms": 27641
+    },
+    {
+      "lgSlug": "air-conditioners",
+      "label": "เครื่องปรับอากาศ",
+      "status": "OK",
+      "skuCount": 9,
+      "issueCount": 0,
+      "items": [
+        {
+          "sku": "SIQ18B",
+          "variant_label": "18000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 18000 BTU LG DUALCOOL AI Air รุ่น SIQ18B",
+          "importName": "แอร์อินเวอร์เตอร์ 18000 BTU LG DUALCOOL AI Air รุ่น SIQ18B",
+          "base_price": 449,
+          "issues": []
+        },
+        {
+          "sku": "SIQ11B",
+          "variant_label": "9000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 9000 BTU LG DUALCOOL AI Air รุ่น SIQ11B",
+          "importName": "แอร์อินเวอร์เตอร์ 9000 BTU LG DUALCOOL AI Air รุ่น SIQ11B",
+          "base_price": 299,
+          "issues": []
+        },
+        {
+          "sku": "SIQ24B",
+          "variant_label": "24000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 24000 BTU LG DUALCOOL AI Air รุ่น SIQ24B",
+          "importName": "แอร์อินเวอร์เตอร์ 24000 BTU LG DUALCOOL AI Air รุ่น SIQ24B",
+          "base_price": 549,
+          "issues": []
+        },
+        {
+          "sku": "SIQ13B",
+          "variant_label": "12000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 12000 BTU LG DUALCOOL AI Air รุ่น SIQ13B",
+          "importName": "แอร์อินเวอร์เตอร์ 12000 BTU LG DUALCOOL AI Air รุ่น SIQ13B",
+          "base_price": 349,
+          "issues": []
+        },
+        {
+          "sku": "ART13A",
+          "variant_label": null,
+          "finalName": "แอร์อินเวอร์เตอร์ 12,000 BTU LG ARTCOOL รุ่น ART13A",
+          "importName": "แอร์อินเวอร์เตอร์ 12,000 BTU LG ARTCOOL รุ่น ART13A",
+          "base_price": 149,
+          "issues": []
+        },
+        {
+          "sku": "SAQ13A",
+          "variant_label": "12000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 12000 BTU LG DUALCOOL AI Air รุ่น SAQ13A",
+          "importName": "แอร์อินเวอร์เตอร์ 12000 BTU LG DUALCOOL AI Air รุ่น SAQ13A",
+          "base_price": 424,
+          "issues": []
+        },
+        {
+          "sku": "SAQ24B",
+          "variant_label": "24000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 24000 BTU LG DUALCOOL AI Air รุ่น SAQ24B",
+          "importName": "แอร์อินเวอร์เตอร์ 24000 BTU LG DUALCOOL AI Air รุ่น SAQ24B",
+          "base_price": 599,
+          "issues": []
+        },
+        {
+          "sku": "SAQ11A",
+          "variant_label": "9000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 9000 BTU LG DUALCOOL AI Air รุ่น SAQ11A",
+          "importName": "แอร์อินเวอร์เตอร์ 9000 BTU LG DUALCOOL AI Air รุ่น SAQ11A",
+          "base_price": 399,
+          "issues": []
+        },
+        {
+          "sku": "SAQ18B",
+          "variant_label": "18000 BTU inch",
+          "finalName": "แอร์อินเวอร์เตอร์ 18000 BTU LG DUALCOOL AI Air รุ่น SAQ18B",
+          "importName": "แอร์อินเวอร์เตอร์ 18000 BTU LG DUALCOOL AI Air รุ่น SAQ18B",
+          "base_price": 524,
+          "issues": []
+        }
+      ],
+      "summary": {
+        "missingPrice": 0,
+        "duplicateImportNames": 0,
+        "nameMissingSku": 0,
+        "btuMismatches": 0,
+        "inchMismatches": 0
+      },
+      "error": null,
+      "ms": 26005
+    },
+    {
+      "lgSlug": "washers",
+      "label": "เครื่องซักผ้า",
+      "status": "OK",
+      "skuCount": 10,
+      "issueCount": 0,
+      "items": [
+        {
+          "sku": "WT1410NHEN",
+          "variant_label": null,
+          "finalName": "WashTower รุ่น WT1410NHEN ระบบ AI DD™ ความจุเครื่องซักผ้า 14 กก./ เครื่องอบผ้า 10 กก. พร้อ",
+          "importName": "WashTower รุ่น WT1410NHEN ระบบ AI DD™ ความจุเครื่องซักผ้า 14 กก./ เครื่องอบผ้า 10 กก. พร้อ",
+          "base_price": 699,
+          "issues": []
+        },
+        {
+          "sku": "TX2315DT5G",
+          "variant_label": null,
+          "finalName": "เครื่องซักผ้าฝาบน 15 กก รุ่น TX2315DT5G ระบบ Inverter Direct Drive",
+          "importName": "เครื่องซักผ้าฝาบน 15 กก รุ่น TX2315DT5G ระบบ Inverter Direct Drive",
+          "base_price": 499,
+          "issues": []
+        },
+        {
+          "sku": "WT2520NHEG",
+          "variant_label": null,
+          "finalName": "Wash Tower รุ่น WT2520NHEG ระบบ AI DD™ ความจุเครื่องซักผ้า 25 กก./ เครื่องอบผ้า 20 กก. พร้",
+          "importName": "Wash Tower รุ่น WT2520NHEG ระบบ AI DD™ ความจุเครื่องซักผ้า 25 กก./ เครื่องอบผ้า 20 กก. พร้",
+          "base_price": 1099,
+          "issues": []
+        },
+        {
+          "sku": "FV1413H4M",
+          "variant_label": null,
+          "finalName": "เครื่องซักผ้า 13 กก. / อบ 8 กก. รุ่น FV1413H4M ระบบ AI DD™ พร้อม Smart WI-FI control ควบคุ",
+          "importName": "เครื่องซักผ้า 13 กก. / อบ 8 กก. รุ่น FV1413H4M ระบบ AI DD™ พร้อม Smart WI-FI control ควบคุ",
+          "base_price": 149,
+          "issues": []
+        },
+        {
+          "sku": "RV10VHP4B",
+          "variant_label": null,
+          "finalName": "เครื่องอบผ้า Heat Pump™ RV10VHP4B จุ 10 กก.",
+          "importName": "เครื่องอบผ้า Heat Pump™ RV10VHP4B จุ 10 กก.",
+          "base_price": 374,
+          "issues": []
+        },
+        {
+          "sku": "WT2116SHEG",
+          "variant_label": null,
+          "finalName": "WashTower ซักผ้า 21 กก. และอบ 16 กก. รุ่น WT2116SHEG ระบบ AI DD™ พร้อม Smart WI-FI control",
+          "importName": "WashTower ซักผ้า 21 กก. และอบ 16 กก. รุ่น WT2116SHEG ระบบ AI DD™ พร้อม Smart WI-FI control",
+          "base_price": 874,
+          "issues": []
+        },
+        {
+          "sku": "WT1410NHEG",
+          "variant_label": null,
+          "finalName": "WashTower ซักผ้า 14 กก. และอบผ้า 10 กก. รุ่น WT1410NHEG ระบบ AI DD™ พร้อม Smart WI-FI cont",
+          "importName": "WashTower ซักผ้า 14 กก. และอบผ้า 10 กก. รุ่น WT1410NHEG ระบบ AI DD™ พร้อม Smart WI-FI cont",
+          "base_price": 699,
+          "issues": []
+        },
+        {
+          "sku": "TX2723ST5J",
+          "variant_label": null,
+          "finalName": "เครื่องซักผ้าฝาบน 23 กก รุ่น TX2723ST5J ระบบ Inverter Direct Drive",
+          "importName": "เครื่องซักผ้าฝาบน 23 กก รุ่น TX2723ST5J ระบบ Inverter Direct Drive",
+          "base_price": 599,
+          "issues": []
+        },
+        {
+          "sku": "FV1413S4M",
+          "variant_label": null,
+          "finalName": "เครื่องซักผ้า 13 กก. รุ่น FV1413S4M AI DD™",
+          "importName": "เครื่องซักผ้า 13 กก. รุ่น FV1413S4M AI DD™",
+          "base_price": 299,
+          "issues": []
+        },
+        {
+          "sku": "F2520RNTB",
+          "variant_label": null,
+          "finalName": "เครื่องซักผ้าฝาหน้า ซัก 20/ อบ 10 กก. F2520RNTB ระบบ AI DD™",
+          "importName": "เครื่องซักผ้าฝาหน้า ซัก 20/ อบ 10 กก. F2520RNTB ระบบ AI DD™",
+          "base_price": 424,
+          "issues": []
+        }
+      ],
+      "summary": {
+        "missingPrice": 0,
+        "duplicateImportNames": 0,
+        "nameMissingSku": 0,
+        "btuMismatches": 0,
+        "inchMismatches": 0
+      },
+      "error": null,
+      "ms": 109732
+    }
+  ]
+}

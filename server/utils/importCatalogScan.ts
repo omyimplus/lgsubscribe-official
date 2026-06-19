@@ -12,6 +12,13 @@ import {
 } from '~~/server/utils/lgSubscriptionSources'
 import { groupCatalogItems } from '~~/server/utils/productGroups'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import {
+  labelFromListUrl,
+  lgListPathFromUrl,
+  normalizeLgCategoryListUrl,
+  resolveCategorySlugForUrlImport,
+  variantAxisForCategorySlug,
+} from '~~/server/utils/lgCategoryUrl'
 
 function resolveSku(card: TvListCard) {
   return (card.model_key || normalizeModelKeyFromUrl(card.source_url) || '').toUpperCase()
@@ -30,6 +37,65 @@ export function resolveCatalogSourceFromSlug(lgSlugOrCategory: string) {
   return source as LgSubscriptionSource & { categorySlug: string }
 }
 
+async function loadCategoryBySlug(supabase: SupabaseClient, categorySlug: string) {
+  const slug = String(categorySlug ?? '').trim().toLowerCase()
+  if (!slug) {
+    throw createError({ statusCode: 400, message: 'ไม่สามารถอนุมานหมวดจาก URL นี้ได้' })
+  }
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id, name, slug')
+    .eq('slug', slug)
+    .maybeSingle()
+
+  if (error) throw createError({ statusCode: 500, message: error.message })
+  if (!data?.id) {
+    throw createError({
+      statusCode: 400,
+      message: `ไม่พบหมวด "${slug}" ในระบบ — สร้างหมวดก่อนในเมนูหมวดหมู่`,
+    })
+  }
+  return data
+}
+
+function mapCardsToCatalogItems(
+  cards: TvListCard[],
+  productBySku: Map<string, { sku: string, name: string }>,
+) {
+  const catalogSkus = new Set<string>()
+  const items = cards.map((card) => {
+    const sku = resolveSku(card)
+    if (sku) catalogSkus.add(sku)
+    return {
+      sku,
+      name: card.name,
+      source_url: card.source_url,
+      base_price: card.base_price,
+      full_price: card.full_price,
+      variant_label: card.variant_label ?? null,
+      lg_model_id: card.lg_model_id ?? null,
+      variant_group_key: card.variant_group_key ?? null,
+      shared_detail_url: card.shared_detail_url ?? null,
+      headline: card.headline ?? null,
+      warranty_years: card.warranty_years ?? null,
+      subscription_note: card.subscription_note ?? null,
+      purchase_only_label: card.purchase_only_label ?? null,
+      purchase_only_url: card.purchase_only_url ?? null,
+      status: (sku && productBySku.has(sku) ? 'exists' : 'new') as 'new' | 'exists',
+    }
+  }).filter(item => item.sku)
+
+  const missingOnLg = [...productBySku.values()]
+    .filter(row => !catalogSkus.has(row.sku.toUpperCase()))
+    .map(row => ({
+      sku: row.sku,
+      name: row.name,
+      status: 'missing_on_lg' as const,
+    }))
+
+  return { items, missingOnLg, catalogSkus }
+}
+
 export type CatalogScanResult = {
   source: {
     lgSlug: string
@@ -39,6 +105,7 @@ export type CatalogScanResult = {
     categoryId: string
     categoryName: string
     variantAxis: string
+    importMode?: 'subscription' | 'url'
   }
   scannedAt: string
   totalOnLg: number
@@ -85,19 +152,7 @@ export async function runImportCatalogScan(
   })
   log.done(`fetch PLP cards (${cards.length})`)
 
-  const { data: categoryRow, error: catErr } = await supabase
-    .from('categories')
-    .select('id, name, slug')
-    .eq('slug', source.categorySlug)
-    .maybeSingle()
-
-  if (catErr) throw createError({ statusCode: 500, message: catErr.message })
-  if (!categoryRow?.id) {
-    throw createError({
-      statusCode: 400,
-      message: `ไม่พบหมวด "${source.categorySlug}" ในระบบ — รัน migration seed categories`,
-    })
-  }
+  const categoryRow = await loadCategoryBySlug(supabase, source.categorySlug)
 
   log.step('load products for compare')
   const { data: products, error: prodErr } = await supabase
@@ -111,37 +166,8 @@ export async function runImportCatalogScan(
   const productBySku = new Map(
     (products ?? []).map(row => [row.sku.toUpperCase(), row]),
   )
-  const catalogSkus = new Set<string>()
 
-  const items = cards.map((card) => {
-    const sku = resolveSku(card)
-    if (sku) catalogSkus.add(sku)
-    return {
-      sku,
-      name: card.name,
-      source_url: card.source_url,
-      base_price: card.base_price,
-      full_price: card.full_price,
-      variant_label: card.variant_label ?? null,
-      lg_model_id: card.lg_model_id ?? null,
-      variant_group_key: card.variant_group_key ?? null,
-      shared_detail_url: card.shared_detail_url ?? null,
-      headline: card.headline ?? null,
-      warranty_years: card.warranty_years ?? null,
-      subscription_note: card.subscription_note ?? null,
-      purchase_only_label: card.purchase_only_label ?? null,
-      purchase_only_url: card.purchase_only_url ?? null,
-      status: (sku && productBySku.has(sku) ? 'exists' : 'new') as 'new' | 'exists',
-    }
-  }).filter(item => item.sku)
-
-  const missingOnLg = (products ?? [])
-    .filter(row => !catalogSkus.has(row.sku.toUpperCase()))
-    .map(row => ({
-      sku: row.sku,
-      name: row.name,
-      status: 'missing_on_lg' as const,
-    }))
+  const { items, missingOnLg } = mapCardsToCatalogItems(cards, productBySku)
 
   const groups = groupCatalogItems(items)
 
@@ -156,6 +182,77 @@ export async function runImportCatalogScan(
       categoryId: categoryRow.id,
       categoryName: categoryRow.name,
       variantAxis: source.variantAxis,
+      importMode: 'subscription',
+    },
+    scannedAt: new Date().toISOString(),
+    totalOnLg: items.length,
+    newCount: items.filter(i => i.status === 'new').length,
+    existsCount: items.filter(i => i.status === 'exists').length,
+    missingOnLgCount: missingOnLg.length,
+    items,
+    groups,
+    missingOnLg,
+  }
+}
+
+/** สแกนจาก URL หมวดธรรมดา LG — เฉพาะการ์ดที่มี badge Subscription */
+export async function runImportCatalogScanFromUrl(
+  supabase: SupabaseClient,
+  listUrlInput: string,
+): Promise<CatalogScanResult> {
+  resetImportLogClock()
+  const log = createImportLogger('catalog-url')
+  const listUrl = normalizeLgCategoryListUrl(listUrlInput)
+  const listPath = lgListPathFromUrl(listUrl)
+
+  log.step(`fetch PLP cards from URL (${listPath})`)
+  const cards = await collectTvListCardsWithBrowser(500, listUrl, {
+    listPath,
+    allowEmpty: true,
+    subscriptionBadgeOnly: true,
+    skipCardPrices: true,
+  }).catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : 'เปิดหน้าจอไม่ขึ้น'
+    log.error(`fetch PLP failed: ${message}`)
+    throw createError({ statusCode: 503, message })
+  })
+  log.done(`fetch PLP cards (${cards.length})`)
+
+  const categorySlug = resolveCategorySlugForUrlImport(
+    listUrl,
+    cards.map(c => c.source_url),
+  )
+  const categoryRow = await loadCategoryBySlug(supabase, categorySlug)
+  log.info(`inferred category: ${categoryRow.name} (${categorySlug})`)
+
+  log.step('load products for compare')
+  const { data: products, error: prodErr } = await supabase
+    .from('products')
+    .select('sku, name')
+    .eq('category_id', categoryRow.id)
+
+  if (prodErr) throw createError({ statusCode: 500, message: prodErr.message })
+  log.done(`load products for compare (${products?.length ?? 0} rows in ${categorySlug})`)
+
+  const productBySku = new Map(
+    (products ?? []).map(row => [row.sku.toUpperCase(), row]),
+  )
+
+  const { items, missingOnLg } = mapCardsToCatalogItems(cards, productBySku)
+  const groups = groupCatalogItems(items)
+
+  log.info(`url catalog ready — ${items.length} Subscription SKU(s), ${groups.length} group(s)`)
+
+  return {
+    source: {
+      lgSlug: 'url-import',
+      label: labelFromListUrl(listUrl),
+      listUrl,
+      categorySlug: categoryRow.slug,
+      categoryId: categoryRow.id,
+      categoryName: categoryRow.name,
+      variantAxis: variantAxisForCategorySlug(categoryRow.slug),
+      importMode: 'url',
     },
     scannedAt: new Date().toISOString(),
     totalOnLg: items.length,

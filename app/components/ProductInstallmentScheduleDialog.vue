@@ -109,6 +109,12 @@ onBeforeUnmount(() => {
           :schedule="schedule"
           variant="product"
         />
+
+        <ProductSubscribeValueSection
+          variant="embedded"
+          :product="product"
+          class="mx-4 mb-4 mt-5 border-t border-gray-200 pt-5 sm:mx-5"
+        />
       </div>
 
       <div class="flex shrink-0 justify-end border-t border-gray-100 bg-gray-50 px-4 py-3 sm:px-5">

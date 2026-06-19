@@ -1,5 +1,7 @@
 import type { DiscountType } from '~~/shared/types/product'
 
+export { formatBaht } from '~~/shared/utils/moneyFormat'
+
 export function useProductPricing(
   basePrice: Ref<number> | number,
   discountType: Ref<DiscountType | '' | null> | DiscountType | '' | null,
@@ -17,9 +19,4 @@ export function useProductPricing(
     const percent = base > 0 ? Math.round((1 - discounted / base) * 10000) / 100 : 0
     return { discounted_price: Math.round(discounted * 100) / 100, discount_percent: percent }
   })
-}
-
-export function formatBaht(n: number | null | undefined) {
-  if (n == null || Number.isNaN(n)) return '—'
-  return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(n)
 }

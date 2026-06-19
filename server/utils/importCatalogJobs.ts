@@ -4,7 +4,10 @@ export type CatalogJobStatus = 'queued' | 'running' | 'done' | 'error'
 
 export type CatalogJob = {
   id: string
-  lgSlug: string
+  lgSlug: string | null
+  listUrl: string | null
+  categorySlug: string | null
+  jobType: 'slug' | 'url'
   status: CatalogJobStatus
   createdAt: string
   startedAt: string | null
@@ -40,11 +43,31 @@ export function startCatalogJob(
   lgSlug: string,
   runner: () => Promise<CatalogScanResult>,
 ): CatalogJob {
+  return startImportScanJob({ jobType: 'slug', lgSlug, runner })
+}
+
+export function startUrlCatalogJob(
+  listUrl: string,
+  runner: () => Promise<CatalogScanResult>,
+): CatalogJob {
+  return startImportScanJob({ jobType: 'url', listUrl, runner })
+}
+
+function startImportScanJob(options: {
+  jobType: 'slug' | 'url'
+  lgSlug?: string
+  listUrl?: string
+  categorySlug?: string
+  runner: () => Promise<CatalogScanResult>
+}): CatalogJob {
   purgeOldJobs()
   const id = crypto.randomUUID()
   const job: CatalogJob = {
     id,
-    lgSlug,
+    lgSlug: options.lgSlug ?? null,
+    listUrl: options.listUrl ?? null,
+    categorySlug: options.categorySlug ?? null,
+    jobType: options.jobType,
     status: 'queued',
     createdAt: new Date().toISOString(),
     startedAt: null,
@@ -58,9 +81,11 @@ export function startCatalogJob(
   void (async () => {
     job.status = 'running'
     job.startedAt = new Date().toISOString()
-    job.message = 'กำลังเปิดหน้า LG และอ่านรายการสินค้า'
+    job.message = options.jobType === 'url'
+      ? 'กำลังเปิด URL LG และกรองการ์ด Subscription'
+      : 'กำลังเปิดหน้า LG และอ่านรายการสินค้า'
     try {
-      job.result = await runner()
+      job.result = await options.runner()
       job.status = 'done'
       job.message = `เสร็จ — ${job.result.totalOnLg} SKU`
     }

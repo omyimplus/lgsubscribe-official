@@ -118,6 +118,7 @@ async function waitForSwatchSelection(
   card: Locator,
   page: Page,
   modelId: string,
+  options?: { skipPrice?: boolean },
 ): Promise<{ discountedPrice: number | null, fullPrice: number | null } | null> {
   const deadline = Date.now() + SWATCH_WAIT_MS
   let stableHits = 0
@@ -128,7 +129,10 @@ async function waitForSwatchSelection(
     const prices = await evalOnCard<{ discountedPrice: number | null, fullPrice: number | null }>(card, 'readNeoCardPrices')
     const monthly = prices.discountedPrice
 
-    if (selected && monthly !== null) {
+    if (selected && (options?.skipPrice || monthly !== null)) {
+      if (options?.skipPrice) {
+        return { discountedPrice: null, fullPrice: null }
+      }
       if (monthly === lastMonthly) stableHits += 1
       else stableHits = 1
       lastMonthly = monthly
@@ -156,6 +160,7 @@ async function selectSwatchOnCard(
   modelId: string,
   log: ReturnType<typeof createImportLogger>,
   cardLabel: string,
+  options?: { skipPrice?: boolean },
 ) {
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     const clicked = await evalOnCardWithArg<boolean>(card, 'clickSwatchOnCard', modelId)
@@ -164,7 +169,7 @@ async function selectSwatchOnCard(
       return null
     }
     await page.waitForTimeout(450)
-    const prices = await waitForSwatchSelection(card, page, modelId)
+    const prices = await waitForSwatchSelection(card, page, modelId, options)
     if (prices) return prices
     log.warn(`${cardLabel} modelId=${modelId} — selection not confirmed (try ${attempt}/3)`)
     await page.waitForTimeout(600)
@@ -187,7 +192,14 @@ function pickDetailHref(
  */
 export async function scrapeTvPlpVariants(
   page: Page,
-  options?: { maxUniqueSkus?: number, pageIndex?: number },
+  options?: {
+    maxUniqueSkus?: number
+    pageIndex?: number
+    /** กรองเฉพาะการ์ดที่มี badge Subscription (หมวดธรรมดา LG) */
+    subscriptionBadgeOnly?: boolean
+    /** ไม่เก็บราคาจากการ์ด — ใช้ราคาจากหน้า lgsubscribe ตอน import */
+    skipCardPrices?: boolean
+  },
 ): Promise<DomCardRaw[]> {
   const log = createImportLogger('plp-scrape')
   const rows: DomCardRaw[] = []
@@ -214,6 +226,15 @@ export async function scrapeTvPlpVariants(
     }
     log.step(`card ${i + 1}/${cardCount}`)
     const card = cards.nth(i)
+
+    if (options?.subscriptionBadgeOnly) {
+      const hasBadge = await evalOnCard<boolean>(card, 'hasSubscriptionBadge')
+      if (!hasBadge) {
+        log.info(`card ${i + 1}/${cardCount} skipped — no Subscription badge`)
+        continue
+      }
+    }
+
     const shared = await evalOnCard<{ detailUrl: string, name: string | null, sku: string | null } | null>(card, 'readNeoCardShared')
     if (!shared?.detailUrl) {
       log.warn(`card ${i + 1}/${cardCount} skipped — no detail URL`)
@@ -233,7 +254,9 @@ export async function scrapeTvPlpVariants(
     }
 
     if (!swatchMeta.length) {
-      const prices = await evalOnCard<{ discountedPrice: number | null, fullPrice: number | null }>(card, 'readNeoCardPrices')
+      const prices = options?.skipCardPrices
+        ? { discountedPrice: null, fullPrice: null }
+        : await evalOnCard<{ discountedPrice: number | null, fullPrice: number | null }>(card, 'readNeoCardPrices')
       const detailUrl = normalizeLgDetailHref(shared.detailUrl)
       const titleSku = await evalOnCard<string | null>(card, 'readNeoCardModelSku')
       const slugMatch = detailUrl.match(/\/([^/]+)\/lgsubscribe\/?$/i)
@@ -272,10 +295,15 @@ export async function scrapeTvPlpVariants(
       seenModelIds.add(modelId)
 
       const cardLabel = `card ${i + 1}/${cardCount} swatch ${j + 1}`
-      let prices = await selectSwatchOnCard(card, page, modelId, log, cardLabel)
+      const swatchOpts = options?.skipCardPrices ? { skipPrice: true } : undefined
+      let prices = await selectSwatchOnCard(card, page, modelId, log, cardLabel, swatchOpts)
       if (!prices) {
         log.warn(`${cardLabel} sku=${skuFromLgModelId(modelId)} — skip (swatch/price not confirmed)`)
         continue
+      }
+      if (options?.skipCardPrices) {
+        prices.discountedPrice = null
+        prices.fullPrice = null
       }
       const button = await evalOnCard<{ detailUrl: string, name: string | null, sku: string | null } | null>(
         card,

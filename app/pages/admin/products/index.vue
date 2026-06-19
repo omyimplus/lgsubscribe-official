@@ -18,7 +18,9 @@ const filterStatus = ref<ProductStatus | ''>('')
 const filterCategory = ref('')
 const clearingAll = ref(false)
 const clearingCategory = ref(false)
+const clearingSelected = ref(false)
 const publishingAll = ref(false)
+const selectedProductIds = ref(new Set<string>())
 
 const statusOptions: { value: ProductStatus | '', label: string }[] = [
   { value: '', label: 'ทุกสถานะ' },
@@ -42,6 +44,69 @@ const filtered = computed(() => {
 })
 
 const displayGroups = computed(() => groupProducts(filtered.value))
+
+const filteredProductIds = computed(() => filtered.value.map(p => p.id))
+
+const selectedCount = computed(() => selectedProductIds.value.size)
+
+const allFilteredSelected = computed(() => {
+  const ids = filteredProductIds.value
+  if (!ids.length) return false
+  return ids.every(id => selectedProductIds.value.has(id))
+})
+
+const someFilteredSelected = computed(() => {
+  const ids = filteredProductIds.value
+  if (!ids.length) return false
+  const selected = ids.filter(id => selectedProductIds.value.has(id)).length
+  return selected > 0 && selected < ids.length
+})
+
+function isProductSelected(id: string) {
+  return selectedProductIds.value.has(id)
+}
+
+function isGroupSelected(variantIds: string[]) {
+  return variantIds.length > 0 && variantIds.every(id => selectedProductIds.value.has(id))
+}
+
+function isGroupIndeterminate(variantIds: string[]) {
+  const selected = variantIds.filter(id => selectedProductIds.value.has(id)).length
+  return selected > 0 && selected < variantIds.length
+}
+
+function setSelectedIds(ids: string[], selected: boolean) {
+  const next = new Set(selectedProductIds.value)
+  for (const id of ids) {
+    if (selected) next.add(id)
+    else next.delete(id)
+  }
+  selectedProductIds.value = next
+}
+
+function toggleProduct(id: string) {
+  setSelectedIds([id], !selectedProductIds.value.has(id))
+}
+
+function toggleGroup(variantIds: string[]) {
+  setSelectedIds(variantIds, !isGroupSelected(variantIds))
+}
+
+function toggleAllFiltered() {
+  setSelectedIds(filteredProductIds.value, !allFilteredSelected.value)
+}
+
+function clearSelection() {
+  selectedProductIds.value = new Set()
+}
+
+function pruneSelection() {
+  const valid = new Set((products.value ?? []).map(p => p.id))
+  const next = new Set([...selectedProductIds.value].filter(id => valid.has(id)))
+  if (next.size !== selectedProductIds.value.size) {
+    selectedProductIds.value = next
+  }
+}
 
 const stats = computed(() => {
   const list = products.value ?? []
@@ -101,6 +166,7 @@ async function handleDelete(p: Product) {
     const note = res.storage?.removedFiles ? ` (ลบไฟล์ใน Storage ${res.storage.removedFiles} ไฟล์)` : ''
     alert(`ลบสินค้าแล้ว${note}`)
     await refresh()
+    pruneSelection()
   }
   catch (err: any) {
     alert(err?.data?.message ?? 'ลบไม่สำเร็จ')
@@ -164,12 +230,58 @@ async function handleDeleteByCategory() {
       : ''
     alert(`ลบสินค้าในหมวด "${res.categoryName}" แล้ว ${res.deleted} รายการ${storageNote}`)
     await refresh()
+    pruneSelection()
   }
   catch (err: any) {
     alert(err?.data?.message ?? 'ลบสินค้าในหมวดไม่สำเร็จ')
   }
   finally {
     clearingCategory.value = false
+  }
+}
+
+async function handleDeleteSelected() {
+  const ids = [...selectedProductIds.value]
+  if (!ids.length) {
+    alert('ยังไม่ได้เลือกสินค้า')
+    return
+  }
+
+  const preview = (products.value ?? [])
+    .filter(p => selectedProductIds.value.has(p.id))
+    .slice(0, 8)
+    .map(p => `• ${p.sku} — ${p.name}`)
+  const hiddenCount = ids.length - preview.length
+  const listNote = preview.length
+    ? `\n\n${preview.join('\n')}${hiddenCount > 0 ? `\n… และอีก ${hiddenCount} รายการ` : ''}`
+    : ''
+
+  if (!confirm(
+    `ลบสินค้าที่เลือก ${ids.length} รายการใช่หรือไม่?${listNote}\n\n`
+    + 'รูป/วิดีโอใน Storage ที่ผูกกับสินค้าเหล่านี้จะถูกลบด้วย',
+  )) return
+
+  clearingSelected.value = true
+  try {
+    const res = await $fetch<{
+      deleted: number
+      storage: { removedFiles: number, errors: string[] }
+    }>('/api/admin/products/bulk', {
+      method: 'DELETE',
+      body: { productIds: ids },
+    })
+    const storageNote = res.storage.removedFiles
+      ? ` (ลบไฟล์ Storage ${res.storage.removedFiles} ไฟล์)`
+      : ''
+    alert(`ลบสินค้าแล้ว ${res.deleted} รายการ${storageNote}`)
+    clearSelection()
+    await refresh()
+  }
+  catch (err: any) {
+    alert(err?.data?.message ?? 'ลบสินค้าที่เลือกไม่สำเร็จ')
+  }
+  finally {
+    clearingSelected.value = false
   }
 }
 
@@ -194,6 +306,7 @@ async function handleDeleteAll() {
       console.warn('product storage cleanup:', res.storage.errors)
     }
     await refresh()
+    clearSelection()
   }
   catch (err: any) {
     alert(err?.data?.message ?? 'ลบทั้งหมดไม่สำเร็จ')
@@ -214,7 +327,7 @@ async function handleDeleteAll() {
         <button
           type="button"
           class="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-60"
-          :disabled="publishingAll || clearingAll || clearingCategory || !stats.total"
+          :disabled="publishingAll || clearingAll || clearingCategory || clearingSelected || !stats.total"
           @click="handlePublishAll"
         >
           <Icon name="heroicons:globe-alt" class="h-4 w-4" />
@@ -223,7 +336,7 @@ async function handleDeleteAll() {
         <button
           type="button"
           class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
-          :disabled="clearingAll || clearingCategory || publishingAll || !stats.total"
+          :disabled="clearingAll || clearingCategory || clearingSelected || publishingAll || !stats.total"
           @click="handleDeleteAll"
         >
           <Icon name="heroicons:trash" class="h-4 w-4" />
@@ -290,9 +403,28 @@ async function handleDeleteAll() {
           </optgroup>
         </select>
         <button
+          v-if="selectedCount > 0"
+          type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-100 px-4 py-2.5 text-sm font-semibold text-red-800 transition hover:bg-red-200 disabled:opacity-50"
+          :disabled="clearingSelected || clearingCategory || clearingAll || publishingAll"
+          @click="handleDeleteSelected"
+        >
+          <Icon name="heroicons:trash" class="h-4 w-4 shrink-0" />
+          {{ clearingSelected ? 'กำลังลบ...' : `ลบที่เลือก (${selectedCount})` }}
+        </button>
+        <button
+          v-if="selectedCount > 0"
+          type="button"
+          class="rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+          :disabled="clearingSelected || clearingCategory || clearingAll || publishingAll"
+          @click="clearSelection"
+        >
+          ล้างการเลือก
+        </button>
+        <button
           type="button"
           class="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
-          :disabled="!filterCategory || categoryDeleteCount < 1 || clearingCategory || clearingAll || publishingAll"
+          :disabled="!filterCategory || categoryDeleteCount < 1 || clearingCategory || clearingAll || clearingSelected || publishingAll"
           :title="deleteCategoryButtonTitle"
           @click="handleDeleteByCategory"
         >
@@ -308,13 +440,29 @@ async function handleDeleteAll() {
       </div>
 
       <div class="overflow-x-auto">
-        <p
+        <div
           v-if="!pending && displayGroups.length"
-          class="border-b border-gray-100 bg-gray-50/80 px-4 py-2 text-xs text-gray-500"
+          class="flex flex-wrap items-center gap-3 border-b border-gray-100 bg-gray-50/80 px-4 py-2 text-xs text-gray-500"
         >
-          {{ displayGroups.length }} กลุ่ม · {{ filtered.length }} รหัสสินค้า
-          <span class="text-gray-400">· กลุ่ม = การ์ดเดียวบน LG (หลายขนาด)</span>
-        </p>
+          <label class="inline-flex cursor-pointer items-center gap-2">
+            <input
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+              :checked="allFilteredSelected"
+              :indeterminate.prop="someFilteredSelected"
+              @change="toggleAllFiltered"
+            >
+            <span>เลือกทั้งหมดที่แสดง ({{ filtered.length }})</span>
+          </label>
+          <span class="text-gray-300">|</span>
+          <span>
+            {{ displayGroups.length }} กลุ่ม · {{ filtered.length }} รหัสสินค้า
+            <span class="text-gray-400">· กลุ่ม = การ์ดเดียวบน LG (หลายขนาด)</span>
+          </span>
+          <span v-if="selectedCount > 0" class="font-medium text-red-600">
+            · เลือกแล้ว {{ selectedCount }} รายการ
+          </span>
+        </div>
 
         <div v-if="pending" class="py-16 text-center text-gray-400">
           กำลังโหลด...
@@ -334,6 +482,20 @@ async function handleDeleteAll() {
           class="border-b border-gray-100 last:border-b-0"
         >
           <div class="flex items-center gap-3 bg-slate-50/90 px-4 py-2.5">
+            <label
+              v-if="group.variants.length > 1"
+              class="inline-flex shrink-0 cursor-pointer items-center"
+              :title="`เลือกทุกขนาดในกลุ่ม (${group.variants.length})`"
+            >
+              <input
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                :checked="isGroupSelected(group.variants.map(v => v.id))"
+                :indeterminate.prop="isGroupIndeterminate(group.variants.map(v => v.id))"
+                @change="toggleGroup(group.variants.map(v => v.id))"
+              >
+            </label>
+            <div v-else class="w-4 shrink-0" />
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-semibold text-gray-900">
                 {{ group.displayName }}
@@ -350,7 +512,15 @@ async function handleDeleteAll() {
           <table class="w-full min-w-[800px] text-sm">
             <tbody class="divide-y divide-gray-50">
               <tr v-for="p in group.variants" :key="p.id" class="hover:bg-gray-50/80">
-                <td class="px-4 py-3 pl-8">
+                <td class="w-10 px-2 py-3">
+                  <input
+                    type="checkbox"
+                    class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    :checked="isProductSelected(p.id)"
+                    @change="toggleProduct(p.id)"
+                  >
+                </td>
+                <td class="px-4 py-3">
                   <div class="flex items-center gap-3">
                     <div class="h-12 w-12 shrink-0 overflow-hidden rounded-lg border bg-gray-50">
                       <img v-if="p.image_url" :src="p.image_url" :alt="p.name" class="h-full w-full object-cover">

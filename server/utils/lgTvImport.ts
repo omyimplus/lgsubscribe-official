@@ -189,6 +189,8 @@ export type TvListCard = {
   shared_detail_url?: string | null
   /** ตำแหน่งการ์ดบน PLP (audit 1 card = 1 group) */
   plp_card_key?: string | null
+  /** หมวดในระบบเรา (slug) — ใช้ตอน import จาก URL แบบเลือกต่อชิ้น */
+  categorySlug?: string | null
 }
 
 function pickTextByHints(values: string[], hints: string[]) {
@@ -373,6 +375,10 @@ export type LgPlpScrapeOptions = {
   lgSlug?: string
   /** หมวดไม่มีสินค้า → คืน [] ไม่ throw (default true) */
   allowEmpty?: boolean
+  /** กรองเฉพาะการ์ด badge Subscription (import จาก URL หมวดธรรมดา) */
+  subscriptionBadgeOnly?: boolean
+  /** ไม่เก็บราคาจากการ์ด PLP — ดึงจาก lgsubscribe PDP ตอน import */
+  skipCardPrices?: boolean
 }
 
 /** PLP: DOM เป็นหลัก (การ์ด + swatch) แล้ว enrich ชื่อจาก retrieveProductList — ไม่ merge Coveo */
@@ -476,12 +482,27 @@ export async function collectTvListCardsWithBrowser(
 
     const domCardsRaw: DomCardRaw[] = []
     const seenSkus = new Set<string>()
+    const scrapeVariantOpts = {
+      subscriptionBadgeOnly: scrapeOptions?.subscriptionBadgeOnly,
+      skipCardPrices: scrapeOptions?.skipCardPrices,
+    }
 
     const scrapePageWithPriceWait = async (pageIndex: number, maxUniqueSkus?: number) => {
+      if (scrapeOptions?.skipCardPrices) {
+        return await scrapeTvPlpVariants(page, {
+          maxUniqueSkus,
+          pageIndex,
+          ...scrapeVariantOpts,
+        })
+      }
       for (let attempt = 1; attempt <= PRICE_RENDER_MAX_RETRIES; attempt += 1) {
         log.info(`page ${pageIndex + 1} price attempt ${attempt}/${PRICE_RENDER_MAX_RETRIES}`)
         await page.waitForFunction(hasVisibleCardPricesFn(), { timeout: PRICE_RENDER_WAIT_TIMEOUT_MS }).catch(() => false)
-        const rows = await scrapeTvPlpVariants(page, { maxUniqueSkus, pageIndex })
+        const rows = await scrapeTvPlpVariants(page, {
+          maxUniqueSkus,
+          pageIndex,
+          ...scrapeVariantOpts,
+        })
         if (rows.some(row => row.discountedPrice !== null || row.fullPrice !== null)) {
           return rows
         }
@@ -491,7 +512,11 @@ export async function collectTvListCardsWithBrowser(
           await page.waitForTimeout(2500)
         }
       }
-      return await scrapeTvPlpVariants(page, { maxUniqueSkus, pageIndex })
+      return await scrapeTvPlpVariants(page, {
+        maxUniqueSkus,
+        pageIndex,
+        ...scrapeVariantOpts,
+      })
     }
 
     for (let pageIndex = 0; pageIndex < MAX_PLP_PAGES; pageIndex += 1) {

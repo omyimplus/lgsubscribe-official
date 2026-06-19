@@ -19,25 +19,56 @@ export default defineEventHandler(async (event) => {
     items?: ClientCatalogItem[]
     lgSlug?: string
     categorySlug?: string
+    listUrl?: string
+    perItemCategory?: boolean
   }>(event).catch(() => ({}))
 
-  const source = resolveImportSource(body?.lgSlug ?? body?.categorySlug ?? 'tvs')
+  const hasClientItems = Boolean(body?.items?.length)
+  const explicitCategory = body?.categorySlug?.trim().toLowerCase()
+
+  let categorySlug: string
+  let sourceLabel: string
+
+  if (hasClientItems && explicitCategory) {
+    categorySlug = explicitCategory
+    sourceLabel = body?.listUrl?.trim()
+      ? `URL ${body.listUrl.trim()}`
+      : explicitCategory
+  }
+  else {
+    const source = resolveImportSource(body?.lgSlug ?? body?.categorySlug ?? 'tvs')
+    categorySlug = explicitCategory || source.categorySlug
+    sourceLabel = source.label
+  }
+
   log.info(
-    `start ${source.lgSlug} importAll=${Boolean(body?.importAll)} skus=${body?.skus?.length ?? 0} items=${body?.items?.length ?? 0}`,
+    `start ${sourceLabel} importAll=${Boolean(body?.importAll)} skus=${body?.skus?.length ?? 0} items=${body?.items?.length ?? 0}`,
   )
 
   const supabase = useSupabaseAdmin()
 
   let selected
   if (body?.items?.length) {
+    if (body.perItemCategory) {
+      const missing = body.items.filter(item => !item.categorySlug?.trim())
+      if (missing.length) {
+        throw createError({
+          statusCode: 400,
+          message: `กรุณาระบุหมวดให้ครบทุกรายการ (${missing.length} รายการยังไม่มี categorySlug)`,
+        })
+      }
+    }
     selected = cardsFromClientItems(body.items)
     log.info(`using ${selected.length} pre-scraped item(s) from client (no PLP re-scrape)`)
   }
   else {
-    log.step(`fetch PLP cards (${source.lgSlug})`)
+    log.step(`fetch PLP cards (${sourceLabel})`)
+    const listSource = body?.listUrl?.trim()
+      ? { listUrl: body.listUrl.trim(), lgSlug: body.lgSlug ?? 'url-import' }
+      : resolveImportSource(body?.lgSlug ?? categorySlug)
     const listCards = await fetchTvListCards(500, {
-      listUrl: source.listUrl,
-      lgSlug: source.lgSlug,
+      listUrl: listSource.listUrl,
+      lgSlug: listSource.lgSlug,
     }).catch((error: unknown) => {
       const message = error instanceof Error ? error.message : 'เปิดหน้าจอไม่ขึ้น'
       log.error(`fetch PLP failed: ${message}`)
@@ -57,19 +88,21 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'ไม่พบรายการที่เลือกจาก LG' })
   }
 
-  const note = body?.importAll
-    ? `${source.label} import all (${selected.length})`
-    : body?.skus?.length
-      ? `${source.label} import selected (${selected.length})`
-      : `${source.label} import test (${selected.length})`
+  const note = body?.listUrl?.trim()
+    ? `${body.listUrl.trim()} import selected (${selected.length})`
+    : body?.importAll
+      ? `${sourceLabel} import all (${selected.length})`
+      : body?.skus?.length
+        ? `${sourceLabel} import selected (${selected.length})`
+        : `${sourceLabel} import test (${selected.length})`
 
   log.step('import cards to draft')
   const result = await importTvCardsToDraft(supabase, selected, {
     batchNote: note,
-    categorySlug: source.categorySlug,
+    categorySlug,
   })
   log.done(`import cards to draft (${result.count} saved)`)
-  log.info(`done count=${result.count} batchId=${result.batchId} lgSlug=${source.lgSlug}`)
+  log.info(`done count=${result.count} batchId=${result.batchId} category=${categorySlug}`)
 
-  return { ...result, lgSlug: source.lgSlug, categorySlug: source.categorySlug }
+  return { ...result, categorySlug, listUrl: body?.listUrl ?? null }
 })

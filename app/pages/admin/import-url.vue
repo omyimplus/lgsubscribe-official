@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { categoriesGroupedByMain } from '~~/shared/utils/categoryDisplay'
+import type { Category } from '~~/shared/types/category'
+import type { MainCategory } from '~~/shared/types/main-category'
+
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 type ImportBatch = {
@@ -38,14 +42,6 @@ type CatalogItem = {
   status: 'new' | 'exists'
 }
 
-type ImportSourceOption = {
-  lgSlug: string
-  label: string
-  categorySlug: string
-  listUrl: string
-  variantAxis: string
-}
-
 type CatalogGroup = {
   groupKey: string
   displayName: string
@@ -61,6 +57,7 @@ type CatalogResponse = {
     categoryId: string
     categoryName: string
     variantAxis: string
+    importMode?: 'subscription' | 'url'
   }
   scannedAt: string
   totalOnLg: number
@@ -76,62 +73,74 @@ const { data: overview, pending, refresh, error: fetchError } = await useFetch<{
   default: () => ({ batch: null, items: [] }),
 })
 
-const importSources = ref<ImportSourceOption[]>([])
-const selectedLgSlug = ref('tvs')
+const { data: mainCategories } = await useFetch<MainCategory[]>('/api/main-categories', { default: () => [] })
+const { data: categories } = await useFetch<Category[]>('/api/categories', { default: () => [] })
+
+const categoryGroups = computed(() =>
+  categoriesGroupedByMain(mainCategories.value ?? [], categories.value ?? [], { onlyActive: true }),
+)
+
+const listUrl = ref('https://www.lg.com/th/tv-soundbars/all-tvs-soundbars/')
 const catalog = ref<CatalogResponse | null>(null)
 const selectedSkus = ref<Set<string>>(new Set())
+/** slug หมวดต่อ SKU — ตั้งค่าเริ่มจาก scan แล้วแก้ได้ก่อน import */
+const itemCategorySlugBySku = ref<Record<string, string>>({})
 const scanning = ref(false)
 const scanProgress = ref('')
 
-onMounted(async () => {
-  try {
-    const res = await $fetch<{ sources: ImportSourceOption[] }>('/api/admin/import/catalog/sources')
-    importSources.value = res.sources
-    if (!importSources.value.some(s => s.lgSlug === selectedLgSlug.value) && importSources.value[0]) {
-      selectedLgSlug.value = importSources.value[0].lgSlug
-    }
-  }
-  catch {
-    importSources.value = [{
-      lgSlug: 'tvs',
-      label: 'โทรทัศน์',
-      categorySlug: 'television',
-      listUrl: '',
-      variantAxis: 'screen_inches',
-    }]
-  }
-})
-
-watch(selectedLgSlug, () => {
+watch(listUrl, () => {
   catalog.value = null
   selectedSkus.value = new Set()
+  itemCategorySlugBySku.value = {}
 })
+
+function initItemCategoriesFromCatalog(result: CatalogResponse) {
+  const defaultSlug = result.source.categorySlug
+  const next: Record<string, string> = {}
+  for (const item of result.items) {
+    next[item.sku.toUpperCase()] = defaultSlug
+  }
+  itemCategorySlugBySku.value = next
+}
+
+function categorySlugForSku(sku: string) {
+  return itemCategorySlugBySku.value[sku.toUpperCase()] ?? ''
+}
+
+function setCategoryForSku(sku: string, categorySlug: string) {
+  itemCategorySlugBySku.value = {
+    ...itemCategorySlugBySku.value,
+    [sku.toUpperCase()]: categorySlug,
+  }
+}
+
+function setCategoryForGroup(group: CatalogGroup, categorySlug: string) {
+  const next = { ...itemCategorySlugBySku.value }
+  for (const v of group.variants) {
+    next[v.sku.toUpperCase()] = categorySlug
+  }
+  itemCategorySlugBySku.value = next
+}
 
 const importing = ref(false)
 const importJobLabel = ref('')
 const promoting = ref(false)
 const clearing = ref(false)
 
-const selectedSourceLabel = computed(() =>
-  importSources.value.find(s => s.lgSlug === selectedLgSlug.value)?.label
-  ?? catalog.value?.source.label
-  ?? 'สินค้า',
-)
-
 const isBlockingWork = computed(() => scanning.value || importing.value)
 
 const blockingLoader = computed(() => {
   if (scanning.value) {
     return {
-      title: 'กำลังดึงรายการจาก LG',
-      message: scanProgress.value || `หมวด ${selectedSourceLabel.value} — กำลังเปิดหน้ารายการและอ่านราคา (อาจใช้เวลา 2–10 นาที)`,
-      hint: 'ห้ามปิดแท็บหรือรีเฟรชจนกว่าจะเสร็จ — ระบบดึงข้อมูลแบบ background ไม่โดน gateway timeout',
+      title: 'กำลังดึงรายการจาก URL LG',
+      message: scanProgress.value || 'กำลังเปิดหน้ารายการและกรองการ์ด Subscription (อาจใช้เวลา 2–10 นาที)',
+      hint: 'ห้ามปิดแท็บหรือรีเฟรชจนกว่าจะเสร็จ',
     }
   }
   if (importing.value) {
     return {
       title: 'กำลังนำเข้าสินค้า',
-      message: importJobLabel.value || `กำลังเปิดหน้ารายละเอียดและบันทึกดราฟ — อาจใช้เวลานาน`,
+      message: importJobLabel.value || 'กำลังเปิดหน้า lgsubscribe และบันทึกดราฟ',
       hint: 'ห้ามปิดแท็บ รีเฟรช หรือออกจากหน้านี้จนกว่าจะเสร็จ',
     }
   }
@@ -148,24 +157,6 @@ onBeforeRouteLeave((_to, _from, next) => {
   )
   next(ok)
 })
-
-const allSelected = computed({
-  get: () => {
-    const items = catalog.value?.items ?? []
-    return items.length > 0 && items.every(i => selectedSkus.value.has(i.sku))
-  },
-  set: (checked: boolean) => {
-    const items = catalog.value?.items ?? []
-    selectedSkus.value = checked ? new Set(items.map(i => i.sku)) : new Set()
-  },
-})
-
-function toggleSku(sku: string, checked: boolean) {
-  const next = new Set(selectedSkus.value)
-  if (checked) next.add(sku)
-  else next.delete(sku)
-  selectedSkus.value = next
-}
 
 const catalogGroups = computed(() => catalog.value?.groups ?? [])
 
@@ -187,19 +178,32 @@ function toggleGroup(group: CatalogGroup, checked: boolean) {
   selectedSkus.value = next
 }
 
+function toggleSku(sku: string, checked: boolean) {
+  const next = new Set(selectedSkus.value)
+  if (checked) next.add(sku)
+  else next.delete(sku)
+  selectedSkus.value = next
+}
+
 function selectNewOnly() {
   const items = catalog.value?.items.filter(i => i.status === 'new') ?? []
   selectedSkus.value = new Set(items.map(i => i.sku))
 }
 
 async function handleScanCatalog() {
+  const url = listUrl.value.trim()
+  if (!url) {
+    alert('กรุณากรอก URL หมวดสินค้า LG')
+    return
+  }
+
   scanning.value = true
   scanProgress.value = 'เริ่มงานดึงรายการ…'
   catalog.value = null
   try {
-    const { jobId } = await $fetch<{ jobId: string }>('/api/admin/import/catalog/scan', {
+    const { jobId } = await $fetch<{ jobId: string }>('/api/admin/import/url/scan', {
       method: 'POST',
-      body: { lgSlug: selectedLgSlug.value },
+      body: { listUrl: url },
     })
 
     const deadline = Date.now() + 900_000
@@ -210,12 +214,13 @@ async function handleScanCatalog() {
         message: string | null
         error: string | null
         result: CatalogResponse | null
-      }>(`/api/admin/import/catalog/scan/${jobId}`)
+      }>(`/api/admin/import/url/scan/${jobId}`)
 
       if (job.message) scanProgress.value = job.message
 
       if (job.status === 'done' && job.result) {
         catalog.value = job.result
+        initItemCategoriesFromCatalog(job.result)
         selectedSkus.value = new Set(
           job.result.items.filter(i => i.status === 'new').map(i => i.sku),
         )
@@ -240,34 +245,58 @@ async function handleScanCatalog() {
   }
 }
 
-type ImportResult = {
-  count: number
-  batchId: string
-  failed?: { group: string, skus: string[], reason: string }[]
+function selectedItems(skus: string[]) {
+  const wanted = new Set(skus.map(s => s.toUpperCase()))
+  return (catalog.value?.items ?? [])
+    .filter(i => wanted.has(i.sku.toUpperCase()))
+    .map(item => ({
+      ...item,
+      categorySlug: categorySlugForSku(item.sku),
+    }))
 }
 
-async function runImport(body: {
-  importAll?: boolean
-  skus?: string[]
-  testLimit?: number
-  items?: CatalogItem[]
-  lgSlug?: string
-}, jobLabel?: string) {
+function validateSelectedCategories(skus: string[]) {
+  const missing = skus.filter(sku => !categorySlugForSku(sku))
+  if (missing.length) {
+    alert(`กรุณาเลือกหมวดสินค้าให้ครบ — ยังไม่ได้เลือก: ${missing.join(', ')}`)
+    return false
+  }
+  return true
+}
+
+async function handleImportSelected() {
+  const skus = [...selectedSkus.value]
+  if (!skus.length) {
+    alert('เลือก รหัสสินค้า อย่างน้อย 1 รายการ')
+    return
+  }
+  if (!validateSelectedCategories(skus)) return
+  if (!confirm(`นำเข้า ${skus.length} รายการที่เลือกเข้า Import Draft ใช่หรือไม่?`)) return
+
   importing.value = true
-  importJobLabel.value = jobLabel ?? ''
-  const lgSlug = body.lgSlug ?? catalog.value?.source.lgSlug ?? selectedLgSlug.value
+  importJobLabel.value = `นำเข้า ${skus.length} SKU จาก URL`
   try {
-    const res = await $fetch<ImportResult>('/api/admin/import/tvs-draft', {
-      method: 'POST',
-      body: { ...body, lgSlug },
-      timeout: 600_000,
-    })
+    const res = await $fetch<{ count: number, failed?: { skus: string[], reason: string }[] }>(
+      '/api/admin/import/tvs-draft',
+      {
+        method: 'POST',
+        body: {
+          skus,
+          items: selectedItems(skus),
+          categorySlug: catalog.value?.source.categorySlug,
+          perItemCategory: true,
+          listUrl: catalog.value?.source.listUrl ?? listUrl.value.trim(),
+        },
+        timeout: 600_000,
+      },
+    )
     const failed = res.failed ?? []
     let msg = `นำเข้าดราฟสำเร็จ ${res.count} รายการ`
     if (failed.length) {
       const lines = failed.map(f => `• ${f.skus.join(', ')} — ${f.reason}`).join('\n')
-      msg += `\n\nข้ามไป ${failed.length} กลุ่ม (เปิดหน้ารายละเอียดไม่ได้):\n${lines}`
+      msg += `\n\nข้ามไป ${failed.length} กลุ่ม:\n${lines}`
     }
+    msg += '\n\nราคา subscribe ดึงจากหน้า lgsubscribe ตอน import'
     alert(msg)
     await refresh()
   }
@@ -278,22 +307,6 @@ async function runImport(body: {
     importing.value = false
     importJobLabel.value = ''
   }
-}
-
-/** ส่ง catalog items ที่ scrape มาแล้ว → ไม่ต้องเปิด PLP ซ้ำ */
-function selectedItems(skus: string[]) {
-  const wanted = new Set(skus.map(s => s.toUpperCase()))
-  return (catalog.value?.items ?? []).filter(i => wanted.has(i.sku.toUpperCase()))
-}
-
-async function handleImportSelected() {
-  const skus = [...selectedSkus.value]
-  if (!skus.length) {
-    alert('เลือก รหัสสินค้า อย่างน้อย 1 รายการ')
-    return
-  }
-  if (!confirm(`นำเข้า ${skus.length} รายการที่เลือกเข้า Import Draft ใช่หรือไม่?`)) return
-  await runImport({ skus, items: selectedItems(skus) })
 }
 
 async function handleConfirmMerge() {
@@ -328,14 +341,8 @@ async function handleClearDrafts() {
   if (!confirm('ลบดราฟ import ทั้งหมดใช่หรือไม่? รูป mirror ของ draft ใน Storage จะถูกลบด้วย')) return
   clearing.value = true
   try {
-    const res = await $fetch<{
-      deleted: number
-      storage: { removedFiles: number, skippedProtected: number, errors: string[] }
-    }>('/api/admin/import/drafts', { method: 'DELETE' })
-    const storageNote = res.storage.removedFiles
-      ? ` ลบรูป mirror ${res.storage.removedFiles} ไฟล์`
-      : ''
-    alert(`ลบดราฟแล้ว ${res.deleted} batch${storageNote}`)
+    const res = await $fetch<{ deleted: number }>('/api/admin/import/drafts', { method: 'DELETE' })
+    alert(`ลบดราฟแล้ว ${res.deleted} batch`)
     await refresh()
   }
   catch (err: any) {
@@ -358,7 +365,6 @@ function statusLabel(status: CatalogItem['status'] | 'missing_on_lg') {
   return 'ไม่พบใน LG'
 }
 
-/** ดึงป้ายขนาด/BTU จากชื่อที่บันทึก */
 function variantLabelFromName(name: string | null | undefined) {
   if (!name) return '-'
   const btu = name.match(/(\d[\d,]*\s*BTU)/i)
@@ -380,24 +386,34 @@ function variantLabelFromName(name: string | null | undefined) {
 
     <header>
       <h1 class="text-xl font-semibold tracking-tight text-gray-900">
-        Import จาก LG.com
+        Import จาก URL LG
       </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        วาง URL หมวดสินค้าบน lg.com — ระบบจะดึงเฉพาะการ์ดที่มี badge <strong>Subscription</strong>
+        · หมวดเริ่มต้นอนุมานจาก URL แล้ว<strong>เลือกหมวดต่อชิ้นได้ก่อน Import</strong>
+      </p>
     </header>
 
     <section class="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm space-y-4">
-      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-        <label class="flex w-full flex-col gap-1.5 sm:w-48">
-          <span class="text-xs font-medium text-gray-500">หมวด</span>
-          <select
-            v-model="selectedLgSlug"
-            class="w-full rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-2.5 text-sm font-medium text-gray-900 focus:border-sky-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:opacity-60"
-            :disabled="isBlockingWork || promoting || clearing"
-          >
-            <option v-for="src in importSources" :key="src.lgSlug" :value="src.lgSlug">
-              {{ src.label }}
-            </option>
-          </select>
-        </label>
+      <label class="flex flex-col gap-1.5">
+        <span class="text-xs font-medium text-gray-500">URL หมวดสินค้า LG</span>
+        <input
+          v-model="listUrl"
+          type="url"
+          placeholder="https://www.lg.com/th/tv-soundbars/all-tvs-soundbars/"
+          class="w-full rounded-xl border border-gray-200 bg-gray-50/80 px-3 py-2.5 text-sm text-gray-900 focus:border-sky-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:opacity-60"
+          :disabled="isBlockingWork || promoting || clearing"
+        >
+      </label>
+
+      <p class="text-xs text-gray-500">
+        ตัวอย่าง: <code class="text-[11px]">tv-soundbars</code> → โทรทัศน์,
+        <code class="text-[11px]">laundry</code> → ซักผ้า,
+        <code class="text-[11px]">air-conditioner-inverter</code> → แอร์
+        · ราคา subscribe ดึงจากหน้า <code class="text-[11px]">/lgsubscribe</code> ตอน import
+      </p>
+
+      <div class="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap">
         <button
           type="button"
           class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-800 transition hover:bg-sky-100 disabled:opacity-60 sm:w-auto sm:min-w-[11rem]"
@@ -405,7 +421,7 @@ function variantLabelFromName(name: string | null | undefined) {
           @click="handleScanCatalog"
         >
           <Icon name="heroicons:magnifying-glass" class="h-4 w-4 shrink-0" />
-          {{ scanning ? 'กำลังดึง...' : 'ดึงรายการจาก LG' }}
+          {{ scanning ? 'กำลังดึง...' : 'ดึงรายการ Subscription' }}
         </button>
         <button
           type="button"
@@ -416,9 +432,6 @@ function variantLabelFromName(name: string | null | undefined) {
           <Icon name="heroicons:arrow-down-tray" class="h-4 w-4 shrink-0" />
           {{ importing ? 'กำลังนำเข้า...' : `Import (${selectedSkus.size})` }}
         </button>
-      </div>
-
-      <div class="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap">
         <button
           type="button"
           class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-60 sm:w-auto"
@@ -444,15 +457,14 @@ function variantLabelFromName(name: string | null | undefined) {
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
         <div>
           <h3 class="text-sm font-semibold text-gray-800">
-            รายการจาก LG.com — {{ catalog.source.label }}
+            การ์ด Subscription จาก {{ catalog.source.label }}
           </h3>
           <p class="mt-1 text-xs text-gray-500">
-            หมวด Products: {{ catalog.source.categoryName }}
+            หมวดเริ่มต้น: {{ catalog.source.categoryName }} (จาก URL — แก้ได้ต่อ SKU ในตาราง)
             · สแกนเมื่อ {{ new Date(catalog.scannedAt).toLocaleString('th-TH') }}
             · ทั้งหมด {{ catalog.totalOnLg }}
             · ใหม่ {{ catalog.newCount }}
             · มีแล้ว {{ catalog.existsCount }}
-            · หายจาก LG {{ catalog.missingOnLgCount }}
           </p>
         </div>
         <button
@@ -467,13 +479,13 @@ function variantLabelFromName(name: string | null | undefined) {
         v-if="!catalog.items.length"
         class="border-b border-gray-100 px-5 py-8 text-center text-sm text-gray-500"
       >
-        ไม่พบสินค้าในหมวดนี้บน LG Subscribe — ลองหมวดอื่นหรือตรวจ URL ที่
-        <a :href="catalog.source.listUrl" target="_blank" class="text-sky-700 hover:underline">หน้า LG</a>
+        ไม่พบการ์ด Subscription บน URL นี้ — ตรวจว่า URL ถูกต้องและมี badge Subscription บนการ์ด
+        <a :href="catalog.source.listUrl" target="_blank" class="ml-1 text-sky-700 hover:underline">เปิดหน้า LG</a>
       </p>
       <div v-else class="max-h-[420px] overflow-y-auto">
         <p class="border-b border-gray-100 bg-gray-50/80 px-5 py-2 text-xs text-gray-500">
           {{ catalogGroups.length }} กลุ่ม · {{ catalog.items.length }} รหัสสินค้า
-          <span class="text-gray-400">· กลุ่ม = การ์ดเดียวบน LG (หลายขนาด)</span>
+          · ราคาในตารางจะแสดงหลัง import (ดึงจาก lgsubscribe)
         </p>
         <div
           v-for="group in catalogGroups"
@@ -492,14 +504,35 @@ function variantLabelFromName(name: string | null | undefined) {
               <p class="truncate text-sm font-semibold text-gray-900">
                 {{ group.displayName }}
               </p>
-              <p class="truncate font-mono text-[10px] text-gray-400">
-                {{ group.groupKey.startsWith('sku:') ? 'ไม่มี swatch — รหัสสินค้าเดียว' : group.groupKey }}
-              </p>
             </div>
+            <label class="flex shrink-0 items-center gap-1.5 text-xs text-gray-600">
+              <span class="hidden sm:inline">หมวดทั้งกลุ่ม</span>
+              <select
+                class="max-w-[10rem] rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs"
+                :value="categorySlugForSku(group.variants[0]?.sku ?? '')"
+                @change="setCategoryForGroup(group, ($event.target as HTMLSelectElement).value)"
+              >
+                <optgroup v-for="g in categoryGroups" :key="g.main.id" :label="g.main.name">
+                  <option v-for="c in g.categories" :key="c.id" :value="c.slug">
+                    {{ c.name }}
+                  </option>
+                </optgroup>
+              </select>
+            </label>
             <span class="shrink-0 text-xs text-gray-500">{{ group.variants.length }} ขนาด</span>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full min-w-[720px] text-sm">
+            <table class="w-full min-w-[880px] text-sm">
+              <thead>
+                <tr class="border-b border-gray-100 text-left text-xs font-medium text-gray-500">
+                  <th class="w-10 px-4 py-1.5 pl-10" />
+                  <th class="px-4 py-1.5">รหัส</th>
+                  <th class="px-4 py-1.5">ชื่อ</th>
+                  <th class="px-4 py-1.5">ขนาด</th>
+                  <th class="min-w-[11rem] px-4 py-1.5">หมวด (import)</th>
+                  <th class="px-4 py-1.5">สถานะ</th>
+                </tr>
+              </thead>
               <tbody class="divide-y divide-gray-50">
                 <tr v-for="item in group.variants" :key="item.sku" class="hover:bg-gray-50/80">
                   <td class="w-10 px-4 py-2 pl-10">
@@ -513,7 +546,26 @@ function variantLabelFromName(name: string | null | undefined) {
                   <td class="px-4 py-2 font-mono text-xs">{{ item.sku }}</td>
                   <td class="px-4 py-2 text-gray-700">{{ item.name || '-' }}</td>
                   <td class="px-4 py-2 text-gray-600">{{ item.variant_label || '-' }}</td>
-                  <td class="px-4 py-2">{{ item.base_price != null ? formatBaht(item.base_price) : '-' }}</td>
+                  <td class="px-4 py-2">
+                    <select
+                      class="w-full min-w-[10rem] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs"
+                      :class="selectedSkus.has(item.sku) && !categorySlugForSku(item.sku) ? 'border-red-300 ring-1 ring-red-100' : ''"
+                      :value="categorySlugForSku(item.sku)"
+                      @change="setCategoryForSku(item.sku, ($event.target as HTMLSelectElement).value)"
+                    >
+                      <option value="" disabled>
+                        เลือกหมวด
+                      </option>
+                      <optgroup v-for="g in categoryGroups" :key="g.main.id" :label="g.main.name">
+                        <option v-for="c in g.categories" :key="c.id" :value="c.slug">
+                          {{ c.name }}
+                        </option>
+                      </optgroup>
+                    </select>
+                    <p v-if="categorySlugForSku(item.sku) !== catalog?.source.categorySlug" class="mt-0.5 text-[10px] text-amber-700">
+                      ไม่ตรงค่าเริ่ม ({{ catalog?.source.categoryName }})
+                    </p>
+                  </td>
                   <td class="px-4 py-2">
                     <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="statusBadgeClass(item.status)">
                       {{ statusLabel(item.status) }}
@@ -524,12 +576,6 @@ function variantLabelFromName(name: string | null | undefined) {
             </table>
           </div>
         </div>
-      </div>
-      <div v-if="catalog.missingOnLg.length" class="border-t border-amber-100 bg-amber-50/50 px-5 py-3">
-        <p class="text-xs font-medium text-amber-900">
-          มีใน Products แต่ไม่พบในรายการ LG ล่าสุด (ลูกค้าลบเองที่หน้าสินค้า):
-          {{ catalog.missingOnLg.map(m => m.sku).join(', ') }}
-        </p>
       </div>
     </section>
 
@@ -546,7 +592,7 @@ function variantLabelFromName(name: string | null | undefined) {
 
     <section class="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm">
       <div class="border-b border-gray-100 px-5 py-4">
-        <h3 class="text-sm font-semibold text-gray-800">รายการใน Import Draft (ตรวจก่อนนำขึ้น Products)</h3>
+        <h3 class="text-sm font-semibold text-gray-800">รายการใน Import Draft</h3>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full min-w-[720px] text-sm">

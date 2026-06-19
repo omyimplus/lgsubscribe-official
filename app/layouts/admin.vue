@@ -11,6 +11,7 @@ const pageTitles: Record<string, string> = {
   '/admin/customers': 'ลูกค้า',
   '/admin/promotions': 'โปรโมชั่น',
   '/admin/import': 'Import จาก LG.com',
+  '/admin/import-url': 'Import จาก URL LG',
   '/admin/users': 'ผู้ใช้งาน',
   '/admin/line-oa': 'Line OA',
 }

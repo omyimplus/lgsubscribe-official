@@ -83,8 +83,7 @@ export function skuFromLgModelId(modelId: string) {
   return m?.[1] && LG_SKU_RE.test(m[1]) ? m[1] : ''
 }
 
-/** SKU จาก swatch เท่านั้น — ไม่ใช้ข้อความ .btn-copy ที่ปน label ปุ่ม */
-/** ชื่อบนการ์ด PLP ให้ตรงขนาดจอ + SKU (ป้าย swatch ถูก แต่หัวการ์ดมักค้างรุ่นแรก) */
+/** ชื่อบนการ์ด PLP ให้ตรงขนาดจอ/BTU + SKU (ป้าย swatch ถูก แต่หัวการ์ดมักค้างรุ่นแรก) */
 export function buildVariantCardName(
   plpName: string | null | undefined,
   variantLabel: string | null | undefined,
@@ -92,9 +91,16 @@ export function buildVariantCardName(
 ) {
   const skuUpper = sku.trim().toUpperCase()
   if (!plpName?.trim()) return skuUpper
-  let name = plpName.trim().replace(/รุ่น\s+[A-Z0-9]+/gi, `รุ่น ${skuUpper}`)
-  const inch = variantLabel?.match(/(\d+)/)?.[1]
-  if (inch) {
+  let name = plpName.trim().replace(/รุ่น\s+[A-Z0-9-]+/gi, `รุ่น ${skuUpper}`)
+
+  const btuLabel = variantLabel?.match(/(\d[\d,]*)\s*BTU/i)
+  if (btuLabel && /\d[\d,]*\s*BTU/i.test(name)) {
+    name = name.replace(/\d[\d,]*\s*BTU/i, `${btuLabel[1]} BTU`)
+  }
+
+  const inch = variantLabel?.match(/(\d+)\s*(?:inch|นิ้ว|")/i)?.[1]
+    ?? (variantLabel && !/BTU/i.test(variantLabel) ? variantLabel.match(/(\d+)/)?.[1] : null)
+  if (inch && /ทีวี/i.test(name)) {
     if (/ทีวี\s*\d+/i.test(name)) {
       name = name.replace(/ทีวี\s*\d+\s*"/i, `ทีวี ${inch}"`)
     }

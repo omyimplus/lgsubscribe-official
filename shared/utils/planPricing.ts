@@ -1,4 +1,5 @@
 import type { PlanBillingTier, ProductPlanPricingSummary } from '~~/shared/types/productPlan'
+import { formatMoneyAmount } from '~~/shared/utils/moneyFormat'
 
 export function tierBillCount(tier: Pick<PlanBillingTier, 'bill_from' | 'bill_to'>): number {
   return tier.bill_to - tier.bill_from + 1
@@ -54,7 +55,7 @@ export function displayPriceNote(
   const first = sorted[0]!
   if (first.note?.trim()) return first.note.trim()
   const count = tierBillCount(first)
-  return `${Number(first.monthly_price).toLocaleString('th-TH')} บ./เดือน (${count} บิลแรก)`
+  return `${formatMoneyAmount(Number(first.monthly_price))} บ./เดือน (${count} บิลแรก)`
 }
 
 export type TiersValidationResult = { ok: true } | { ok: false, message: string }

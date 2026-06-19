@@ -3,6 +3,7 @@ import { comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
 import { formatContactAddress, formatContactDisplayName } from '~~/shared/utils/inquiryForm'
 import { buildLineSummary } from '~~/shared/utils/inquiryLineSummary'
+import { formatMoneyForExport } from '~~/shared/utils/moneyFormat'
 import { serviceModeLabels } from '~~/shared/utils/planDisplay'
 
 export const INQUIRY_EXPORT_HEADERS = [
@@ -78,8 +79,7 @@ function serviceModeLabel(mode: InquiryItem['service_mode'] | undefined) {
 }
 
 function formatBaht(n: number | null | undefined) {
-  if (n == null || Number.isNaN(Number(n))) return ''
-  return Math.round(Number(n)).toLocaleString('th-TH')
+  return formatMoneyForExport(n)
 }
 
 function statusLabelTh(s: InquiryStatus) {

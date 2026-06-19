@@ -1,0 +1,14 @@
+{
+  "elapsedSec": 115,
+  "results": [
+    {
+      "lgSlug": "refrigerators",
+      "label": "ตู้เย็น",
+      "variantAxis": "other",
+      "status": "SKIP",
+      "multiGroups": [],
+      "error": "ไม่มีการ์ดหลายขนาดบน PLP ตอนนี้",
+      "ms": 115205
+    }
+  ]
+}

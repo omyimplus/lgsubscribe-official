@@ -12,6 +12,7 @@ import {
   totalNetAmount,
   validateTiersContinuity,
 } from '~~/shared/utils/planPricing'
+import { normalizePlanServiceInterval } from '~~/shared/utils/planDisplay'
 
 type SupabaseAdmin = ReturnType<typeof useSupabaseAdmin>
 
@@ -21,9 +22,6 @@ const planSelect = `
 `
 
 function toFriendlyPlanError(message: string) {
-  if (message.includes('product_plans_contract_service_per_product_idx')) {
-    return 'มีแผนสัญญานี้อยู่แล้วสำหรับสินค้านี้ (ระยะสัญญา + ประเภทบริการซ้ำกัน) กรุณาแก้ไขแผนเดิม หรือเปลี่ยนเงื่อนไขก่อนบันทึก'
-  }
   if (message.includes('duplicate key value violates unique constraint')) {
     return 'ข้อมูลแผนซ้ำกับที่มีอยู่แล้ว กรุณาตรวจสอบระยะสัญญา ประเภทบริการ และเงื่อนไขที่กรอก'
   }
@@ -126,6 +124,10 @@ function validatePlanInput(
   const tierCheck = validateTiersContinuity(normalizeTierInputs(input.billing_tiers), contractMonths)
   if (!tierCheck.ok) {
     throw createError({ statusCode: 400, message: tierCheck.message })
+  }
+
+  if (input.service_mode !== 'none' && normalizePlanServiceInterval(input.service_mode, input.service_interval_months) == null) {
+    throw createError({ statusCode: 400, message: 'ต้องระบุรอบบริการ (เดือน) สำหรับ Visit / Self' })
   }
 }
 
@@ -279,6 +281,7 @@ export async function createProductPlan(
 
   const contractMonths = resolveContractMonths(input)
   const contractLabel = deriveContractLabel(input.contract_years, input.service_mode)
+  const serviceIntervalMonths = normalizePlanServiceInterval(input.service_mode, input.service_interval_months)
   const row = {
     product_id: productId,
     policy_code: input.policy_code?.trim() || null,
@@ -286,7 +289,7 @@ export async function createProductPlan(
     contract_years: input.contract_years,
     contract_months: contractMonths,
     service_mode: input.service_mode,
-    service_interval_months: input.service_interval_months ?? null,
+    service_interval_months: serviceIntervalMonths,
     sale_type: 'subscription',
     list_price: input.list_price ?? null,
     promo_price: null,
@@ -350,6 +353,7 @@ export async function updateProductPlan(
 
   validatePlanInput(merged)
   const contractLabel = deriveContractLabel(merged.contract_years, merged.service_mode)
+  const serviceIntervalMonths = normalizePlanServiceInterval(merged.service_mode, merged.service_interval_months)
 
   const patch = {
     policy_code: merged.policy_code?.trim() || null,
@@ -357,7 +361,7 @@ export async function updateProductPlan(
     contract_years: merged.contract_years,
     contract_months: merged.contract_months,
     service_mode: merged.service_mode,
-    service_interval_months: merged.service_interval_months,
+    service_interval_months: serviceIntervalMonths,
     sale_type: 'subscription',
     list_price: merged.list_price,
     promo_price: null,

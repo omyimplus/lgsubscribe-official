@@ -10,6 +10,7 @@ import {
   totalContractAmount,
   totalNetAmount,
 } from '~~/shared/utils/planPricing'
+import { pickStorefrontPlans } from '~~/shared/utils/planDisplay'
 import { mapPlanRow } from '~~/server/utils/productPlansDb'
 
 type SupabaseAdmin = ReturnType<typeof useSupabaseAdmin>
@@ -42,6 +43,9 @@ function planToCardOption(plan: ProductPlan): ProductPlanCardOption {
     computed_total,
     computed_net_total: computed_total != null ? totalNetAmount(computed_total, plan.advance_amount) : null,
     is_default: plan.is_default,
+    sort_order: plan.sort_order,
+    promo_period_start: plan.promo_period_start,
+    promo_period_end: plan.promo_period_end,
     billing_tiers: tiers.map(t => ({
       bill_from: t.bill_from,
       bill_to: t.bill_to,
@@ -117,15 +121,16 @@ export async function fetchStorefrontPlansForProducts(
       continue
     }
 
-    const cardPlans = plans.map(planToCardOption)
+    const activePlans = pickStorefrontPlans(plans)
+    const cardPlans = activePlans.map(planToCardOption)
     const fromPrices = cardPlans
       .map(p => p.display_monthly_price)
       .filter((n): n is number => n != null)
     const fromMonthlyPrice = fromPrices.length ? Math.min(...fromPrices) : null
 
-    const defaultPlan = pickDefaultPlan(plans, defaultByProductId.get(productId) ?? null)
+    const defaultPlan = pickDefaultPlan(activePlans, defaultByProductId.get(productId) ?? null)
     const plan_pricing = defaultPlan
-      ? buildPricingSummary(defaultPlan, plans.length, fromMonthlyPrice)
+      ? buildPricingSummary(defaultPlan, activePlans.length, fromMonthlyPrice)
       : null
 
     result.set(productId, { plan_pricing, plans: cardPlans })

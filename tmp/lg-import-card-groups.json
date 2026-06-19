@@ -1,0 +1,239 @@
+{
+  "startedAt": "2026-06-19T01:27:00.517Z",
+  "elapsedSec": 167,
+  "unitFailures": [],
+  "results": [
+    {
+      "lgSlug": "tvs",
+      "label": "โทรทัศน์",
+      "status": "OK",
+      "plpCardCount": 4,
+      "importGroupCount": 4,
+      "skuCount": 8,
+      "multiSkuGroups": 3,
+      "issues": [],
+      "cards": [
+        {
+          "plpKey": "plp-card:p0:c0",
+          "groupKey": "th/tv-soundbars/oled-evo",
+          "skus": [
+            "OLED77C6PSA",
+            "OLED65C6PSA",
+            "OLED55C6PSA"
+          ],
+          "names": [
+            "ทีวี 77\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED77C6PSA",
+            "ทีวี 65\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED65C6PSA",
+            "ทีวี 55\" LG OLED evo C6 4K Smart TV 2026 รุ่น OLED55C6PSA"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c1",
+          "groupKey": "th/tv-soundbars/nano-4k-uhd",
+          "skus": [
+            "75NU855BPSA",
+            "65NU855BPSA"
+          ],
+          "names": [
+            "ทีวี 75\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 75NU85",
+            "ทีวี 65\" LG NANO 4K UHD AI NU85 4K Smart TV 2026 รุ่น 65NU85"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c2",
+          "groupKey": "th/tv-soundbars/qned-evo",
+          "skus": [
+            "85QNED80BSA",
+            "65QNED80BSA"
+          ],
+          "names": [
+            "ทีวี 85\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่",
+            "ทีวี 65\" LG QNED evo AI Mini LED QNED80 4K Smart TV 2026 รุ่"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c3",
+          "groupKey": "th/tv-soundbars/qned-evo/100qned86bs",
+          "skus": [
+            "100QNED86BS"
+          ],
+          "names": [
+            "ทีวี 100\" LG QNED evo AI Mini LED QNED86 4K Smart TV 2026 รุ"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 27283
+    },
+    {
+      "lgSlug": "washers",
+      "label": "เครื่องซักผ้า",
+      "status": "OK",
+      "plpCardCount": 10,
+      "importGroupCount": 10,
+      "skuCount": 10,
+      "multiSkuGroups": 0,
+      "issues": [],
+      "cards": [
+        {
+          "plpKey": "plp-card:p0:c0",
+          "groupKey": "th/laundry/wash-tower/wt1410nhen",
+          "skus": [
+            "WT1410NHEN"
+          ],
+          "names": [
+            "WashTower รุ่น WT1410NHEN ระบบ AI DD™ ความจุเครื่องซักผ้า 14"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c1",
+          "groupKey": "th/laundry/top-load-washing-machine/tx2315dt5g",
+          "skus": [
+            "TX2315DT5G"
+          ],
+          "names": [
+            "เครื่องซักผ้าฝาบน 15 กก รุ่น TX2315DT5G ระบบ Inverter Direct"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c2",
+          "groupKey": "th/laundry/wash-tower/wt2520nheg",
+          "skus": [
+            "WT2520NHEG"
+          ],
+          "names": [
+            "Wash Tower รุ่น WT2520NHEG ระบบ AI DD™ ความจุเครื่องซักผ้า 2"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c3",
+          "groupKey": "th/laundry/front-load-washing-machine/fv1413h4m",
+          "skus": [
+            "FV1413H4M"
+          ],
+          "names": [
+            "เครื่องซักผ้า 13 กก. / อบ 8 กก. รุ่น FV1413H4M ระบบ AI DD™ พ"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c4",
+          "groupKey": "th/laundry/dryer/rv10vhp4b",
+          "skus": [
+            "RV10VHP4B"
+          ],
+          "names": [
+            "เครื่องอบผ้า Heat Pump™ RV10VHP4B จุ 10 กก."
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c5",
+          "groupKey": "th/laundry/wash-tower/wt2116sheg",
+          "skus": [
+            "WT2116SHEG"
+          ],
+          "names": [
+            "WashTower ซักผ้า 21 กก. และอบ 16 กก. รุ่น WT2116SHEG ระบบ AI"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c6",
+          "groupKey": "th/laundry/wash-tower/wt1410nheg",
+          "skus": [
+            "WT1410NHEG"
+          ],
+          "names": [
+            "WashTower ซักผ้า 14 กก. และอบผ้า 10 กก. รุ่น WT1410NHEG ระบบ"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c7",
+          "groupKey": "th/laundry/top-load-washing-machine/tx2723st5j",
+          "skus": [
+            "TX2723ST5J"
+          ],
+          "names": [
+            "เครื่องซักผ้าฝาบน 23 กก รุ่น TX2723ST5J ระบบ Inverter Direct"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c8",
+          "groupKey": "th/laundry/front-load-washing-machine/fv1413s4m",
+          "skus": [
+            "FV1413S4M"
+          ],
+          "names": [
+            "เครื่องซักผ้า 13 กก. รุ่น FV1413S4M AI DD™"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p1:c0",
+          "groupKey": "th/laundry/front-load-washing-machine/f2520rntb",
+          "skus": [
+            "F2520RNTB"
+          ],
+          "names": [
+            "เครื่องซักผ้าฝาหน้า ซัก 20/ อบ 10 กก. F2520RNTB ระบบ AI DD™"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 112071
+    },
+    {
+      "lgSlug": "air-conditioners",
+      "label": "เครื่องปรับอากาศ",
+      "status": "OK",
+      "plpCardCount": 3,
+      "importGroupCount": 3,
+      "skuCount": 9,
+      "multiSkuGroups": 2,
+      "issues": [],
+      "cards": [
+        {
+          "plpKey": "plp-card:p0:c0",
+          "groupKey": "th/air-conditioner-inverter/air-conditioner-with-air-purifier",
+          "skus": [
+            "SIQ18B",
+            "SIQ11B",
+            "SIQ24B",
+            "SIQ13B"
+          ],
+          "names": [
+            "แอร์อินเวอร์เตอร์ 18000 BTU LG DUALCOOL AI Air รุ่น SIQ18B",
+            "แอร์อินเวอร์เตอร์ 9000 BTU LG DUALCOOL AI Air รุ่น SIQ11B",
+            "แอร์อินเวอร์เตอร์ 24000 BTU LG DUALCOOL AI Air รุ่น SIQ24B",
+            "แอร์อินเวอร์เตอร์ 12000 BTU LG DUALCOOL AI Air รุ่น SIQ13B"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c1",
+          "groupKey": "th/air-conditioner-inverter/energy-saving-air-conditioner/art13a",
+          "skus": [
+            "ART13A"
+          ],
+          "names": [
+            "แอร์อินเวอร์เตอร์ 12,000 BTU LG ARTCOOL รุ่น ART13A"
+          ]
+        },
+        {
+          "plpKey": "plp-card:p0:c2",
+          "groupKey": "th/air-conditioner-inverter/energy-saving-air-conditioner",
+          "skus": [
+            "SAQ13A",
+            "SAQ24B",
+            "SAQ11A",
+            "SAQ18B"
+          ],
+          "names": [
+            "แอร์อินเวอร์เตอร์ 12000 BTU LG DUALCOOL AI Air รุ่น SAQ13A",
+            "แอร์อินเวอร์เตอร์ 24000 BTU LG DUALCOOL AI Air รุ่น SAQ24B",
+            "แอร์อินเวอร์เตอร์ 9000 BTU LG DUALCOOL AI Air รุ่น SAQ11A",
+            "แอร์อินเวอร์เตอร์ 18000 BTU LG DUALCOOL AI Air รุ่น SAQ18B"
+          ]
+        }
+      ],
+      "error": null,
+      "ms": 27744
+    }
+  ]
+}

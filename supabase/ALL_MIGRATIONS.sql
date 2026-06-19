@@ -1858,3 +1858,10 @@ on conflict (slug) do update set
   is_active  = excluded.is_active,
   updated_at = now();
 
+
+-- -----------------------------------------------------------------------------
+-- 0043_drop_product_plans_contract_service_unique.sql
+-- -----------------------------------------------------------------------------
+
+drop index if exists public.product_plans_contract_service_per_product_idx;
+

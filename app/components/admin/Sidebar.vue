@@ -37,6 +37,7 @@ const navGroups = [
     label: 'นำเข้าข้อมูล',
     items: [
       { label: 'Import จาก LG.com', icon: 'heroicons:arrow-down-tray', to: '/admin/import' },
+      { label: 'Import จาก URL LG', icon: 'heroicons:link', to: '/admin/import-url' },
     ],
   },
   {
@@ -59,7 +60,9 @@ const visibleNavGroups = computed(() =>
 
 function isActive(to: string) {
   if (to === '/admin') return route.path === '/admin'
-  return route.path.startsWith(to)
+  if (route.path === to) return true
+  // อย่าให้ /admin/import ไป match /admin/import-url
+  return route.path.startsWith(`${to}/`)
 }
 </script>
 

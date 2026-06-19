@@ -79,11 +79,6 @@ export type ComboProgramForQuote = {
   tiers: ComboProgramTier[]
 }
 
-/** ปัดเป็นบาทเต็ม (ตามมาตรฐานแสดงผลบนเว็บ) */
-export function roundComboBaht(amount: number): number {
-  return Math.round(amount)
-}
-
 export function pickComboTier(
   tiers: ComboTierPick[],
   itemCount: number,
@@ -124,8 +119,8 @@ export function computeComboChargedForBill(
   }
 
   if (bill === effectiveFromBill) {
-    const deferred_discount = roundComboBaht(bill1Base * percent / 100)
-    const own_discount = roundComboBaht(base * percent / 100)
+    const deferred_discount = bill1Base * percent / 100
+    const own_discount = base * percent / 100
     const charged = Math.max(0, base - deferred_discount - own_discount)
     return {
       charged,
@@ -135,7 +130,7 @@ export function computeComboChargedForBill(
     }
   }
 
-  const own_discount = roundComboBaht(base * percent / 100)
+  const own_discount = base * percent / 100
   const charged = Math.max(0, base - own_discount)
   return { charged, combo_applied: true, own_discount }
 }

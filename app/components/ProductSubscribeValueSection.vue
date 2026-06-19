@@ -7,9 +7,16 @@ import {
   sumSubscribeValueItems,
 } from '~~/shared/utils/productSubscribeValue'
 
-const props = defineProps<{
-  product: Product
-}>()
+const props = withDefaults(
+  defineProps<{
+    product: Product
+    /** page = บล็อกบน PDP, embedded = ใน dialog แผนผ่อน */
+    variant?: 'page' | 'embedded'
+  }>(),
+  { variant: 'page' },
+)
+
+const isEmbedded = computed(() => props.variant === 'embedded')
 
 const benefitsImage = computed(() => props.product.subscribe_benefits_image_url?.trim() || '')
 const items = computed(() => normalizeSubscribeValueTabs(props.product.subscribe_value_tabs))
@@ -24,23 +31,29 @@ function formatNumber(n: number | null | undefined) {
 }
 
 function formatValueBaht(n: number | null | undefined) {
-  if (n == null || Number.isNaN(n)) return 'มูลค่า —'
-  return `มูลค่า ${formatNumber(n)} บาท`
+  if (n == null || Number.isNaN(n)) return 'รับฟรี —'
+  return `รับฟรี ${formatNumber(n)} บาท`
 }
 </script>
 
 <template>
   <section
     v-if="showSection"
-    class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+    :class="isEmbedded
+      ? 'space-y-4'
+      : 'rounded-2xl border border-gray-200 bg-white p-5 shadow-sm'"
   >
-    <h2 class="text-lg font-semibold text-[#ea1917] sm:text-xl">
+    <h2
+      class="font-semibold text-[#ea1917]"
+      :class="isEmbedded ? 'text-sm sm:text-base' : 'text-lg sm:text-xl'"
+    >
       Subscribe ได้อะไรมากกว่าที่คุณคิด
     </h2>
 
     <div
       v-if="showBenefitsImage"
-      class="mt-4 overflow-hidden rounded-xl border border-gray-100 bg-gray-50"
+      class="overflow-hidden rounded-xl border border-gray-100 bg-gray-50"
+      :class="isEmbedded ? '' : 'mt-4'"
     >
       <img
         :src="benefitsImage"
@@ -49,22 +62,33 @@ function formatValueBaht(n: number | null | undefined) {
       >
     </div>
 
-    <ul v-if="showTabs" class="mt-4 space-y-2">
-      <li
-        v-for="(item, index) in items"
-        :key="`${item.text}-${index}`"
-        class="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50/80 px-4 py-3 text-sm"
+    <div v-if="showTabs" :class="isEmbedded ? 'space-y-3' : 'mt-4'">
+      <h3
+        class="font-semibold text-gray-900"
+        :class="isEmbedded ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'"
       >
+        ส่วนลดทั้งหมด
+      </h3>
+      <ul class="space-y-2">
+        <li
+          v-for="(item, index) in items"
+          :key="`${item.text}-${index}`"
+          class="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50/80 px-4 py-3 text-sm"
+          :class="isEmbedded ? 'px-3 py-2.5 text-xs sm:text-sm' : ''"
+        >
         <span class="text-gray-800">{{ item.text || `รายการ ${index + 1}` }}</span>
         <span class="shrink-0 font-medium tabular-nums text-gray-900">
           {{ formatValueBaht(item.price) }}
         </span>
       </li>
-    </ul>
+      </ul>
+    </div>
 
     <div
       v-if="showTabs"
-      class="mt-5 border-t border-dashed border-gray-200 pt-5"
+      :class="isEmbedded
+        ? 'border-t border-dashed border-gray-200 pt-4'
+        : 'mt-5 border-t border-dashed border-gray-200 pt-5'"
     >
       <div
         class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#ea1917] to-[#c41412] px-5 py-4 shadow-md sm:px-6 sm:py-5"
@@ -83,6 +107,12 @@ function formatValueBaht(n: number | null | undefined) {
           </p>
         </div>
       </div>
+      <p class="mt-3 text-left text-xs leading-relaxed text-gray-500 sm:text-sm">
+        * บริการนี้ไม่มีค่าใช้จ่ายเพิ่มเติม *
+      </p>
+      <p class="mt-1.5 text-left text-xs leading-relaxed text-gray-500 sm:text-sm">
+        * ราคาประเมินดังกล่าวเป็นราคาเบื้องต้น ที่อ้างอิงข้อมูลจาก LG.com ซึ่งอาจมีการปรับเปลี่ยนตามโปรโมชั่น บริษัทฯ ขอสงวนสิทธิ์ในการปรับเปลี่ยนโดยไม่ต้องแจ้งให้ทราบล่วงหน้า *
+      </p>
     </div>
   </section>
 </template>

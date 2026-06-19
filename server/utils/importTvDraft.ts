@@ -29,7 +29,11 @@ function importDisplayName(
   listCard: TvListCard,
   sku: string,
 ) {
-  return buildVariantCardName(parsedName || listCard.name, listCard.variant_label, sku)
+  // PLP มีชื่อ/BTU ต่อ swatch แล้ว — แก้แค่รุ่น (SKU) ไม่ให้ PDP/swatch ทับ BTU
+  if (listCard.name?.trim()) {
+    return buildVariantCardName(listCard.name, null, sku)
+  }
+  return buildVariantCardName(parsedName, listCard.variant_label, sku)
 }
 
 function groupCardsByVariantGroup(cards: TvListCard[]) {
@@ -115,6 +119,7 @@ export type ClientCatalogItem = {
   subscription_note?: string | null
   purchase_only_label?: string | null
   purchase_only_url?: string | null
+  categorySlug?: string | null
 }
 
 /** แปลง catalog items ที่ UI ส่งกลับมา → TvListCard (เลี่ยง scrape PLP ซ้ำ) */
@@ -136,7 +141,23 @@ export function cardsFromClientItems(items: ClientCatalogItem[]): TvListCard[] {
       variant_label: item.variant_label ?? null,
       variant_group_key: item.variant_group_key ?? null,
       shared_detail_url: item.shared_detail_url ?? null,
+      categorySlug: item.categorySlug?.trim().toLowerCase() || null,
     }))
+}
+
+type ResolvedCategory = Awaited<ReturnType<typeof resolveCategoryId>>
+
+async function resolveCategoryIdCached(
+  supabase: SupabaseAdmin,
+  categorySlug: string,
+  cache: Map<string, ResolvedCategory>,
+) {
+  const slug = categorySlug.trim().toLowerCase()
+  const cached = cache.get(slug)
+  if (cached) return cached
+  const row = await resolveCategoryId(supabase, slug)
+  cache.set(slug, row)
+  return row
 }
 
 export async function importTvCardsToDraft(
@@ -153,16 +174,17 @@ export async function importTvCardsToDraft(
   const groups = groupCardsByVariantGroup(toImport)
   log.info(`importing ${toImport.length} SKU(s) in ${groups.size} product group(s)`)
 
-  const categorySlug = options?.categorySlug ?? 'television'
-  const category = await resolveCategoryId(supabase, categorySlug)
-  log.info(`category: ${category.name} (${category.slug})`)
+  const defaultCategorySlug = options?.categorySlug ?? 'television'
+  const categoryCache = new Map<string, ResolvedCategory>()
+  const defaultCategory = await resolveCategoryIdCached(supabase, defaultCategorySlug, categoryCache)
+  log.info(`default category: ${defaultCategory.name} (${defaultCategory.slug})`)
 
   const { data: batch, error: batchErr } = await supabase
     .from('import_batches')
     .insert({
       source: 'lg.com',
       status: 'draft',
-      note: options?.batchNote ?? `LG import (${category.slug})`,
+      note: options?.batchNote ?? `LG import (${defaultCategory.slug})`,
     })
     .select('*')
     .single()
@@ -267,6 +289,9 @@ export async function importTvCardsToDraft(
         log.warn(`skip sku=${resolvedSku} — missing name`)
         continue
       }
+
+      const cardCategorySlug = listCard.categorySlug?.trim().toLowerCase() || defaultCategorySlug
+      const category = await resolveCategoryIdCached(supabase, cardCategorySlug, categoryCache)
 
       const { error } = await supabase
         .from('import_products')

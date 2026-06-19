@@ -3,11 +3,11 @@ import { getCartItemQuantity, lineAdvanceTotal, lineMonthlyTotal, lineNetTotal }
 import { comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
 import { formatContactAddress } from '~~/shared/utils/inquiryForm'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
+import { formatBahtPlain } from '~~/shared/utils/moneyFormat'
 import { serviceModeLabels } from '~~/shared/utils/planDisplay'
 
 function formatBahtLine(n: number | null | undefined) {
-  if (n == null || Number.isNaN(Number(n))) return '—'
-  return `${Math.round(Number(n)).toLocaleString('th-TH')} บ.`
+  return formatBahtPlain(n)
 }
 
 export function buildLineSummary(

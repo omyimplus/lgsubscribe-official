@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
 import type { ProductPlan, ProductPlansResponse } from '~~/shared/types/productPlan'
-import { planContractTitle, serviceModeLabels } from '~~/shared/utils/planDisplay'
+import {
+  formatPlanPromoPeriod,
+  isPlanPromoActiveToday,
+  planContractTitle,
+  planShowsServiceInterval,
+  serviceModeLabels,
+} from '~~/shared/utils/planDisplay'
 import { totalContractAmount, totalNetAmount } from '~~/shared/utils/planPricing'
 
 const props = defineProps<{
@@ -49,9 +55,9 @@ const computedNetTotal = computed(() => {
   return totalNetAmount(computedTotal.value, selectedPlan.value?.advance_amount)
 })
 
-function formatPromoPeriod(plan: ProductPlan) {
-  if (!plan.promo_period_start && !plan.promo_period_end) return null
-  return [plan.promo_period_start, plan.promo_period_end].filter(Boolean).join(' – ')
+function promoPeriodLabel(plan: ProductPlan) {
+  if (!isPlanPromoActiveToday(plan)) return null
+  return formatPlanPromoPeriod(plan)
 }
 </script>
 
@@ -88,7 +94,7 @@ function formatPromoPeriod(plan: ProductPlan) {
           >
           <div class="min-w-0 flex-1">
             <p class="font-medium text-gray-900">{{ planContractTitle(plan) }}</p>
-            <p v-if="plan.service_interval_months" class="text-xs text-gray-500">
+            <p v-if="planShowsServiceInterval(plan)" class="text-xs text-gray-500">
               รอบบริการทุก {{ plan.service_interval_months }} เดือน
             </p>
             <p v-if="plan.policy_code" class="mt-0.5 font-mono text-xs text-gray-500">
@@ -106,8 +112,8 @@ function formatPromoPeriod(plan: ProductPlan) {
       </div>
 
       <div v-if="selectedPlan" class="mt-6 space-y-4">
-        <div v-if="formatPromoPeriod(selectedPlan)" class="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          โปรโมชัน: {{ formatPromoPeriod(selectedPlan) }}
+        <div v-if="promoPeriodLabel(selectedPlan)" class="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          โปรโมชัน ({{ promoPeriodLabel(selectedPlan) }})
         </div>
 
         <div>

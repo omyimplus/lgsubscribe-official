@@ -32,7 +32,14 @@ export type DueTodayItemInput = Pick<
   | 'quantity'
 >
 
-/** ยอดที่ลูกค้ามักต้องชำระเมื่อเริ่มสัญญา = มัดจำ (ถ้ามี) + ค่างวดบิลที่ 1 */
+/** ยอดที่ลูกค้ามักต้องชำระเมื่อเริ่มสัญญา
+ * - มีมัดจำ → มัดจำอย่างเดียว (รับสินค้า · บิลที่ 1 เริ่มเดือนถัดไป)
+ * - ไม่มีมัดจำ → ค่างวดบิลที่ 1
+ */
+function hasAdvancePayment(item: Pick<DueTodayItemInput, 'advance_amount'>): boolean {
+  return (Number(item.advance_amount) || 0) > 0
+}
+
 export function dueTodayLinesForItem(item: DueTodayItemInput): DueTodayLine[] {
   const lines: DueTodayLine[] = []
   const advance = Number(item.advance_amount) || 0
@@ -44,15 +51,18 @@ export function dueTodayLinesForItem(item: DueTodayItemInput): DueTodayLine[] {
       amount: advance,
       note: item.advance_note,
     })
+    return lines
   }
 
   const firstBill = Number(item.display_monthly_price) || 0
-  lines.push({
-    id: 'first-bill',
-    label: 'ค่างวดเดือนแรก (บิลที่ 1)',
-    amount: firstBill,
-    note: item.display_price_note,
-  })
+  if (firstBill > 0) {
+    lines.push({
+      id: 'first-bill',
+      label: 'ค่างวดเดือนแรก (บิลที่ 1)',
+      amount: firstBill,
+      note: item.display_price_note,
+    })
+  }
 
   return lines
 }
@@ -82,10 +92,17 @@ export function buildDueTodaySummary(items: DueTodayItemInput[]): DueTodaySummar
     0,
   )
   const totalFirstBill = items.reduce(
-    (sum, i) => sum + (Number(i.display_monthly_price) || 0) * getCartItemQuantity(i),
+    (sum, i) => {
+      if (hasAdvancePayment(i)) return sum
+      return sum + (Number(i.display_monthly_price) || 0) * getCartItemQuantity(i)
+    },
     0,
   )
   const totalPieces = items.reduce((sum, i) => sum + getCartItemQuantity(i), 0)
+  const piecesWithoutAdvance = items.reduce(
+    (sum, i) => (hasAdvancePayment(i) ? sum : sum + getCartItemQuantity(i)),
+    0,
+  )
   const multi = items.length > 1 || totalPieces > 1
 
   const aggregateLines: DueTodayLine[] = []
@@ -96,11 +113,15 @@ export function buildDueTodaySummary(items: DueTodayItemInput[]): DueTodaySummar
       amount: totalAdvance,
     })
   }
-  aggregateLines.push({
-    id: 'first-bill-total',
-    label: multi ? `ค่างวดเดือนแรก (รวม ${totalPieces} ชิ้น)` : 'ค่างวดเดือนแรก (บิลที่ 1)',
-    amount: totalFirstBill,
-  })
+  if (totalFirstBill > 0) {
+    aggregateLines.push({
+      id: 'first-bill-total',
+      label: multi
+        ? `ค่างวดเดือนแรก (รวม ${piecesWithoutAdvance} ชิ้น)`
+        : 'ค่างวดเดือนแรก (บิลที่ 1)',
+      amount: totalFirstBill,
+    })
+  }
 
   return {
     items: breakdowns,

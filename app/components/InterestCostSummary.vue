@@ -111,7 +111,8 @@ const showContract = ref(false)
         <span class="font-bold text-red-700">{{ formatBaht(comboQuote?.savings ? netAfterCombo : totalNet) }}</span>
       </div>
       <p class="text-[11px] text-gray-500">
-        รวมมัดจำและงวดถัดไปตามตารางบิลของแต่ละรายการ
+        มีมัดจำ = ชำระมัดจำวันรับสินค้า · ไม่มีมัดจำ = ชำระงวดแรกวันเริ่มสัญญา
+        · ยอดสุทธิรวมงวดถัดไปตามตารางบิล
         <template v-if="comboQuote?.savings">
           · combo มีผลตั้งแต่บิลที่ 2
         </template>

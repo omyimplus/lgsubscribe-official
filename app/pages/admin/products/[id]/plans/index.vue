@@ -10,6 +10,7 @@ import type {
 } from '~~/shared/types/productPlan'
 import { formatBaht } from '~/composables/useProductPricing'
 import { totalContractAmount, totalNetAmount } from '~~/shared/utils/planPricing'
+import { normalizePlanServiceInterval, planShowsServiceInterval } from '~~/shared/utils/planDisplay'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
@@ -69,6 +70,15 @@ watch(() => form.contract_years, (years) => {
   if (!editingPlanId.value) {
     form.contract_months = years * 12
     syncLastTierEnd()
+  }
+})
+
+watch(() => form.service_mode, (mode) => {
+  if (mode === 'none') {
+    form.service_interval_months = null
+  }
+  else if (form.service_interval_months == null || form.service_interval_months < 1) {
+    form.service_interval_months = 6
   }
 })
 
@@ -155,6 +165,7 @@ async function savePlan() {
       ...form,
       sale_type: 'subscription' as const,
       contract_months: contractMonthsComputed.value,
+      service_interval_months: normalizePlanServiceInterval(form.service_mode, form.service_interval_months),
       billing_tiers: form.billing_tiers.map((t, i) => ({ ...t, sort_order: i })),
     }
 
@@ -265,11 +276,16 @@ async function removePlan(plan: ProductPlan) {
           >
             <td class="px-4 py-3">
               <p class="font-medium text-gray-900">{{ plan.contract_label }}</p>
-              <p class="text-xs text-gray-500">{{ plan.contract_years }} ปี · {{ plan.contract_months }} บิล</p>
+              <p class="text-xs text-gray-500">
+                {{ plan.contract_years }} ปี · {{ plan.contract_months }} บิล · ลำดับ {{ plan.sort_order }}
+              </p>
+              <p v-if="plan.promo_period_start || plan.promo_period_end" class="text-xs text-amber-700">
+                โปร {{ plan.promo_period_start || '…' }} – {{ plan.promo_period_end || '…' }}
+              </p>
             </td>
             <td class="px-4 py-3 text-gray-700">
               {{ serviceModeLabels[plan.service_mode] }}
-              <span v-if="plan.service_interval_months" class="block text-xs text-gray-500">
+              <span v-if="planShowsServiceInterval(plan)" class="block text-xs text-gray-500">
                 ทุก {{ plan.service_interval_months }} เดือน
               </span>
             </td>
@@ -336,9 +352,9 @@ async function removePlan(plan: ProductPlan) {
                   <option value="none">No service</option>
                 </select>
               </div>
-              <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600">รอบบริการ (เดือน)</label>
-                <input v-model.number="form.service_interval_months" type="number" min="1" :class="inputClass">
+              <div v-if="form.service_mode !== 'none'">
+                <label class="mb-1 block text-xs font-medium text-gray-600">รอบบริการ (เดือน) *</label>
+                <input v-model.number="form.service_interval_months" type="number" min="1" required :class="inputClass">
               </div>
               <div>
                 <label class="mb-1 block text-xs font-medium text-gray-600">แบบการขาย</label>
@@ -368,6 +384,9 @@ async function removePlan(plan: ProductPlan) {
                 <label class="mb-1 block text-xs font-medium text-gray-600">โปรสิ้นสุด</label>
                 <input v-model="form.promo_period_end" type="date" :class="inputClass">
               </div>
+              <p class="sm:col-span-2 text-xs text-amber-800">
+                ช่วงโปร: แสดงบนหน้าร้านเฉพาะวันที่อยู่ในช่วงนี้ (เวลาไทย) · หมดโปรแล้วจะสลับไปแผนปกติที่ไม่มีช่วงโปร (ถ้ามี) · แผนโปรที่หมดอายุจะไม่แสดงบนเว็บ
+              </p>
             </div>
 
             <section>

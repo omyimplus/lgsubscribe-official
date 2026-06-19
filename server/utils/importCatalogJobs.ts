@@ -113,7 +113,7 @@ function startImportScanJob(options: {
     job.status = 'running'
     job.startedAt = new Date().toISOString()
     job.message = options.jobType === 'url'
-      ? 'กำลังเปิด URL LG และกรองการ์ด Subscription'
+      ? 'กำลังเปิด URL LG และอ่านรายการสินค้า'
       : 'กำลังเปิดหน้า LG และอ่านรายการสินค้า'
     try {
       job.result = await options.runner()

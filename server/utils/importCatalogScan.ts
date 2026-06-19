@@ -195,7 +195,7 @@ export async function runImportCatalogScan(
   }
 }
 
-/** สแกนจาก URL หมวดธรรมดา LG — เฉพาะการ์ดที่มี badge Subscription */
+/** สแกนจาก URL หมวดธรรมดา LG — ดึงการ์ดทั้งหมดบน PLP ให้ staff เลือก import เอง */
 export async function runImportCatalogScanFromUrl(
   supabase: SupabaseClient,
   listUrlInput: string,
@@ -209,7 +209,7 @@ export async function runImportCatalogScanFromUrl(
   const cards = await collectTvListCardsWithBrowser(500, listUrl, {
     listPath,
     allowEmpty: true,
-    subscriptionBadgeOnly: true,
+    subscriptionBadgeOnly: false,
     skipCardPrices: true,
   }).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : 'เปิดหน้าจอไม่ขึ้น'
@@ -241,7 +241,7 @@ export async function runImportCatalogScanFromUrl(
   const { items, missingOnLg } = mapCardsToCatalogItems(cards, productBySku)
   const groups = groupCatalogItems(items)
 
-  log.info(`url catalog ready — ${items.length} Subscription SKU(s), ${groups.length} group(s)`)
+  log.info(`url catalog ready — ${items.length} SKU(s), ${groups.length} group(s)`)
 
   return {
     source: {

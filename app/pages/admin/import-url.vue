@@ -133,7 +133,7 @@ const blockingLoader = computed(() => {
   if (scanning.value) {
     return {
       title: 'กำลังดึงรายการจาก URL LG',
-      message: scanProgress.value || 'กำลังเปิดหน้ารายการและกรองการ์ด Subscription (อาจใช้เวลา 2–10 นาที)',
+      message: scanProgress.value || 'กำลังเปิดหน้ารายการสินค้า LG (อาจใช้เวลา 2–10 นาที)',
       hint: 'ห้ามปิดแท็บหรือรีเฟรชจนกว่าจะเสร็จ',
     }
   }
@@ -389,8 +389,8 @@ function variantLabelFromName(name: string | null | undefined) {
         Import จาก URL LG
       </h1>
       <p class="mt-1 text-sm text-gray-500">
-        วาง URL หมวดสินค้าบน lg.com — ระบบจะดึงเฉพาะการ์ดที่มี badge <strong>Subscription</strong>
-        · หมวดเริ่มต้นอนุมานจาก URL แล้ว<strong>เลือกหมวดต่อชิ้นได้ก่อน Import</strong>
+        วาง URL หมวดสินค้าบน lg.com — ระบบจะดึง<strong>การ์ดสินค้าทั้งหมด</strong>บนหน้านั้น
+        · หมวดเริ่มต้นอนุมานจาก URL แล้ว<strong>เลือกรายการ + หมวดต่อชิ้นก่อน Import</strong>
       </p>
     </header>
 
@@ -421,7 +421,7 @@ function variantLabelFromName(name: string | null | undefined) {
           @click="handleScanCatalog"
         >
           <Icon name="heroicons:magnifying-glass" class="h-4 w-4 shrink-0" />
-          {{ scanning ? 'กำลังดึง...' : 'ดึงรายการ Subscription' }}
+          {{ scanning ? 'กำลังดึง...' : 'ดึงรายการสินค้า' }}
         </button>
         <button
           type="button"
@@ -457,7 +457,7 @@ function variantLabelFromName(name: string | null | undefined) {
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
         <div>
           <h3 class="text-sm font-semibold text-gray-800">
-            การ์ด Subscription จาก {{ catalog.source.label }}
+            รายการจาก {{ catalog.source.label }}
           </h3>
           <p class="mt-1 text-xs text-gray-500">
             หมวดเริ่มต้น: {{ catalog.source.categoryName }} (จาก URL — แก้ได้ต่อ SKU ในตาราง)
@@ -479,7 +479,7 @@ function variantLabelFromName(name: string | null | undefined) {
         v-if="!catalog.items.length"
         class="border-b border-gray-100 px-5 py-8 text-center text-sm text-gray-500"
       >
-        ไม่พบการ์ด Subscription บน URL นี้ — ตรวจว่า URL ถูกต้องและมี badge Subscription บนการ์ด
+        ไม่พบสินค้าบน URL นี้ — ตรวจว่า URL ถูกต้องและหน้า LG โหลดการ์ดได้
         <a :href="catalog.source.listUrl" target="_blank" class="ml-1 text-sky-700 hover:underline">เปิดหน้า LG</a>
       </p>
       <div v-else class="max-h-[420px] overflow-y-auto">

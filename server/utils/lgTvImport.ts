@@ -449,7 +449,7 @@ export async function collectTvListCardsWithBrowser(
           if (attempt > 1) log.info(`${label} ok after ${attempt} tries (${cardCount} cards)`)
           return { status: 'ok', cardCount }
         }
-        if (allowEmpty) {
+        if (allowEmpty && !(await detectAccessDenied())) {
           log.info(`${label} — no product cards on PLP (empty category)`)
           return { status: 'empty', cardCount: 0 }
         }
@@ -472,7 +472,10 @@ export async function collectTvListCardsWithBrowser(
     const nav = await gotoWithAntiBlock(listUrl, 'navigate PLP')
     await page.waitForTimeout(1200 + Math.floor(Math.random() * 800))
     if (nav.status === 'denied') {
-      throw new Error('LG ปฏิเสธการเข้าถึง (Access Denied) — ลองใหม่อีกครั้งในอีกสักครู่')
+      const headfulHint = getLgScrapeProfile().headless
+        ? ' — ตั้ง LG_SCRAPE_HEADFUL=1 ใน .env (บน Mac ใช้ headful อัตโนมัติหลัง restart dev server)'
+        : ''
+      throw new Error(`LG ปฏิเสธการเข้าถึง (Access Denied)${headfulHint}`)
     }
     if (nav.status === 'empty') {
       log.done('navigate PLP (empty — no products in this category)')

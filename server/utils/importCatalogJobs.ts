@@ -20,6 +20,37 @@ export type CatalogJob = {
 const jobs = new Map<string, CatalogJob>()
 const JOB_TTL_MS = 60 * 60 * 1000
 
+const GENERIC_HTTP_PHRASES = new Set([
+  'Bad Request',
+  'Internal Server Error',
+  'Service Unavailable',
+  'Not Found',
+])
+
+/** H3 createError ใส่ข้อความใน message — statusMessage มักเป็น undefined */
+function catalogJobErrorMessage(err: unknown): string {
+  if (err && typeof err === 'object') {
+    const e = err as {
+      message?: string
+      statusMessage?: string
+      data?: { message?: string }
+    }
+    const dataMsg = e.data?.message?.trim()
+    if (dataMsg) return dataMsg
+
+    const message = e.message?.trim()
+    if (message && !GENERIC_HTTP_PHRASES.has(message)) return message
+
+    const statusMessage = e.statusMessage?.trim()
+    if (statusMessage && !GENERIC_HTTP_PHRASES.has(statusMessage)) return statusMessage
+
+    if (message) return message
+    if (statusMessage) return statusMessage
+  }
+  if (err instanceof Error && err.message.trim()) return err.message.trim()
+  return 'ดึงรายการไม่สำเร็จ'
+}
+
 function purgeOldJobs() {
   const cutoff = Date.now() - JOB_TTL_MS
   for (const [id, job] of jobs) {
@@ -91,14 +122,9 @@ function startImportScanJob(options: {
     }
     catch (err: unknown) {
       job.status = 'error'
-      if (err && typeof err === 'object' && 'statusMessage' in err) {
-        const msg = (err as { statusMessage?: string }).statusMessage
-        job.error = msg || 'ดึงรายการไม่สำเร็จ'
-      }
-      else {
-        job.error = err instanceof Error ? err.message : 'ดึงรายการไม่สำเร็จ'
-      }
+      job.error = catalogJobErrorMessage(err)
       job.message = job.error
+      console.error(`[import-catalog-job] ${job.id} failed:`, err)
     }
     finally {
       job.finishedAt = new Date().toISOString()

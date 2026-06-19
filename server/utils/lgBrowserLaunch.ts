@@ -56,6 +56,8 @@ function useLinuxScrapeProfile() {
 function shouldUseHeadfulBrowser() {
   if (process.env.LG_SCRAPE_HEADFUL === '1') return true
   if (process.env.LG_SCRAPE_HEADFUL === '0') return false
+  // macOS dev — headless มักโดน Akamai 403 (หน้า PLP ว่าง)
+  if (process.platform === 'darwin') return true
   return process.platform === 'linux' && Boolean(process.env.DISPLAY?.trim())
 }
 

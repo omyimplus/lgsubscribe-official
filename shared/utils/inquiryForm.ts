@@ -55,6 +55,9 @@ export function validateInquiryContactForm(input: {
   postal_code?: string
   company_name?: string
   company_registration?: string
+  director_first_name?: string
+  director_last_name?: string
+  preferred_contact_time?: string
   security_code?: string
   security_code_expected?: string
 }): InquiryFormValidationResult {
@@ -90,13 +93,23 @@ export function validateInquiryContactForm(input: {
 
   let company_name: string | undefined
   let company_registration: string | undefined
+  let director_first_name: string | undefined
+  let director_last_name: string | undefined
 
   if (applicant_type === 'corporate') {
     company_name = input.company_name?.trim() ?? ''
     company_registration = input.company_registration?.replace(/\D/g, '') ?? ''
+    director_first_name = input.director_first_name?.trim() ?? ''
+    director_last_name = input.director_last_name?.trim() ?? ''
     if (!company_name) return { ok: false, message: 'กรุณากรอกชื่อบริษัท' }
     if (!COMPANY_REG_RE.test(company_registration)) {
       return { ok: false, message: 'กรุณากรอกเลขทะเบียนนิติบุคคล 13 หลัก' }
+    }
+    if (!isThaiName(director_first_name)) {
+      return { ok: false, message: 'กรุณากรอกชื่อกรรมการผู้มีอำนาจเป็นภาษาไทย' }
+    }
+    if (!isThaiName(director_last_name)) {
+      return { ok: false, message: 'กรุณากรอกนามสกุลกรรมการผู้มีอำนาจเป็นภาษาไทย' }
     }
   }
 
@@ -116,8 +129,16 @@ export function validateInquiryContactForm(input: {
     district,
     province,
     postal_code,
+    ...(input.preferred_contact_time?.trim()
+      ? { preferred_contact_time: input.preferred_contact_time.trim() }
+      : {}),
     ...(applicant_type === 'corporate'
-      ? { company_name: company_name!, company_registration: company_registration! }
+      ? {
+          company_name: company_name!,
+          company_registration: company_registration!,
+          director_first_name: director_first_name!,
+          director_last_name: director_last_name!,
+        }
       : {}),
   }
 

@@ -27,6 +27,9 @@ export type InquiryContactProfile = {
   postal_code: string
   company_name?: string
   company_registration?: string
+  director_first_name?: string
+  director_last_name?: string
+  preferred_contact_time?: string
 }
 
 export type InquiryBillingTierSnapshot = {
@@ -95,6 +98,9 @@ export interface SubscriptionInquiryInput {
   postal_code: string
   company_name?: string
   company_registration?: string
+  director_first_name?: string
+  director_last_name?: string
+  preferred_contact_time?: string
   security_code: string
   security_code_expected: string
   contact_line_id?: string

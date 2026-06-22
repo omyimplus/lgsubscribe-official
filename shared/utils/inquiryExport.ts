@@ -17,6 +17,8 @@ export const INQUIRY_EXPORT_HEADERS = [
   'ชื่อที่แสดง',
   'ชื่อบริษัท',
   'เลขทะเบียนนิติบุคคล',
+  'ชื่อกรรมการผู้มีอำนาจ',
+  'นามสกุลกรรมการผู้มีอำนาจ',
   'เบอร์โทร',
   'Line ID',
   'ที่อยู่ (รวม)',
@@ -24,6 +26,7 @@ export const INQUIRY_EXPORT_HEADERS = [
   'อำเภอ/เขต',
   'จังหวัด',
   'รหัสไปรษณีย์',
+  'เวลาที่สะดวกให้ติดต่อกลับ',
   'หมายเหตุลูกค้า',
   'ลูกค้า login (customer_id)',
   'จำนวนรหัสสินค้า',
@@ -44,7 +47,7 @@ export const INQUIRY_EXPORT_HEADERS = [
 ] as const
 
 export const INQUIRY_ITEM_EXPORT_HEADERS = [
-  ...INQUIRY_EXPORT_HEADERS.slice(0, 19),
+  ...INQUIRY_EXPORT_HEADERS.slice(0, 22),
   'รายการที่',
   'product_id',
   'plan_id',
@@ -110,6 +113,8 @@ function inquiryContactFields(row: SubscriptionInquiry) {
     displayName: p ? formatContactDisplayName(p) : row.contact_name,
     companyName: p?.company_name ?? '',
     companyReg: p?.company_registration ?? '',
+    directorFirstName: p?.director_first_name ?? '',
+    directorLastName: p?.director_last_name ?? '',
     phone: p?.contact_phone || row.contact_phone,
     lineId: row.contact_line_id ?? '',
     address: p?.address_line ? formatContactAddress(p) : '',
@@ -117,6 +122,7 @@ function inquiryContactFields(row: SubscriptionInquiry) {
     district: p?.district ?? '',
     province: p?.province ?? '',
     postalCode: p?.postal_code ?? '',
+    preferredContactTime: p?.preferred_contact_time ?? '',
     note: row.contact_note ?? '',
   }
 }
@@ -220,6 +226,8 @@ function inquiryBaseColumns(row: SubscriptionInquiry) {
       c.displayName,
       c.companyName,
       c.companyReg,
+      c.directorFirstName,
+      c.directorLastName,
       c.phone,
       c.lineId,
       c.address,
@@ -227,6 +235,7 @@ function inquiryBaseColumns(row: SubscriptionInquiry) {
       c.district,
       c.province,
       c.postalCode,
+      c.preferredContactTime,
       c.note,
       row.customer_id ?? '',
     ],

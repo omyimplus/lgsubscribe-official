@@ -27,17 +27,27 @@ export function buildLineSummary(
   const lines = [
     'สนใจผ่อน LG Subscribe',
     applicantType === 'corporate' ? 'ประเภท: นิติบุคคล' : 'ประเภท: บุคคลธรรมดา',
-    `ชื่อ: ${contact.name}`,
-    `โทร: ${contact.phone}`,
   ]
-  if (profile?.applicant_type === 'corporate' && profile.company_name) {
+  if (applicantType === 'corporate' && profile?.company_name) {
     lines.push(`บริษัท: ${profile.company_name}`)
     if (profile.company_registration) {
       lines.push(`เลขทะเบียน: ${profile.company_registration}`)
     }
+    if (profile.director_first_name || profile.director_last_name) {
+      lines.push(`กรรมการผู้มีอำนาจ: ${[profile.director_first_name, profile.director_last_name].filter(Boolean).join(' ')}`)
+    }
+    lines.push(`ผู้ติดต่อ: ${contact.name}`)
   }
+  else {
+    lines.push(`ชื่อ: ${contact.name}`)
+  }
+  lines.push(`โทร: ${contact.phone}`)
   if (profile?.address_line) {
-    lines.push(`ที่อยู่: ${formatContactAddress(profile)}`)
+    const addressLabel = applicantType === 'corporate' ? 'ที่อยู่ติดตั้ง' : 'ที่อยู่'
+    lines.push(`${addressLabel}: ${formatContactAddress(profile)}`)
+  }
+  if (profile?.preferred_contact_time) {
+    lines.push(`เวลาที่สะดวกให้ติดต่อกลับ: ${profile.preferred_contact_time}`)
   }
   if (contact.lineId) lines.push(`Line: ${contact.lineId}`)
   lines.push('', 'รายการสินค้า:')

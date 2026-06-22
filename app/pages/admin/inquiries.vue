@@ -38,6 +38,9 @@ const filtered = computed(() => {
       || row.contact_line_id.toLowerCase().includes(q)
       || (p?.company_name?.toLowerCase().includes(q) ?? false)
       || (p?.first_name?.toLowerCase().includes(q) ?? false)
+      || (p?.last_name?.toLowerCase().includes(q) ?? false)
+      || (p?.director_first_name?.toLowerCase().includes(q) ?? false)
+      || (p?.director_last_name?.toLowerCase().includes(q) ?? false)
       || (row.items ?? []).some(i => i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q))
     )
   })
@@ -141,6 +144,14 @@ function statusAccentClass(s: InquiryStatus) {
 
 function applicantLabel(row: SubscriptionInquiry) {
   return (row.applicant_type ?? 'individual') === 'corporate' ? 'นิติบุคคล' : 'บุคคลธรรมดา'
+}
+
+function contactSubtitle(row: SubscriptionInquiry) {
+  const p = row.contact_profile
+  if ((row.applicant_type ?? p?.applicant_type) !== 'corporate' || !p?.company_name) return null
+  const director = [p.director_first_name, p.director_last_name].filter(Boolean).join(' ')
+  if (director) return `${p.company_name} · กรรมการ ${director}`
+  return p.company_name
 }
 
 function comboSummary(row: SubscriptionInquiry) {
@@ -459,6 +470,18 @@ async function exportInquiriesExcel() {
                     {{ statusLabel(row.status) }}
                   </span>
                 </div>
+                <p
+                  v-if="contactSubtitle(row)"
+                  class="truncate text-xs text-gray-600"
+                >
+                  {{ contactSubtitle(row) }}
+                </p>
+                <p
+                  v-if="row.contact_profile?.preferred_contact_time"
+                  class="text-xs text-gray-500"
+                >
+                  ติดต่อกลับ: {{ row.contact_profile.preferred_contact_time }}
+                </p>
 
                 <div class="flex flex-wrap items-center gap-2 text-xs">
                   <span class="rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600">

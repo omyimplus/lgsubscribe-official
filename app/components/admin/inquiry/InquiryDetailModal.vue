@@ -146,6 +146,14 @@ function saveStatus() {
                 <dt class="text-gray-500">เลขทะเบียนนิติบุคคล</dt>
                 <dd class="font-mono text-gray-900">{{ profile.company_registration }}</dd>
               </div>
+              <div>
+                <dt class="text-gray-500">ชื่อกรรมการผู้มีอำนาจ</dt>
+                <dd class="text-gray-900">{{ profile.director_first_name || '—' }}</dd>
+              </div>
+              <div>
+                <dt class="text-gray-500">นามสกุลกรรมการผู้มีอำนาจ</dt>
+                <dd class="text-gray-900">{{ profile.director_last_name || '—' }}</dd>
+              </div>
             </template>
             <div>
               <dt class="text-gray-500">{{ profile.applicant_type === 'corporate' ? 'ชื่อผู้ติดต่อ' : 'ชื่อ' }}</dt>
@@ -164,8 +172,14 @@ function saveStatus() {
               <dd class="text-gray-900">{{ inquiry.contact_line_id }}</dd>
             </div>
             <div class="sm:col-span-2">
-              <dt class="text-gray-500">ที่อยู่</dt>
+              <dt class="text-gray-500">
+                {{ profile.applicant_type === 'corporate' ? 'ที่อยู่ติดตั้ง' : 'ที่อยู่' }}
+              </dt>
               <dd class="text-gray-900">{{ formatContactAddress(profile) }}</dd>
+            </div>
+            <div v-if="profile.preferred_contact_time" class="sm:col-span-2">
+              <dt class="text-gray-500">เวลาที่สะดวกให้ติดต่อกลับ</dt>
+              <dd class="text-gray-900">{{ profile.preferred_contact_time }}</dd>
             </div>
           </dl>
           <dl

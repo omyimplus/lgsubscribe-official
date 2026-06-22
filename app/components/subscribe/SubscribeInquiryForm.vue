@@ -15,7 +15,7 @@ const inputClass =
   'w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/15'
 
 const noticeClass =
-  'rounded-lg border border-red-200 bg-red-50/90 px-4 py-3.5 text-sm text-gray-800'
+  'rounded-lg bg-[#ea1917] px-4 py-3.5 text-sm text-white'
 
 const applicantType = ref<InquiryApplicantType>('individual')
 
@@ -28,8 +28,11 @@ const form = reactive({
   district: '',
   province: '',
   postal_code: '',
+  preferred_contact_time: '',
   company_name: '',
   company_registration: '',
+  director_first_name: '',
+  director_last_name: '',
   security_code: '',
 })
 
@@ -57,8 +60,11 @@ function buildPayload(): SubscriptionInquiryInput {
     district: form.district,
     province: form.province,
     postal_code: form.postal_code,
+    preferred_contact_time: form.preferred_contact_time || undefined,
     company_name: applicantType.value === 'corporate' ? form.company_name : undefined,
     company_registration: applicantType.value === 'corporate' ? form.company_registration : undefined,
+    director_first_name: applicantType.value === 'corporate' ? form.director_first_name : undefined,
+    director_last_name: applicantType.value === 'corporate' ? form.director_last_name : undefined,
     security_code: form.security_code,
     security_code_expected: captchaExpected.value,
   }
@@ -119,51 +125,63 @@ defineExpose({ setProfileFromName })
     </div>
 
     <div v-if="applicantType === 'individual'" :class="noticeClass">
-      <p class="flex items-start gap-2 font-semibold text-red-900">
-        <Icon name="heroicons:exclamation-triangle" class="mt-0.5 h-5 w-5 shrink-0" />
-        <span>เงื่อนไขสำคัญของการ Subscribe (บุคคลธรรมดา):</span>
+      <p class="font-semibold">
+        การสมัคร LG Subscribe สำหรับบุคคลธรรมดา:
       </p>
-      <ul class="mt-2.5 list-disc space-y-1.5 pl-5 text-gray-700">
-        <li>รองรับการตัดชำระรายเดือนผ่าน <strong>บัตรเครดิต</strong> เท่านั้น</li>
-        <li>ต้องเป็นบัตรเครดิตที่ออกในประเทศไทย</li>
-        <li>บัตรเครดิตต้องมีอายุคงเหลืออย่างน้อย <strong>6 เดือน</strong></li>
-        <li class="flex items-start gap-1.5 list-none pl-0 text-red-800">
-          <Icon name="heroicons:x-mark" class="mt-0.5 h-4 w-4 shrink-0" />
-          <span><strong>ไม่รองรับ:</strong> บัตรกดเงินสด และ บัตรผ่อนสินค้า (ที่ไม่ใช่บัตรเครดิต)</span>
+      <ul class="mt-2.5 list-disc space-y-1.5 pl-5 text-white/95">
+        <li>
+          ตัดชำระรายเดือนผ่าน <strong>บัตรเครดิต</strong> เท่านั้น
+          <span class="text-white/80">(กรณีหักบัญชีหรือบัตรเดบิตให้ติดต่อทีมขายทางไลน์ก่อน)</span>
+        </li>
+        <li>เป็นบัตรเครดิตของธนาคารในประเทศไทย</li>
+        <li>บัตรเครดิตมีอายุคงเหลืออย่างน้อย <strong>3 เดือน</strong> ก่อนหมดอายุ</li>
+        <li>
+          <strong>ไม่รองรับ:</strong> บัตรกดเงินสด บัตรวงเงินสินเชื่อ และ บัตรผ่อนสินค้า
+          <span class="text-white/80">(สามารถสอบถามทีมขายเพิ่มเติมได้ก่อนทำรายการ)</span>
         </li>
       </ul>
-      <p class="mt-3 text-xs font-semibold leading-relaxed text-red-800">
-        การส่งข้อมูลผ่านแบบฟอร์มนี้ จะยังไม่มีการเรียกเก็บค่าบริการใดๆ และยังไม่ถือเป็นการผูกพันตามสัญญาการให้บริการแต่อย่างใด
-        เป็นเพียงการแสดงความประสงค์เพื่อให้เจ้าหน้าที่ติดต่อกลับเพื่อดำเนินการดูแลสมัครบริการ LG Subscribe เท่านั้น
+      <p class="mt-3 text-xs leading-relaxed text-white/90">
+        การส่งข้อมูลในแบบฟอร์มนี้ เป็นเพียงการให้ข้อมูลเบื้องต้น เพื่อให้เจ้าหน้าที่ประสานงานกลับในการยืนยันการทำรายการ
+        โดยยังไม่มีการเรียกเก็บค่าบริการใดๆ และยังไม่ถือเป็นภาระผูกพันทางสัญญาการให้บริการแต่อย่างใด
+        จนกว่าจะทำรายการและติดตั้งสำเร็จสมบูรณ์
       </p>
     </div>
 
     <div v-else :class="noticeClass">
-      <p class="flex items-start gap-2 font-semibold text-red-900">
-        <Icon name="heroicons:exclamation-triangle" class="mt-0.5 h-5 w-5 shrink-0" />
-        <span>เงื่อนไขสำคัญของการ Subscribe (นิติบุคคล):</span>
+      <p class="font-semibold">
+        การสมัคร LG Subscribe สำหรับนิติบุคคล:
       </p>
-      <p class="mt-2.5 text-gray-700">
-        รองรับการตัดชำระรายเดือนผ่าน <strong>บัตรเครดิตของกรรมการ</strong> หรือ <strong>การวางบิลเก็บเงิน</strong>
+      <p class="mt-2 text-white/95">
+        เลือกการตัดชำระรายเดือนผ่าน <strong>บัตรเครดิตของกรรมการ</strong> หรือ <strong>การวางบิลเก็บเงิน</strong>ได้
+        <span class="text-white/80">(งดรับเช็ค)</span>
       </p>
-      <p class="mt-2 flex items-start gap-1.5 font-semibold text-red-800">
-        <Icon name="heroicons:exclamation-circle" class="mt-0.5 h-4 w-4 shrink-0" />
-        <span>บริษัทต้องเปิดทำการมาอย่างน้อย 2 ปี และ 2 ปีล่าสุดต้องมีกำไร</span>
-      </p>
-      <p class="mt-3 text-gray-700">ในกรณีที่ Subscribe ด้วยบัตรเครดิตของกรรมการ :</p>
-      <ul class="mt-1.5 list-disc space-y-1 pl-5 text-gray-700">
-        <li>ต้องเป็นบัตรเครดิตที่ออกในประเทศไทย</li>
-        <li>บัตรเครดิตต้องมีอายุคงเหลืออย่างน้อย 6 เดือน</li>
+      <ol class="mt-2.5 list-decimal space-y-1.5 pl-5 text-white/95">
+        <li>บริษัทฯดังกล่าว ประกอบกิจการมามากกว่า 2 ปี</li>
+        <li>บริษัทฯมีผลประกอบการเป็นกำไรติดต่อกันมากกว่า 2 ปีขึ้นไป</li>
+        <li>
+          จำนวนเครื่องฯที่ได้รับการอนุมัติ หรือไม่ผ่านการอนุมัติ
+          ให้การพิจารณาของ LG ถือเป็นที่สิ้นสุด
+        </li>
+      </ol>
+      <p class="mt-3 font-medium">ในกรณีที่ Subscribe ด้วยบัตรเครดิตของกรรมการ :</p>
+      <ul class="mt-1.5 list-disc space-y-1.5 pl-5 text-white/95">
+        <li>เป็นบัตรเครดิตของธนาคารในประเทศไทย</li>
+        <li>บัตรเครดิตมีอายุคงเหลืออย่างน้อย <strong>3 เดือน</strong> ก่อนหมดอายุ</li>
+        <li>
+          <strong>ไม่รองรับ:</strong> บัตรกดเงินสด บัตรวงเงินสินเชื่อ และ บัตรผ่อนสินค้า
+          <span class="text-white/80">(สามารถสอบถามทีมขายเพิ่มเติมได้ก่อนทำรายการ)</span>
+        </li>
       </ul>
-      <p class="mt-2 flex items-start gap-1.5 text-red-800">
-        <Icon name="heroicons:x-mark" class="mt-0.5 h-4 w-4 shrink-0" />
-        <span><strong>ไม่รองรับ:</strong> บัตรกดเงินสด และ บัตรผ่อนสินค้า (ที่ไม่ใช่บัตรเครดิต)</span>
-      </p>
-      <p class="mt-3 text-xs font-semibold leading-relaxed text-red-800">
-        การส่งข้อมูลผ่านแบบฟอร์มนี้ จะยังไม่มีการเรียกเก็บค่าบริการใดๆ และยังไม่ถือเป็นการผูกพันตามสัญญาการให้บริการแต่อย่างใด
-        เป็นเพียงการแสดงความประสงค์เพื่อให้เจ้าหน้าที่ติดต่อกลับเพื่อดำเนินการดูแลสมัครบริการ LG Subscribe เท่านั้น
+      <p class="mt-3 text-xs leading-relaxed text-white/90">
+        การส่งข้อมูลในแบบฟอร์มนี้ เป็นเพียงการให้ข้อมูลเบื้องต้น เพื่อให้เจ้าหน้าที่ประสานงานกลับในการยืนยันการทำรายการ
+        โดยยังไม่มีการเรียกเก็บค่าบริการใดๆ และยังไม่ถือเป็นภาระผูกพันทางสัญญาการให้บริการแต่อย่างใด
+        จนกว่าจะทำรายการและติดตั้งสำเร็จสมบูรณ์
       </p>
     </div>
+
+    <h3 class="text-base font-semibold text-gray-900">
+      ข้อมูลที่เราต้องการ
+    </h3>
 
     <div
       v-if="applicantType === 'corporate'"
@@ -193,12 +211,34 @@ defineExpose({ setProfileFromName })
           placeholder="0000000000000"
         >
       </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">ชื่อกรรมการผู้มีอำนาจ *</label>
+          <input
+            v-model="form.director_first_name"
+            type="text"
+            required
+            :class="inputClass"
+            placeholder="ระบุชื่อภาษาไทย"
+          >
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">นามสกุลกรรมการผู้มีอำนาจ *</label>
+          <input
+            v-model="form.director_last_name"
+            type="text"
+            required
+            :class="inputClass"
+            placeholder="ระบุนามสกุลภาษาไทย"
+          >
+        </div>
+      </div>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">
-          {{ applicantType === 'corporate' ? 'ชื่อผู้ติดต่อ *' : 'ชื่อ (ภาษาไทยเท่านั้น) *' }}
+          {{ applicantType === 'corporate' ? 'ชื่อผู้ติดต่อ (ภาษาไทย) *' : 'ชื่อ (ภาษาไทย) *' }}
         </label>
         <input
           v-model="form.first_name"
@@ -209,7 +249,7 @@ defineExpose({ setProfileFromName })
         >
       </div>
       <div>
-        <label class="mb-1 block text-sm font-medium text-gray-700">นามสกุล (ภาษาไทยเท่านั้น) *</label>
+        <label class="mb-1 block text-sm font-medium text-gray-700">นามสกุล (ภาษาไทย) *</label>
         <input
           v-model="form.last_name"
           type="text"
@@ -233,7 +273,11 @@ defineExpose({ setProfileFromName })
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">
-        ที่อยู่ (บ้านเลขที่, หมู่, ซอย, ถนน) *
+        {{
+          applicantType === 'corporate'
+            ? 'ที่อยู่ติดตั้ง (บ้านเลขที่, ชั้น, หมู่, ซอย, ถนน) *'
+            : 'ที่อยู่ (บ้านเลขที่, ชั้น, หมู่, ซอย, ถนน) *'
+        }}
       </label>
       <input
         v-model="form.address_line"
@@ -269,6 +313,16 @@ defineExpose({ setProfileFromName })
           placeholder="10110"
         >
       </div>
+    </div>
+
+    <div>
+      <label class="mb-1 block text-sm font-medium text-gray-700">เวลาที่สะดวกให้ติดต่อกลับ</label>
+      <input
+        v-model="form.preferred_contact_time"
+        type="text"
+        :class="inputClass"
+        placeholder="เช่น จันทร์–ศุกร์ 10:00–17:00"
+      >
     </div>
 
     <div>

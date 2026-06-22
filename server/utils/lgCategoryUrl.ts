@@ -13,6 +13,7 @@ const LG_PATH_SEGMENT_TO_CATEGORY: Record<string, string> = {
   'styler': 'styler',
   'refrigerators': 'refrigerator',
   'vacuum-cleaners': 'vacuum-cleaner',
+  'vacuum-cleaner': 'vacuum-cleaner',
   'microwave-ovens': 'microwave-oven',
   'dishwashers': 'dishwasher',
   'water-purifiers': 'water-purifier',
@@ -47,6 +48,9 @@ function inferFromPathSegments(pathname: string) {
   }
   if (lower.includes('refrigerator') || lower.includes('side-by-side')) return 'refrigerator'
   if (lower.includes('soundbar')) return 'soundbar'
+  if (lower.includes('vacuum-cleaner') || lower.includes('vacuum-cleaners') || lower.includes('cordzero')) {
+    return 'vacuum-cleaner'
+  }
   if (lower.includes('/speakers/') || lower.includes('portable-speaker') || lower.includes('/xboom')) {
     return 'speakers'
   }

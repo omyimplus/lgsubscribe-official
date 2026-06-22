@@ -126,7 +126,7 @@ export function readNeoCardModelSku(el) {
   if (fromCopy) return fromCopy
 
   const title = cardTitle(el) || ''
-  const fromLabel = title.match(/รุ่น\s+([A-Z0-9]{3,24})/i)?.[1]
+  const fromLabel = title.match(/รุ่น\s+([A-Z0-9-]{4,24})/i)?.[1]
   if (fromLabel && !/copy/i.test(fromLabel)) return fromLabel.toUpperCase()
   const embedded = title.match(/\b([A-Z]{2,}\d{2}[A-Z0-9]{4,})\b/)
   if (embedded?.[1] && !/copy/i.test(embedded[1])) return embedded[1].toUpperCase()

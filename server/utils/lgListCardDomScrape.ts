@@ -267,8 +267,10 @@ export async function scrapeTvPlpVariants(
       const titleSku = await evalOnCard<string | null>(card, 'readNeoCardModelSku')
       const slugMatch = detailUrl.match(/\/([^/]+)\/lgsubscribe(?:-buy)?\/?$/i)
       const slugSku = slugMatch?.[1] ? skuFromLgModelId(slugMatch[1]) : ''
-      // slug ใน URL แม่นที่สุด (65qned80bsa) — ชื่อการ์ดมักเหลือแค่ QNED80
-      const sku = slugSku || resolveLgProductSku(null, titleSku) || resolveLgProductSku(null, shared.sku) || null
+      const sku = resolveLgProductSku(null, titleSku)
+        || resolveLgProductSku(null, shared.sku)
+        || slugSku
+        || null
       if (!sku) {
         log.warn(`card ${i + 1}/${cardCount} no swatches and no SKU — skip`)
         continue

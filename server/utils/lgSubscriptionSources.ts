@@ -74,8 +74,13 @@ export const LG_SUBSCRIPTION_SOURCES: LgSubscriptionSource[] = [
 /** รูปแบบ SKU LG บนเว็บ — รองรับรุ่นสั้น เช่น GRAB (ลำโพงพกพา) */
 export const LG_SKU_RE = /^(?=.*[A-Z])[A-Z0-9]{4,24}$/
 
+/** ตัดช่องว่าง/ขีดจากชื่อรุ่นบนการ์ด (เช่น A9T-CORE → A9TCORE) */
+export function compactLgSku(text: string) {
+  return String(text ?? '').trim().toUpperCase().replace(/[\s-]+/g, '')
+}
+
 export function isValidLgProductSku(sku: string | null | undefined) {
-  const raw = String(sku ?? '').trim().toUpperCase()
+  const raw = compactLgSku(sku)
   return LG_SKU_RE.test(raw)
 }
 
@@ -84,6 +89,8 @@ export function skuFromLgModelId(modelId: string) {
   const raw = modelId.trim().toUpperCase()
   const short = (raw.split('.')[0] ?? '').trim()
   if (LG_SKU_RE.test(short)) return short
+  const compact = compactLgSku(short)
+  if (LG_SKU_RE.test(compact)) return compact
   const m = raw.match(/([A-Z0-9]{5,24})/)
   return m?.[1] && LG_SKU_RE.test(m[1]) ? m[1] : ''
 }
@@ -123,7 +130,7 @@ export function resolveLgProductSku(modelId?: string | null, domSkuText?: string
   }
   const text = String(domSkuText ?? '').trim().toUpperCase()
   if (!text || /COPY/i.test(text)) return ''
-  const compact = text.replace(/\s+/g, '')
+  const compact = compactLgSku(text.replace(/COPY.*$/i, ''))
   // รุ่นที่ขึ้นต้นด้วยตัวเลข เช่น 65QNED80BSA — ต้องใช้ทั้งสตริง ไม่ใช่แค่ส่วน QNED80BSA
   if (LG_SKU_RE.test(compact)) return compact
   const m = compact.match(/([A-Z]{1,5}\d{2,}[A-Z0-9]{2,})/)

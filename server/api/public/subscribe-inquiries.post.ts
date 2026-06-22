@@ -9,7 +9,6 @@ import { buildInquiryComboSnapshot, parseComboCustomerSegment } from '~~/server/
 import { buildLineSummary } from '~~/shared/utils/inquiryLineSummary'
 import { isLineConfigured, parseNotifyUserIds, sendLinePush } from '~~/server/utils/lineMessaging'
 import { fetchProductPlanById } from '~~/server/utils/productPlansDb'
-import { isPlanEligibleForStorefront } from '~~/shared/utils/planDisplay'
 import { fetchDefaultPlanPricingSummaries, planToInquirySnapshot } from '~~/server/utils/productPlanStorefront'
 import { mapProduct, productSelect } from '~~/server/utils/productDb'
 
@@ -108,12 +107,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: `แผนสัญญาของ ${product.sku} ไม่พร้อมใช้งาน`,
-      })
-    }
-    if (!isPlanEligibleForStorefront(plan)) {
-      throw createError({
-        statusCode: 400,
-        message: `แผนโปรโมชันของ ${product.sku} หมดอายุหรือยังไม่เริ่ม — กรุณาเลือกแผนใหม่`,
       })
     }
 

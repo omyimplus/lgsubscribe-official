@@ -6,16 +6,19 @@ import type {
   ComboProgramTier,
   ComboProgramTierInput,
   ComboProgramWithDetails,
+  ComboTierMode,
   PublicComboProgram,
 } from '~~/shared/types/comboProgram'
 import { isComboProgramLive } from '~~/shared/utils/comboProgramDisplay'
 
 function mapProgram(row: Record<string, unknown>): ComboProgram {
+  const tierMode = row.tier_mode === 'min_floor' ? 'min_floor' : 'stepped'
   return {
     id: String(row.id),
     name: String(row.name),
     status: row.status as ComboProgram['status'],
     customer_segment: row.customer_segment as ComboProgram['customer_segment'],
+    tier_mode: tierMode,
     starts_at: row.starts_at != null ? String(row.starts_at) : null,
     ends_at: row.ends_at != null ? String(row.ends_at) : null,
     is_active: Boolean(row.is_active),
@@ -37,16 +40,31 @@ function mapTier(row: Record<string, unknown>): ComboProgramTier {
   }
 }
 
-export function validateComboTiers(tiers: ComboProgramTierInput[]): string | null {
+export function validateComboTiers(
+  tiers: ComboProgramTierInput[],
+  tierMode: ComboTierMode = 'stepped',
+): string | null {
   if (!tiers.length) return 'ต้องมีอย่างน้อย 1 ชั้นส่วนลด (จำนวนชิ้น)'
+
+  if (tierMode === 'min_floor') {
+    if (tiers.length !== 1) return 'โหมดขั้นต่ำ — กำหนดได้เพียง 1 ชั้น (ตั้งแต่ X ชิ้นขึ้นไป)'
+    const t = tiers[0]!
+    if (t.min_items < 1) return 'จำนวนชิ้นขั้นต่ำต้องอย่างน้อย 1'
+    if (t.max_items != null) return 'โหมดขั้นต่ำ — ไม่ต้องระบุชิ้นสูงสุด'
+    const pct = Number(t.extra_discount_percent)
+    if (Number.isNaN(pct) || pct < 0 || pct > 100) {
+      return 'ส่วนลด % ต้องอยู่ระหว่าง 0–100'
+    }
+    return null
+  }
 
   const sorted = [...tiers].sort((a, b) => a.min_items - b.min_items)
 
   for (let i = 0; i < sorted.length; i++) {
     const t = sorted[i]!
     if (t.min_items < 1) return 'จำนวนชิ้นขั้นต่ำต้องอย่างน้อย 1'
-    if (t.max_items != null && t.max_items < t.min_items) {
-      return `ช่วงจำนวนชิ้นไม่ถูกต้อง (${t.min_items}–${t.max_items})`
+    if (t.max_items != null) {
+      return 'โหมดหลายขั้น — ใช้เฉพาะจำนวนชิ้นขั้นต่ำ (ไม่ระบุชิ้นสูงสุด) เช่น 2 ชิ้น 10%, 5 ชิ้น 15%'
     }
     const pct = Number(t.extra_discount_percent)
     if (Number.isNaN(pct) || pct < 0 || pct > 100) {
@@ -54,9 +72,11 @@ export function validateComboTiers(tiers: ComboProgramTierInput[]): string | nul
     }
     if (i > 0) {
       const prev = sorted[i - 1]!
-      const prevMax = prev.max_items ?? prev.min_items
-      if (t.min_items <= prevMax) {
-        return 'ช่วงจำนวนชิ้นซ้อนทับกัน — ตรวจ min/max ของแต่ละชั้น'
+      if (t.min_items <= prev.min_items) {
+        return 'จำนวนชิ้นขั้นต่ำต้องเรียงจากน้อยไปมาก (เช่น 2, 5, 7)'
+      }
+      if (pct < Number(prev.extra_discount_percent)) {
+        return 'ส่วนลด % ควรไม่ลดลงเมื่อจำนวนชิ้นมากขึ้น'
       }
     }
   }
@@ -152,7 +172,10 @@ export async function createComboProgram(
   supabase: SupabaseClient,
   input: ComboProgramInput,
 ): Promise<ComboProgramWithDetails> {
-  const tierErr = input.tiers ? validateComboTiers(input.tiers) : 'ต้องมีอย่างน้อย 1 ชั้นส่วนลด (จำนวนชิ้น)'
+  const tierMode: ComboTierMode = input.tier_mode === 'min_floor' ? 'min_floor' : 'stepped'
+  const tierErr = input.tiers
+    ? validateComboTiers(input.tiers, tierMode)
+    : 'ต้องมีอย่างน้อย 1 ชั้นส่วนลด (จำนวนชิ้น)'
   if (tierErr) throw new Error(tierErr)
 
   const { data, error } = await supabase
@@ -161,6 +184,7 @@ export async function createComboProgram(
       name: input.name.trim(),
       status: input.status ?? 'draft',
       customer_segment: input.customer_segment,
+      tier_mode: tierMode,
       starts_at: input.starts_at || null,
       ends_at: input.ends_at || null,
       is_active: input.is_active ?? true,
@@ -172,7 +196,10 @@ export async function createComboProgram(
   if (error) throw error
 
   const id = data.id as string
-  await replaceTiers(supabase, id, input.tiers ?? [])
+  await replaceTiers(supabase, id, (input.tiers ?? []).map(t => ({
+    ...t,
+    max_items: null,
+  })))
 
   const full = await fetchComboProgramById(supabase, id)
   if (!full) throw new Error('สร้างโปรแกรมแล้วแต่โหลดกลับไม่ได้')
@@ -185,7 +212,10 @@ export async function updateComboProgram(
   input: Partial<ComboProgramInput>,
 ): Promise<ComboProgramWithDetails> {
   if (input.tiers) {
-    const tierErr = validateComboTiers(input.tiers)
+    const tierMode = input.tier_mode
+      ?? (await fetchComboProgramById(supabase, id))?.tier_mode
+      ?? 'stepped'
+    const tierErr = validateComboTiers(input.tiers, tierMode)
     if (tierErr) throw new Error(tierErr)
   }
 
@@ -193,6 +223,9 @@ export async function updateComboProgram(
   if (input.name !== undefined) patch.name = input.name.trim()
   if (input.status !== undefined) patch.status = input.status
   if (input.customer_segment !== undefined) patch.customer_segment = input.customer_segment
+  if (input.tier_mode !== undefined) {
+    patch.tier_mode = input.tier_mode === 'min_floor' ? 'min_floor' : 'stepped'
+  }
   if (input.starts_at !== undefined) patch.starts_at = input.starts_at || null
   if (input.ends_at !== undefined) patch.ends_at = input.ends_at || null
   if (input.is_active !== undefined) patch.is_active = input.is_active
@@ -203,7 +236,16 @@ export async function updateComboProgram(
     if (error) throw error
   }
 
-  if (input.tiers) await replaceTiers(supabase, id, input.tiers)
+  if (input.tiers) {
+    const tierMode = (patch.tier_mode as ComboTierMode | undefined)
+      ?? input.tier_mode
+      ?? (await fetchComboProgramById(supabase, id))?.tier_mode
+      ?? 'stepped'
+    await replaceTiers(supabase, id, input.tiers.map(t => ({
+      ...t,
+      max_items: tierMode === 'stepped' || tierMode === 'min_floor' ? null : t.max_items,
+    })))
+  }
 
   const full = await fetchComboProgramById(supabase, id)
   if (!full) throw new Error('NOT_FOUND')

@@ -1,4 +1,4 @@
-import type { ComboCustomerSegment, ComboProgramStatus } from '~~/shared/types/comboProgram'
+import type { ComboCustomerSegment, ComboProgramStatus, ComboTierMode } from '~~/shared/types/comboProgram'
 
 /** บิลแรกจ่ายเต็ม — ส่วนลด combo มีผลตั้งแต่บิลนี้ (คงที่ในโค้ด ไม่เก็บใน DB) */
 export const COMBO_EFFECTIVE_FROM_BILL = 2
@@ -23,8 +23,19 @@ export const comboStatusLabels: Record<ComboProgramStatus, string> = {
   published: 'เผยแพร่',
 }
 
-export function formatTierRange(minItems: number, maxItems: number | null): string {
-  if (maxItems == null) return `${minItems} ชิ้นขึ้นไป`
+export const comboTierModeLabels: Record<ComboTierMode, string> = {
+  min_floor: 'ขั้นต่ำ (ตั้งแต่ X ชิ้นขึ้นไป — ไม่จำกัดบน)',
+  stepped: 'หลายขั้น (เช่น 2 / 5 / 7 ชิ้น — ได้สูงสุดตามที่ถึง)',
+}
+
+export function formatTierRange(
+  minItems: number,
+  maxItems: number | null,
+  tierMode: ComboTierMode = 'stepped',
+): string {
+  if (tierMode === 'min_floor' || tierMode === 'stepped' || maxItems == null) {
+    return `${minItems} ชิ้นขึ้นไป`
+  }
   if (minItems === maxItems) return `${minItems} ชิ้น`
   return `${minItems}–${maxItems} ชิ้น`
 }

@@ -2,8 +2,6 @@
 import type { Product } from '~~/shared/types/product'
 import type { ProductPlan, ProductPlansResponse } from '~~/shared/types/productPlan'
 import {
-  formatPlanPromoPeriod,
-  isPlanPromoActiveToday,
   planContractTitle,
   planShowsServiceInterval,
   serviceModeLabels,
@@ -54,11 +52,6 @@ const computedNetTotal = computed(() => {
   if (computedTotal.value == null) return null
   return totalNetAmount(computedTotal.value, selectedPlan.value?.advance_amount)
 })
-
-function promoPeriodLabel(plan: ProductPlan) {
-  if (!isPlanPromoActiveToday(plan)) return null
-  return formatPlanPromoPeriod(plan)
-}
 </script>
 
 <template>
@@ -112,10 +105,6 @@ function promoPeriodLabel(plan: ProductPlan) {
       </div>
 
       <div v-if="selectedPlan" class="mt-6 space-y-4">
-        <div v-if="promoPeriodLabel(selectedPlan)" class="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          โปรโมชัน ({{ promoPeriodLabel(selectedPlan) }})
-        </div>
-
         <div>
           <h3 class="text-sm font-semibold text-gray-800">ช่วงบิลรายเดือน</h3>
           <div class="mt-2 overflow-x-auto rounded-xl border border-gray-100">

@@ -33,8 +33,6 @@ export interface ProductPlan {
   promo_price: number | null
   advance_amount: number | null
   advance_note: string | null
-  promo_period_start: string | null
-  promo_period_end: string | null
   is_default: boolean
   is_active: boolean
   sort_order: number
@@ -63,8 +61,6 @@ export interface ProductPlanCardOption {
   computed_net_total: number | null
   is_default: boolean
   sort_order?: number
-  promo_period_start?: string | null
-  promo_period_end?: string | null
   billing_tiers: Pick<PlanBillingTier, 'bill_from' | 'bill_to' | 'monthly_price' | 'note' | 'sort_order'>[]
 }
 
@@ -98,8 +94,6 @@ export interface CreatePlanInput {
   promo_price?: number | null
   advance_amount?: number | null
   advance_note?: string | null
-  promo_period_start?: string | null
-  promo_period_end?: string | null
   is_default?: boolean
   is_active?: boolean
   sort_order?: number
@@ -117,8 +111,6 @@ export interface UpdatePlanInput {
   promo_price?: number | null
   advance_amount?: number | null
   advance_note?: string | null
-  promo_period_start?: string | null
-  promo_period_end?: string | null
   is_default?: boolean
   is_active?: boolean
   sort_order?: number

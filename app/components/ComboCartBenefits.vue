@@ -30,14 +30,49 @@ const timelineRailInset = computed(() => {
 })
 
 function stepCircleClass(step: (typeof timelineSteps.value)[number]) {
-  return isTimelineStepActive(step, props.itemCount)
+  return isTimelineStepActive(step, props.itemCount, combo.quote.value.tier)
     ? 'combo-timeline__circle-wrap--active'
     : ''
 }
 
 function stepIsActive(step: (typeof timelineSteps.value)[number]) {
-  return isTimelineStepActive(step, props.itemCount)
+  return isTimelineStepActive(step, props.itemCount, combo.quote.value.tier)
 }
+
+const upsellCopy = computed(() => {
+  const hint = combo.nextTierHint.value
+  if (!hint) return null
+
+  const { items_needed, percent, extra_percent } = hint
+  const current = currentPercent.value
+
+  if (props.itemCount === 0) {
+    return {
+      headline: `ซื้อ ${items_needed} ชิ้นขึ้นไป รับส่วนลด combo ${percent}%`,
+      subline: 'เพิ่มสินค้าในตะกร้าแล้วดูยอดประหยัดทันที',
+    }
+  }
+
+  if (extra_percent > 0) {
+    return {
+      headline: `ซื้ออีก ${items_needed} ชิ้น ส่วนลดเพิ่มอีก ${extra_percent}%`,
+      subline: current > 0
+        ? `จาก −${current}% เป็น −${percent}% ทันที — คุ้มกว่าเดิม!`
+        : `รับส่วนลด combo −${percent}% ทันที`,
+    }
+  }
+
+  return {
+    headline: `ซื้ออีก ${items_needed} ชิ้น รับส่วนลด combo −${percent}%`,
+    subline: null,
+  }
+})
+
+const maxTierReached = computed(() =>
+  props.itemCount > 0
+  && !combo.nextTierHint.value
+  && currentPercent.value > 0,
+)
 </script>
 
 <template>
@@ -215,31 +250,42 @@ function stepIsActive(step: (typeof timelineSteps.value)[number]) {
         </div>
       </div>
 
-      <p
-        v-if="props.itemCount > 0 && combo.nextTierHint.value"
+      <div
+        v-if="upsellCopy"
         class="combo-benefits__upsell text-amber-950"
         :class="isDocked
-          ? 'mt-1.5 rounded-lg border border-dashed border-amber-300/90 bg-white/70 px-2 py-1 text-center text-[10px] leading-snug'
-          : 'mt-3 flex items-start gap-2 rounded-xl border border-dashed border-amber-300 bg-white/80 px-3 py-2.5 text-xs leading-snug'"
+          ? 'mt-1.5 rounded-lg border border-dashed border-amber-300/90 bg-white/70 px-2 py-1.5 text-center'
+          : 'mt-3 rounded-xl border border-dashed border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 px-3 py-3'"
       >
-        <Icon
-          v-if="!isDocked"
-          name="heroicons:sparkles"
-          class="mt-0.5 h-4 w-4 shrink-0 text-amber-500"
-          aria-hidden="true"
-        />
-        <span>
-          เพิ่มอีก {{ combo.nextTierHint.value.items_needed }} ชิ้น → ลด
-          <strong class="font-bold">{{ combo.nextTierHint.value.percent }}%</strong>
-          <span class="text-amber-800/80"> ({{ combo.nextTierHint.value.label }})</span>
-        </span>
-      </p>
+        <p
+          class="font-bold leading-snug text-amber-950"
+          :class="isDocked ? 'text-[10px]' : 'text-sm'"
+        >
+          <Icon
+            v-if="!isDocked"
+            name="heroicons:sparkles"
+            class="mr-1 inline-block h-4 w-4 -translate-y-px text-amber-500"
+            aria-hidden="true"
+          />
+          {{ upsellCopy.headline }}
+        </p>
+        <p
+          v-if="upsellCopy.subline"
+          class="mt-0.5 leading-snug text-amber-800/90"
+          :class="isDocked ? 'text-[9px]' : 'text-xs'"
+        >
+          {{ upsellCopy.subline }}
+        </p>
+      </div>
 
       <p
-        v-else-if="props.itemCount === 0 && !isDocked"
-        class="mt-3 text-center text-[11px] text-gray-500"
+        v-else-if="maxTierReached"
+        class="combo-benefits__upsell text-emerald-900"
+        :class="isDocked
+          ? 'mt-1.5 rounded-lg border border-dashed border-emerald-300/90 bg-white/70 px-2 py-1 text-center text-[10px] font-semibold leading-snug'
+          : 'mt-3 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/80 px-3 py-2.5 text-center text-xs font-semibold leading-snug'"
       >
-        เลือกสินค้าในตะกร้าเพื่อดูส่วนลดที่ได้รับ
+        🎉 ยินดีด้วย! คุณได้ส่วนลด combo สูงสุดแล้ว −{{ currentPercent }}%
       </p>
     </template>
 

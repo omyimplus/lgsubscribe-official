@@ -51,7 +51,10 @@ export function useComboCart() {
 
   const timelineSteps = computed(() =>
     activeProgram.value
-      ? buildComboTimelineSteps(activeProgram.value.tiers)
+      ? buildComboTimelineSteps(
+        activeProgram.value.tiers,
+        activeProgram.value.tier_mode ?? 'stepped',
+      )
       : [],
   )
 

@@ -44,8 +44,6 @@ function planToCardOption(plan: ProductPlan): ProductPlanCardOption {
     computed_net_total: computed_total != null ? totalNetAmount(computed_total, plan.advance_amount) : null,
     is_default: plan.is_default,
     sort_order: plan.sort_order,
-    promo_period_start: plan.promo_period_start,
-    promo_period_end: plan.promo_period_end,
     billing_tiers: tiers.map(t => ({
       bill_from: t.bill_from,
       bill_to: t.bill_to,

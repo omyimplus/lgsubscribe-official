@@ -50,8 +50,6 @@ function emptyForm(): CreatePlanInput {
     promo_price: null,
     advance_amount: null,
     advance_note: null,
-    promo_period_start: null,
-    promo_period_end: null,
     is_active: true,
     sort_order: 0,
     billing_tiers: [emptyTier()],
@@ -121,8 +119,6 @@ function openEdit(plan: ProductPlan) {
     promo_price: null,
     advance_amount: plan.advance_amount,
     advance_note: plan.advance_note,
-    promo_period_start: plan.promo_period_start,
-    promo_period_end: plan.promo_period_end,
     is_active: plan.is_active,
     sort_order: plan.sort_order,
     billing_tiers: (plan.billing_tiers ?? []).map(t => ({
@@ -279,9 +275,6 @@ async function removePlan(plan: ProductPlan) {
               <p class="text-xs text-gray-500">
                 {{ plan.contract_years }} ปี · {{ plan.contract_months }} บิล · ลำดับ {{ plan.sort_order }}
               </p>
-              <p v-if="plan.promo_period_start || plan.promo_period_end" class="text-xs text-amber-700">
-                โปร {{ plan.promo_period_start || '…' }} – {{ plan.promo_period_end || '…' }}
-              </p>
             </td>
             <td class="px-4 py-3 text-gray-700">
               {{ serviceModeLabels[plan.service_mode] }}
@@ -376,17 +369,6 @@ async function removePlan(plan: ProductPlan) {
                 <label class="mb-1 block text-xs font-medium text-gray-600">หมายเหตุมัดจำ</label>
                 <input v-model="form.advance_note" placeholder="เช่น มัดจำล่วงหน้า 10 เดือน" :class="inputClass">
               </div>
-              <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600">โปรเริ่ม</label>
-                <input v-model="form.promo_period_start" type="date" :class="inputClass">
-              </div>
-              <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600">โปรสิ้นสุด</label>
-                <input v-model="form.promo_period_end" type="date" :class="inputClass">
-              </div>
-              <p class="sm:col-span-2 text-xs text-amber-800">
-                ช่วงโปร: แสดงบนหน้าร้านเฉพาะวันที่อยู่ในช่วงนี้ (เวลาไทย) · หมดโปรแล้วจะสลับไปแผนปกติที่ไม่มีช่วงโปร (ถ้ามี) · แผนโปรที่หมดอายุจะไม่แสดงบนเว็บ
-              </p>
             </div>
 
             <section>

@@ -2,6 +2,9 @@ export type ComboProgramStatus = 'draft' | 'published'
 
 export type ComboCustomerSegment = 'new' | 'existing'
 
+/** min_floor = ตั้งแต่ X ชิ้นขึ้นไป (1 ชั้น) · stepped = หลายขั้น เช่น 2/5/7 ชิ้น */
+export type ComboTierMode = 'min_floor' | 'stepped'
+
 export interface ComboProgramTier {
   id: string
   program_id: string
@@ -17,6 +20,7 @@ export interface ComboProgram {
   name: string
   status: ComboProgramStatus
   customer_segment: ComboCustomerSegment
+  tier_mode: ComboTierMode
   starts_at: string | null
   ends_at: string | null
   is_active: boolean
@@ -37,6 +41,7 @@ export interface ComboProgramInput {
   name: string
   status?: ComboProgramStatus
   customer_segment: ComboCustomerSegment
+  tier_mode?: ComboTierMode
   starts_at?: string | null
   ends_at?: string | null
   is_active?: boolean

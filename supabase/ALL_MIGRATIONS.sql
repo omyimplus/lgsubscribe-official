@@ -1884,3 +1884,21 @@ on conflict (slug) do update set
   is_active         = true,
   updated_at        = now();
 
+
+-- -----------------------------------------------------------------------------
+-- 0045_combo_tier_mode.sql
+-- -----------------------------------------------------------------------------
+
+alter table public.combo_programs
+  add column if not exists tier_mode text not null default 'stepped'
+  check (tier_mode in ('min_floor', 'stepped'));
+
+
+-- -----------------------------------------------------------------------------
+-- 0046_drop_plan_promo_period.sql
+-- -----------------------------------------------------------------------------
+
+alter table public.product_plans
+  drop column if exists promo_period_start,
+  drop column if exists promo_period_end;
+

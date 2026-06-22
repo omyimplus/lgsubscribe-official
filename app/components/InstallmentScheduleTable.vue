@@ -107,40 +107,55 @@ const footnote = computed(() => {
             <th
               v-for="col in schedule.columns"
               :key="col.column_key"
-              class="min-w-[7.25rem] px-1.5 py-2.5 text-center align-bottom sm:min-w-[9.5rem] sm:px-2 sm:py-3"
+              class="schedule-table__product-col px-1.5 py-2.5 text-center align-top sm:px-2 sm:py-3"
             >
               <template v-if="variant === 'cart'">
-                <div class="mx-auto mb-1.5 flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-white/10 sm:mb-2 sm:h-14 sm:w-14">
-                  <img
-                    v-if="col.image_url"
-                    :src="col.image_url"
-                    :alt="col.name"
-                    class="h-full w-full object-contain"
+                <div class="schedule-table__product-head flex flex-col items-center">
+                  <div class="schedule-table__product-thumb mb-1.5 sm:mb-2">
+                    <img
+                      v-if="col.image_url"
+                      :src="col.image_url"
+                      :alt="col.name"
+                      class="schedule-table__product-thumb-img"
+                    >
+                    <div
+                      v-else
+                      class="schedule-table__product-thumb-placeholder"
+                    >
+                      <Icon
+                        name="heroicons:photo"
+                        class="h-6 w-6 text-white/50"
+                      />
+                    </div>
+                  </div>
+                  <p
+                    class="schedule-table__product-name w-full text-[10px] font-medium leading-tight sm:text-xs"
+                    :title="col.name"
                   >
-                  <Icon
-                    v-else
-                    name="heroicons:photo"
-                    class="h-6 w-6 text-white/50"
-                  />
+                    {{ col.name }}
+                  </p>
+                  <p
+                    v-if="col.quantity > 1"
+                    class="mt-0.5 text-[10px] font-semibold text-amber-200 sm:text-xs"
+                  >
+                    ×{{ col.quantity }} ชิ้น
+                  </p>
+                  <p class="mt-0.5 w-full truncate font-mono text-[9px] text-white/80 sm:text-[10px]" :title="col.sku">
+                    {{ col.sku }}
+                  </p>
                 </div>
-                <p class="line-clamp-2 text-[10px] font-medium leading-tight sm:text-xs">
+              </template>
+              <template v-else>
+                <p
+                  class="schedule-table__product-name text-xs font-bold leading-tight sm:text-sm"
+                  :title="col.name"
+                >
                   {{ col.name }}
                 </p>
                 <p
-                  v-if="col.quantity > 1"
-                  class="mt-0.5 text-[10px] font-semibold text-amber-200 sm:text-xs"
+                  class="schedule-table__product-name mt-1 text-[10px] font-normal text-white/85 sm:text-xs"
+                  :title="col.contract_condition"
                 >
-                  ×{{ col.quantity }} ชิ้น
-                </p>
-                <p class="mt-0.5 font-mono text-[9px] text-white/80 sm:text-[10px]">
-                  {{ col.sku }}
-                </p>
-              </template>
-              <template v-else>
-                <p class="text-xs font-bold leading-tight sm:text-sm">
-                  {{ col.name }}
-                </p>
-                <p class="mt-1 text-[10px] font-normal text-white/85 sm:text-xs">
                   {{ col.contract_condition }}
                 </p>
                 <p
@@ -168,9 +183,14 @@ const footnote = computed(() => {
             <td
               v-for="col in schedule.columns"
               :key="`cond-${col.column_key}`"
-              class="px-1.5 py-1.5 text-center text-[9px] text-white/90 sm:px-2 sm:py-2 sm:text-xs"
+              class="schedule-table__product-col px-1.5 py-1.5 text-center text-[9px] text-white/90 sm:px-2 sm:py-2 sm:text-xs"
             >
-              <p>{{ col.contract_condition }}</p>
+              <p
+                class="schedule-table__product-name"
+                :title="col.contract_condition"
+              >
+                {{ col.contract_condition }}
+              </p>
               <p
                 v-if="col.has_advance && col.advance_amount"
                 class="mt-1 font-medium text-amber-200"
@@ -196,7 +216,7 @@ const footnote = computed(() => {
             <td
               v-for="(cell, colIndex) in row.cells"
               :key="schedule.columns[colIndex]!.column_key"
-              class="px-1.5 py-2.5 text-center align-top sm:px-2 sm:py-3"
+              class="schedule-table__product-col px-1.5 py-2.5 text-center align-top sm:px-2 sm:py-3"
             >
               <template v-if="!cell.in_contract">
                 <span class="text-gray-300">—</span>
@@ -292,6 +312,78 @@ const footnote = computed(() => {
   border-radius: 0.5rem;
   background: #fff;
   scrollbar-width: thin;
+}
+
+.schedule-table__product-col {
+  width: 9rem;
+  min-width: 9rem;
+  max-width: 9rem;
+}
+
+@media (min-width: 640px) {
+  .schedule-table__product-col {
+    width: 11.5rem;
+    min-width: 11.5rem;
+    max-width: 11.5rem;
+  }
+}
+
+.schedule-table__product-head {
+  align-items: center;
+}
+
+.schedule-table__product-thumb {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  line-height: 0;
+}
+
+.schedule-table__product-thumb-img {
+  display: block;
+  max-width: 100%;
+  max-height: 2.75rem;
+  width: auto;
+  height: auto;
+  border-radius: 0.375rem;
+  background: rgb(255 255 255 / 0.95);
+  object-fit: contain;
+  object-position: top center;
+}
+
+.schedule-table__product-thumb-placeholder {
+  display: flex;
+  height: 2.75rem;
+  width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  background: rgb(255 255 255 / 0.1);
+}
+
+@media (min-width: 640px) {
+  .schedule-table__product-thumb-img {
+    max-height: 4rem;
+  }
+
+  .schedule-table__product-thumb-placeholder {
+    height: 4rem;
+    width: 4rem;
+  }
+}
+
+.schedule-table__head th.schedule-table__product-col {
+  vertical-align: top;
+}
+
+.schedule-table__product-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .schedule-table__sticky-col {

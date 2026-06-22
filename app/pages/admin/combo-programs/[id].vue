@@ -4,10 +4,12 @@ import type {
   ComboProgramStatus,
   ComboProgramTierInput,
   ComboProgramWithDetails,
+  ComboTierMode,
 } from '~~/shared/types/comboProgram'
 import {
   comboCalculationNote,
   comboSegmentLabels,
+  comboTierModeLabels,
   formatTierRange,
 } from '~~/shared/utils/comboProgramDisplay'
 
@@ -32,6 +34,7 @@ const form = reactive({
   name: '',
   status: 'draft' as ComboProgramStatus,
   customer_segment: 'new' as ComboCustomerSegment,
+  tier_mode: 'stepped' as ComboTierMode,
   starts_at: '',
   ends_at: '',
   is_active: true,
@@ -55,28 +58,45 @@ watch(program, (p) => {
   form.name = p.name
   form.status = p.status
   form.customer_segment = p.customer_segment
+  form.tier_mode = p.tier_mode ?? 'stepped'
   form.starts_at = toLocalDatetime(p.starts_at)
   form.ends_at = toLocalDatetime(p.ends_at)
   form.is_active = p.is_active
   form.notes = p.notes ?? ''
   tiers.value = p.tiers.map(t => ({
     min_items: t.min_items,
-    max_items: t.max_items,
+    max_items: null,
     extra_discount_percent: t.extra_discount_percent,
     sort_order: t.sort_order,
   }))
 }, { immediate: true })
 
 function addTier() {
+  if (form.tier_mode === 'min_floor') return
   const last = tiers.value[tiers.value.length - 1]
-  const nextMin = last ? (last.max_items ?? last.min_items) + 1 : 1
+  const nextMin = last ? last.min_items + 3 : 2
   tiers.value.push({
     min_items: nextMin,
-    max_items: nextMin,
-    extra_discount_percent: 0,
+    max_items: null,
+    extra_discount_percent: last ? Number(last.extra_discount_percent) + 5 : 10,
     sort_order: tiers.value.length,
   })
 }
+
+watch(() => form.tier_mode, (mode) => {
+  if (mode === 'min_floor' && tiers.value.length !== 1) {
+    const first = tiers.value[0] ?? {
+      min_items: 2,
+      max_items: null,
+      extra_discount_percent: 10,
+      sort_order: 0,
+    }
+    tiers.value = [{ ...first, max_items: null }]
+  }
+  if (mode === 'stepped') {
+    tiers.value = tiers.value.map(t => ({ ...t, max_items: null }))
+  }
+})
 
 function removeTier(index: number) {
   tiers.value.splice(index, 1)
@@ -98,13 +118,14 @@ async function handleSave() {
         name: form.name.trim(),
         status: form.status,
         customer_segment: form.customer_segment,
+        tier_mode: form.tier_mode,
         starts_at: toIsoOrNull(form.starts_at),
         ends_at: toIsoOrNull(form.ends_at),
         is_active: form.is_active,
         notes: form.notes,
         tiers: tiers.value.map(t => ({
           min_items: t.min_items,
-          max_items: t.max_items == null || Number.isNaN(Number(t.max_items)) ? null : t.max_items,
+          max_items: null,
           extra_discount_percent: t.extra_discount_percent,
           sort_order: t.sort_order,
         })),
@@ -191,6 +212,14 @@ async function handleSave() {
           </div>
         </div>
 
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">รูปแบบชั้นส่วนลด</label>
+          <select v-model="form.tier_mode" :class="inputClass">
+            <option value="min_floor">{{ comboTierModeLabels.min_floor }}</option>
+            <option value="stepped">{{ comboTierModeLabels.stepped }}</option>
+          </select>
+        </div>
+
         <label class="flex items-center gap-2 text-sm text-gray-700">
           <input v-model="form.is_active" type="checkbox" class="rounded border-gray-300 text-red-600">
           เปิดใช้งาน
@@ -217,9 +246,17 @@ async function handleSave() {
         <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 class="text-sm font-semibold text-gray-900">ชั้นส่วนลดตามจำนวนชิ้น</h2>
-            <p class="text-xs text-gray-500">กำหนด % ลดเพิ่มเมื่อลูกค้าสั่งครบจำนวนชิ้นในคำสั่งเดียว</p>
+            <p class="text-xs text-gray-500">
+              <template v-if="form.tier_mode === 'min_floor'">
+                ตั้งแต่จำนวนชิ้นขั้นต่ำขึ้นไป — ได้ส่วนลดเดียวกันทุกจำนวน (ไม่จำกัดบน)
+              </template>
+              <template v-else>
+                กำหนดขั้นตามจำนวนชิ้น — ระบบเลือกขั้นสูงสุดที่ลูกค้าถึง (เช่น 7 ชิ้นขึ้นไปได้ 20%)
+              </template>
+            </p>
           </div>
           <button
+            v-if="form.tier_mode === 'stepped'"
             type="button"
             class="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50"
             @click="addTier"
@@ -234,14 +271,13 @@ async function handleSave() {
         </div>
 
         <div v-else class="overflow-x-auto">
-          <table class="w-full min-w-[520px] text-sm">
+          <table class="w-full min-w-[420px] text-sm">
             <thead>
               <tr class="border-b bg-gray-50/80 text-left text-xs font-semibold uppercase text-gray-500">
-                <th class="px-3 py-2">ชิ้นขั้นต่ำ</th>
-                <th class="px-3 py-2">ชิ้นสูงสุด</th>
+                <th class="px-3 py-2">จำนวนชิ้นขั้นต่ำ</th>
                 <th class="px-3 py-2">ลดเพิ่ม (%)</th>
                 <th class="px-3 py-2">สรุป</th>
-                <th class="w-12 px-3 py-2" />
+                <th v-if="form.tier_mode === 'stepped'" class="w-12 px-3 py-2" />
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -251,15 +287,6 @@ async function handleSave() {
                     v-model.number="tier.min_items"
                     type="number"
                     min="1"
-                    class="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
-                  >
-                </td>
-                <td class="px-3 py-2">
-                  <input
-                    v-model.number="tier.max_items"
-                    type="number"
-                    min="1"
-                    placeholder="ว่าง=ไม่จำกัด"
                     class="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm"
                   >
                 </td>
@@ -274,10 +301,10 @@ async function handleSave() {
                   >
                 </td>
                 <td class="px-3 py-2 text-gray-600">
-                  {{ formatTierRange(tier.min_items, tier.max_items ?? null) }}
+                  {{ formatTierRange(tier.min_items, null, form.tier_mode) }}
                   → ลด {{ tier.extra_discount_percent }}%
                 </td>
-                <td class="px-3 py-2 text-right">
+                <td v-if="form.tier_mode === 'stepped'" class="px-3 py-2 text-right">
                   <button
                     type="button"
                     class="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"

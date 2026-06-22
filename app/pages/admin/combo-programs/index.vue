@@ -51,8 +51,9 @@ function openCreate() {
 }
 
 const defaultTiers: ComboProgramInput['tiers'] = [
-  { min_items: 1, max_items: 1, extra_discount_percent: 5, sort_order: 0 },
-  { min_items: 2, max_items: null, extra_discount_percent: 10, sort_order: 1 },
+  { min_items: 2, max_items: null, extra_discount_percent: 10, sort_order: 0 },
+  { min_items: 5, max_items: null, extra_discount_percent: 15, sort_order: 1 },
+  { min_items: 7, max_items: null, extra_discount_percent: 20, sort_order: 2 },
 ]
 
 async function handleCreate() {
@@ -69,6 +70,7 @@ async function handleCreate() {
       body: {
         name: createForm.name.trim(),
         customer_segment: createForm.customer_segment,
+        tier_mode: 'stepped',
         status: 'draft',
         tiers: defaultTiers,
       } satisfies ComboProgramInput,

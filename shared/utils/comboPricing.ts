@@ -1,4 +1,4 @@
-import type { ComboCustomerSegment, ComboProgramTier } from '~~/shared/types/comboProgram'
+import type { ComboCustomerSegment, ComboProgramTier, ComboTierMode } from '~~/shared/types/comboProgram'
 import type { InquiryItem } from '~~/shared/types/inquiry'
 import { expandInquiryItemsByQuantity } from '~~/shared/utils/cartQuantity'
 import { COMBO_EFFECTIVE_FROM_BILL, formatTierRange } from '~~/shared/utils/comboProgramDisplay'
@@ -76,9 +76,11 @@ export type ComboProgramForQuote = {
   id: string
   name: string
   customer_segment: ComboCustomerSegment
+  tier_mode?: ComboTierMode
   tiers: ComboProgramTier[]
 }
 
+/** เลือกชั้นที่ใช้จริง — จำนวนชิ้น ≥ min_items สูงสุดที่เข้าเงื่อนไข (ไม่ใช้ max_items กรอง) */
 export function pickComboTier(
   tiers: ComboTierPick[],
   itemCount: number,
@@ -87,9 +89,7 @@ export function pickComboTier(
 
   const sorted = [...tiers].sort((a, b) => b.min_items - a.min_items)
   for (const tier of sorted) {
-    if (itemCount < tier.min_items) continue
-    if (tier.max_items != null && itemCount > tier.max_items) continue
-    return tier
+    if (itemCount >= tier.min_items) return tier
   }
   return null
 }
@@ -135,14 +135,17 @@ export function computeComboChargedForBill(
   return { charged, combo_applied: true, own_discount }
 }
 
-export function buildComboTimelineSteps(tiers: ComboTierPick[]): ComboTimelineStep[] {
+export function buildComboTimelineSteps(
+  tiers: ComboTierPick[],
+  tierMode: ComboTierMode = 'stepped',
+): ComboTimelineStep[] {
   return [...tiers]
     .sort((a, b) => a.min_items - b.min_items || (a.sort_order ?? 0) - (b.sort_order ?? 0))
     .map(t => ({
       min_items: t.min_items,
       max_items: t.max_items,
       extra_discount_percent: Number(t.extra_discount_percent),
-      label: formatTierRange(t.min_items, t.max_items),
+      label: formatTierRange(t.min_items, t.max_items, tierMode),
     }))
 }
 
@@ -226,18 +229,33 @@ export function buildComboQuote(
 export function nextComboTierHint(
   tiers: ComboTierPick[],
   currentCount: number,
-): { items_needed: number, percent: number, label: string } | null {
+): { items_needed: number, percent: number, extra_percent: number, label: string } | null {
   const sorted = [...tiers].sort((a, b) => a.min_items - b.min_items)
   const next = sorted.find(t => t.min_items > currentCount)
   if (!next) return null
+  const currentPercent = pickComboPercent(tiers, currentCount)
+  const nextPercent = Number(next.extra_discount_percent)
   return {
     items_needed: next.min_items - currentCount,
-    percent: Number(next.extra_discount_percent),
-    label: formatTierRange(next.min_items, next.max_items),
+    percent: nextPercent,
+    extra_percent: Math.max(0, nextPercent - currentPercent),
+    label: formatTierRange(next.min_items, next.max_items, 'stepped'),
   }
 }
 
+/** ไฮไลต์เฉพาะชั้นที่ระบบเลือกใช้จริง */
 export function isTimelineStepActive(
+  step: ComboTimelineStep,
+  itemCount: number,
+  appliedTier?: ComboTierPick | null,
+): boolean {
+  if (itemCount < 1 || !appliedTier) return false
+  return step.min_items === appliedTier.min_items
+    && Number(step.extra_discount_percent) === Number(appliedTier.extra_discount_percent)
+}
+
+/** @deprecated ใช้ isTimelineStepActive พร้อม appliedTier แทน */
+export function isTimelineStepInRange(
   step: ComboTimelineStep,
   itemCount: number,
 ): boolean {

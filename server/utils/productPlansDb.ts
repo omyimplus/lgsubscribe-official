@@ -65,8 +65,6 @@ export function mapPlanRow(row: Record<string, unknown>): ProductPlan {
     promo_price: row.promo_price != null ? Number(row.promo_price) : null,
     advance_amount: row.advance_amount != null ? Number(row.advance_amount) : null,
     advance_note: typeof row.advance_note === 'string' ? row.advance_note : null,
-    promo_period_start: typeof row.promo_period_start === 'string' ? row.promo_period_start : null,
-    promo_period_end: typeof row.promo_period_end === 'string' ? row.promo_period_end : null,
     is_default: Boolean(row.is_default),
     is_active: Boolean(row.is_active),
     sort_order: Number(row.sort_order ?? 0),
@@ -295,8 +293,6 @@ export async function createProductPlan(
     promo_price: null,
     advance_amount: input.advance_amount ?? null,
     advance_note: input.advance_note?.trim() || null,
-    promo_period_start: input.promo_period_start || null,
-    promo_period_end: input.promo_period_end || null,
     is_default: false,
     is_active: input.is_active ?? true,
     sort_order: input.sort_order ?? 0,
@@ -340,12 +336,6 @@ export async function updateProductPlan(
     promo_price: null,
     advance_amount: input.advance_amount !== undefined ? input.advance_amount : existing.advance_amount,
     advance_note: input.advance_note !== undefined ? input.advance_note : existing.advance_note,
-    promo_period_start: input.promo_period_start !== undefined
-      ? input.promo_period_start
-      : existing.promo_period_start,
-    promo_period_end: input.promo_period_end !== undefined
-      ? input.promo_period_end
-      : existing.promo_period_end,
     is_active: input.is_active ?? existing.is_active,
     sort_order: input.sort_order ?? existing.sort_order,
     billing_tiers: input.billing_tiers ?? existing.billing_tiers ?? [],
@@ -367,8 +357,6 @@ export async function updateProductPlan(
     promo_price: null,
     advance_amount: merged.advance_amount,
     advance_note: merged.advance_note?.trim() || null,
-    promo_period_start: merged.promo_period_start,
-    promo_period_end: merged.promo_period_end,
     is_active: merged.is_active,
     sort_order: merged.sort_order,
   }

@@ -72,7 +72,12 @@ export const LG_SUBSCRIPTION_SOURCES: LgSubscriptionSource[] = [
 ]
 
 /** รูปแบบ SKU LG บนเว็บ — รองรับรุ่นสั้น เช่น GRAB (ลำโพงพกพา) */
-const LG_SKU_RE = /^(?=.*[A-Z])[A-Z0-9]{4,24}$/
+export const LG_SKU_RE = /^(?=.*[A-Z])[A-Z0-9]{4,24}$/
+
+export function isValidLgProductSku(sku: string | null | undefined) {
+  const raw = String(sku ?? '').trim().toUpperCase()
+  return LG_SKU_RE.test(raw)
+}
 
 /** แปลง data-model-id LG เป็น SKU สั้น (OLED65C6PSA.ATM.EATH.TH.C → OLED65C6PSA) */
 export function skuFromLgModelId(modelId: string) {

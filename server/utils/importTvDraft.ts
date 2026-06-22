@@ -12,6 +12,7 @@ import {
 import {
   buildVariantCardName,
   getLgSubscriptionSource,
+  isValidLgProductSku,
   lgSubscriptionListPath,
   type LgSubscriptionSource,
 } from '~~/server/utils/lgSubscriptionSources'
@@ -280,8 +281,13 @@ export async function importTvCardsToDraft(
 
     for (const listCard of members) {
       const resolvedSku = resolveCardSku(listCard)
-      if (!resolvedSku || !/^[A-Z0-9]{5,24}$/.test(resolvedSku)) {
+      if (!resolvedSku || !isValidLgProductSku(resolvedSku)) {
         log.warn(`skip invalid sku=${resolvedSku || '?'}`)
+        failed.push({
+          group: groupKey,
+          skus: [resolvedSku || '?'],
+          reason: `รหัสสินค้าไม่ถูกต้อง: ${resolvedSku || '(ว่าง)'} — ต้องเป็น A–Z/0–9 ความยาว 4–24 ตัว`,
+        })
         continue
       }
       const resolvedName = importDisplayName(parsed.name, listCard, resolvedSku)

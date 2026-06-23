@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '~/types/page-meta'
+import { LP_APPLY_PATH } from '~~/shared/utils/lpApplicationContent'
 
 const route = useRoute()
 const pageBreadcrumb = useState<BreadcrumbItem[] | null>('page-breadcrumb', () => null)
 const mobileMenuOpen = ref(false)
 
-const navLinks = [
-  { label: 'หน้าแรก', to: '/' },
-  { label: 'สินค้าทั้งหมด', to: '/products' },
-  { label: 'ลูกค้าองค์กร', to: '/corporate' },
+const navTailLinks = [
   { label: 'ความน่าเชื่อถือ', to: '/trust' },
   { label: 'ติดต่อเรา', to: '/contact' },
 ]
+
+const navItemClass =
+  'whitespace-nowrap rounded-full px-2 py-2 text-sm font-medium transition lg:px-2.5 xl:px-3'
 
 const breadcrumbs = computed(() => {
   if (pageBreadcrumb.value?.length) return pageBreadcrumb.value
@@ -22,7 +23,14 @@ const breadcrumbs = computed(() => {
 function isNavActive(to: string) {
   if (to === '/') return route.path === '/'
   if (to === '/products') return route.path.startsWith('/products')
+  if (to === LP_APPLY_PATH) return route.path.startsWith('/careers')
   return route.path === to || route.path.startsWith(`${to}/`)
+}
+
+function navClass(to: string) {
+  return isNavActive(to)
+    ? 'text-[#ea1917]'
+    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
 }
 
 function closeMobileMenu() {
@@ -44,7 +52,7 @@ onUnmounted(() => {
 
 <template>
   <header class="sticky top-0 z-40 border-b border-gray-200 bg-white">
-    <div class="index-container flex h-16 min-w-0 items-center gap-2 sm:gap-4 lg:h-[4.5rem]">
+    <div class="site-header-container flex h-16 min-w-0 items-center gap-1.5 sm:gap-2 lg:h-[4.5rem]">
       <NuxtLink to="/" class="block shrink-0" aria-label="LG Subscribe หน้าแรก">
         <img
           src="/images/logo.webp"
@@ -56,60 +64,44 @@ onUnmounted(() => {
         >
       </NuxtLink>
 
-      <nav class="hidden flex-1 items-center justify-center gap-1 xl:gap-2 lg:flex" aria-label="เมนูหลัก">
-        <NuxtLink
-          to="/"
-          class="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition xl:px-4"
-          :class="isNavActive('/')
-            ? 'text-[#ea1917]'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"
-        >
+      <nav
+        class="hidden min-w-0 flex-1 items-center justify-center gap-0 lg:flex lg:gap-0.5 xl:gap-1"
+        aria-label="เมนูหลัก"
+      >
+        <NuxtLink to="/" :class="[navItemClass, navClass('/')]">
           หน้าแรก
         </NuxtLink>
-        <NuxtLink
-          to="/products"
-          class="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition xl:px-4"
-          :class="isNavActive('/products')
-            ? 'text-[#ea1917]'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"
-        >
+        <NuxtLink to="/products" :class="[navItemClass, navClass('/products')]">
           สินค้าทั้งหมด
         </NuxtLink>
-        <NuxtLink
-          to="/corporate"
-          class="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition xl:px-4"
-          :class="isNavActive('/corporate')
-            ? 'text-[#ea1917]'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"
-        >
+        <NuxtLink to="/corporate" :class="[navItemClass, navClass('/corporate')]">
           ลูกค้าองค์กร
         </NuxtLink>
-        <NuxtLink
-          to="/trust"
-          class="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition xl:px-4"
-          :class="isNavActive('/trust')
-            ? 'text-[#ea1917]'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"
-        >
+        <NuxtLink to="/trust" :class="[navItemClass, navClass('/trust')]">
           ความน่าเชื่อถือ
         </NuxtLink>
 
         <SiteHeaderArticlesMenu variant="desktop" />
 
         <NuxtLink
-          v-for="link in navLinks.slice(3)"
+          v-for="link in navTailLinks.slice(1)"
           :key="link.to"
           :to="link.to"
-          class="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition xl:px-4"
-          :class="isNavActive(link.to)
-            ? 'text-[#ea1917]'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"
+          :class="[navItemClass, navClass(link.to)]"
         >
           {{ link.label }}
         </NuxtLink>
       </nav>
 
-      <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-2 [&_button]:h-9 [&_button]:w-9 sm:[&_button]:h-10 sm:[&_button]:w-10">
+      <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1.5 [&_button]:h-9 [&_button]:w-9 sm:[&_button]:h-10 sm:[&_button]:w-10">
+        <NuxtLink
+          :to="LP_APPLY_PATH"
+          class="hidden shrink-0 rounded-full bg-[#ea1917] px-4 py-2.5 text-sm font-semibold leading-none text-white shadow-[0_2px_8px_rgba(234,25,23,0.3)] transition hover:bg-[#d01514] lg:inline-flex"
+          :class="isNavActive(LP_APPLY_PATH) ? 'ring-2 ring-[#ea1917]/30 ring-offset-1' : ''"
+        >
+          ร่วมงานกับเรา
+        </NuxtLink>
+
         <SiteHeaderSearch />
 
         <InterestCartButton />
@@ -134,7 +126,7 @@ onUnmounted(() => {
       v-if="breadcrumbs"
       class="border-t border-gray-100"
     >
-      <div class="index-container py-2 text-sm text-gray-600">
+      <div class="site-header-container py-2 text-sm text-gray-600">
         <template v-for="(item, i) in breadcrumbs" :key="`${item.label}-${i}`">
           <NuxtLink v-if="item.to" :to="item.to" class="hover:text-red-600">{{ item.label }}</NuxtLink>
           <span v-else class="text-gray-900">{{ item.label }}</span>
@@ -172,6 +164,13 @@ onUnmounted(() => {
         class="absolute left-0 right-0 top-full z-40 max-h-[calc(100vh-4rem)] overflow-y-auto border-b border-gray-200 bg-white px-4 py-3 shadow-lg lg:hidden"
         aria-label="เมนูมือถือ"
       >
+        <NuxtLink
+          :to="LP_APPLY_PATH"
+          class="mb-2 block rounded-xl bg-[#ea1917] px-4 py-3 text-center text-base font-semibold text-white transition hover:bg-[#d01514]"
+          @click="closeMobileMenu"
+        >
+          ร่วมงานกับเรา
+        </NuxtLink>
         <NuxtLink
           to="/"
           class="block rounded-xl px-4 py-3 text-base font-medium transition"
@@ -216,16 +215,14 @@ onUnmounted(() => {
         <SiteHeaderArticlesMenu variant="mobile" :on-navigate="closeMobileMenu" />
 
         <NuxtLink
-          v-for="link in navLinks.slice(3)"
-          :key="link.to"
-          :to="link.to"
+          to="/contact"
           class="block rounded-xl px-4 py-3 text-base font-medium transition"
-          :class="isNavActive(link.to)
+          :class="isNavActive('/contact')
             ? 'bg-red-50 text-[#ea1917]'
             : 'text-gray-800 hover:bg-gray-50'"
           @click="closeMobileMenu"
         >
-          {{ link.label }}
+          ติดต่อเรา
         </NuxtLink>
       </nav>
     </Transition>

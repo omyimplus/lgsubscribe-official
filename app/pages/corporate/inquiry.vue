@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SubscriptionInquiryInput } from '~~/shared/types/inquiry'
+import SubscribeInquiryForm from '~/components/subscribe/SubscribeInquiryForm.vue'
 
 definePageMeta({
   layout: 'default',

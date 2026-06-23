@@ -54,7 +54,7 @@ onUnmounted(() => {
   >
     <button
       type="button"
-      class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition xl:px-4"
+      class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2 text-sm font-medium transition lg:px-2.5 xl:px-3"
       :class="isActive
         ? 'text-[#ea1917]'
         : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"

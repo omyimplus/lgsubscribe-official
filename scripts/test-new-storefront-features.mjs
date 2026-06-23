@@ -171,7 +171,7 @@ async function testFilesAndRoutes() {
   const required = [
     'supabase/migrations/0047_inquiry_source.sql',
     'supabase/migrations/0048_lp_applications.sql',
-    'app/pages/corporate.vue',
+    'app/pages/corporate/index.vue',
     'app/pages/corporate/inquiry.vue',
     'app/pages/careers/apply.vue',
     'app/pages/admin/lp-applications.vue',
@@ -218,7 +218,9 @@ async function testLiveHttp() {
     assert('GET / returns 200', homeRes.ok)
     assert('Homepage has LP section title', html.includes('สมัครร่วมงานกับเรา'))
     assert('Homepage has corporate section', html.includes('ลูกค้าองค์กรและภาคธุรกิจ'))
-    assert('Homepage LP apply CTA', html.includes('กรอกใบสมัคร LP'))
+    assert('Homepage LP motivational headline', html.includes('มาร่วมงานกับเรา'))
+    assert('Homepage LP apply CTA', html.includes('สมัครเป็นตัวแทน LP') || html.includes('กรอกใบสมัคร LP'))
+    assert('Homepage careers nav text', html.includes('ร่วมงานกับเรา'))
     assert('Homepage corporate apply CTA', html.includes('กรอกข้อมูลสำหรับองค์กร'))
   }
   catch (err) {
@@ -237,7 +239,12 @@ async function testLiveHttp() {
         assert(`${path} no unresolved LpApplicationForm`, !html.includes('Failed to resolve component: LpApplicationForm'))
       }
       if (path === '/corporate/inquiry') {
-        assert(`${path} locked corporate form`, html.includes('นิติบุคคล') || html.includes('กรอกข้อมูลสำหรับองค์กร'))
+        assert(`${path} inquiry page title`, html.includes('กรอกข้อมูลองค์กร'))
+        assert(`${path} corporate form fields`, html.includes('ชื่อบริษัท'))
+        assert(`${path} not corporate landing only`, !html.includes('สนใจสมัคร LG Subscribe สำหรับองค์กร?'))
+      }
+      if (path === '/corporate') {
+        assert(`${path} landing CTA`, html.includes('กรอกข้อมูลสำหรับองค์กร'))
       }
     }
     catch (err) {

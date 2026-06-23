@@ -19,7 +19,7 @@ const inputClass =
 const noticeClass =
   'rounded-lg bg-[#ea1917] px-4 py-3.5 text-sm text-white'
 
-const applicantType = ref<InquiryApplicantType>('individual')
+const applicantType = ref<InquiryApplicantType>(props.lockedApplicantType ?? 'individual')
 const route = useRoute()
 
 const form = reactive({

@@ -8,6 +8,7 @@ const mobileMenuOpen = ref(false)
 const navLinks = [
   { label: 'หน้าแรก', to: '/' },
   { label: 'สินค้าทั้งหมด', to: '/products' },
+  { label: 'ลูกค้าองค์กร', to: '/corporate' },
   { label: 'ความน่าเชื่อถือ', to: '/trust' },
   { label: 'ติดต่อเรา', to: '/contact' },
 ]
@@ -73,6 +74,15 @@ onUnmounted(() => {
             : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"
         >
           สินค้าทั้งหมด
+        </NuxtLink>
+        <NuxtLink
+          to="/corporate"
+          class="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition xl:px-4"
+          :class="isNavActive('/corporate')
+            ? 'text-[#ea1917]'
+            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'"
+        >
+          ลูกค้าองค์กร
         </NuxtLink>
         <NuxtLink
           to="/trust"
@@ -181,6 +191,16 @@ onUnmounted(() => {
           @click="closeMobileMenu"
         >
           สินค้าทั้งหมด
+        </NuxtLink>
+        <NuxtLink
+          to="/corporate"
+          class="block rounded-xl px-4 py-3 text-base font-medium transition"
+          :class="isNavActive('/corporate')
+            ? 'bg-red-50 text-[#ea1917]'
+            : 'text-gray-800 hover:bg-gray-50'"
+          @click="closeMobileMenu"
+        >
+          ลูกค้าองค์กร
         </NuxtLink>
         <NuxtLink
           to="/trust"

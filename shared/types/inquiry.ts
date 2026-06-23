@@ -13,6 +13,8 @@ export type InquiryComboSnapshot = {
 
 export type InquiryStatus = 'new' | 'contacted' | 'closed'
 
+export type InquirySource = 'product_cart' | 'corporate'
+
 export type InquiryApplicantType = 'individual' | 'corporate'
 
 export type InquiryContactProfile = {
@@ -67,6 +69,7 @@ export interface SubscriptionInquiry {
   id: string
   customer_id: string | null
   applicant_type?: InquiryApplicantType
+  inquiry_source?: InquirySource
   contact_profile?: InquiryContactProfile
   contact_name: string
   contact_phone: string
@@ -112,6 +115,8 @@ export interface SubscriptionInquiryInput {
   items?: InquiryCartItemInput[]
   /** ลูกค้าใหม่ / เก่า — ใช้คำนวณ combo ฝั่ง server */
   combo_customer_segment?: ComboCustomerSegment
+  /** แหล่งคำขอ — corporate = ฟอร์มลูกค้าองค์กร (ไม่บังคับมีสินค้า) */
+  inquiry_source?: InquirySource
 }
 
 export interface SubscriptionInquiryCreateResponse {

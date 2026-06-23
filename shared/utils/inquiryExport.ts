@@ -3,6 +3,7 @@ import { comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
 import { formatContactAddress, formatContactDisplayName } from '~~/shared/utils/inquiryForm'
 import { buildLineSummary } from '~~/shared/utils/inquiryLineSummary'
+import { inquirySourceLabel } from '~~/shared/utils/inquirySource'
 import { formatMoneyForExport } from '~~/shared/utils/moneyFormat'
 import { serviceModeLabels } from '~~/shared/utils/planDisplay'
 
@@ -12,6 +13,7 @@ export const INQUIRY_EXPORT_HEADERS = [
   'สร้างเมื่อ',
   'อัปเดตล่าสุด',
   'ประเภทผู้สมัคร',
+  'แหล่งคำขอ',
   'ชื่อ',
   'นามสกุล',
   'ชื่อที่แสดง',
@@ -47,7 +49,7 @@ export const INQUIRY_EXPORT_HEADERS = [
 ] as const
 
 export const INQUIRY_ITEM_EXPORT_HEADERS = [
-  ...INQUIRY_EXPORT_HEADERS.slice(0, 22),
+  ...INQUIRY_EXPORT_HEADERS.slice(0, 23),
   'รายการที่',
   'product_id',
   'plan_id',
@@ -65,7 +67,7 @@ export const INQUIRY_ITEM_EXPORT_HEADERS = [
   'ยอดสัญญา (บาท)',
   'ยอดสุทธิ (บาท)',
   'ช่วงบิล (tiers)',
-  ...INQUIRY_EXPORT_HEADERS.slice(19, 31),
+  ...INQUIRY_EXPORT_HEADERS.slice(20, 32),
   'สรุปข้อความ (Line)',
 ] as const
 
@@ -108,6 +110,7 @@ function inquiryContactFields(row: SubscriptionInquiry) {
   const applicant = row.applicant_type ?? p?.applicant_type ?? 'individual'
   return {
     applicantType: applicant === 'corporate' ? 'นิติบุคคล' : 'บุคคลธรรมดา',
+    inquirySource: inquirySourceLabel(row.inquiry_source),
     firstName: p?.first_name ?? '',
     lastName: p?.last_name ?? '',
     displayName: p ? formatContactDisplayName(p) : row.contact_name,
@@ -203,6 +206,7 @@ export function buildInquiryLineSummary(row: SubscriptionInquiry): string {
       note: c.note,
       profile: row.contact_profile,
       applicant_type: row.applicant_type,
+      inquiry_source: row.inquiry_source,
     },
     row.items ?? [],
     row.combo_snapshot ?? null,
@@ -221,6 +225,7 @@ function inquiryBaseColumns(row: SubscriptionInquiry) {
       formatDateExport(row.created_at),
       formatDateExport(row.updated_at),
       c.applicantType,
+      c.inquirySource,
       c.firstName,
       c.lastName,
       c.displayName,

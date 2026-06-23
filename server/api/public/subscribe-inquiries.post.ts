@@ -15,6 +15,8 @@ import { mapProduct, productSelect } from '~~/server/utils/productDb'
 export default defineEventHandler(async (event) => {
   const body = await readBody<SubscriptionInquiryInput>(event)
 
+  const inquirySource = body.inquiry_source === 'corporate' ? 'corporate' : 'product_cart'
+
   const validated = validateInquiryContactForm({
     applicant_type: body.applicant_type ?? 'individual',
     first_name: body.first_name ?? body.contact_name,
@@ -27,6 +29,9 @@ export default defineEventHandler(async (event) => {
     postal_code: body.postal_code,
     company_name: body.company_name,
     company_registration: body.company_registration,
+    director_first_name: body.director_first_name,
+    director_last_name: body.director_last_name,
+    preferred_contact_time: body.preferred_contact_time,
     security_code: body.security_code,
     security_code_expected: body.security_code_expected,
   })
@@ -36,6 +41,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const contactProfile = validated.profile
+
+  if (inquirySource === 'corporate' && contactProfile.applicant_type !== 'corporate') {
+    throw createError({ statusCode: 400, message: 'ฟอร์มลูกค้าองค์กรต้องเลือกประเภทนิติบุคคล' })
+  }
   const contactName = formatContactDisplayName(contactProfile)
   const contactPhone = contactProfile.contact_phone
 
@@ -60,68 +69,73 @@ export default defineEventHandler(async (event) => {
   }
   const cartItems = [...cartItemsByKey.values()]
 
+  const isCorporateLead = inquirySource === 'corporate'
   const productIds = [...new Set(cartItems.map(i => i.product_id))]
-  if (!productIds.length) {
+  if (!isCorporateLead && !productIds.length) {
     throw createError({ statusCode: 400, message: 'กรุณาเลือกสินค้าอย่างน้อย 1 รายการ' })
   }
 
   const supabase = useSupabaseAdmin()
   const user = await getOptionalAuthUserFromEvent(event)
 
-  const { data: productRows, error: prodErr } = await supabase
-    .from('products')
-    .select(productSelect)
-    .in('id', productIds)
-    .eq('status', 'published')
-    .eq('is_active', true)
+  let items: InquiryItem[] = []
 
-  if (prodErr) throw createError({ statusCode: 500, message: prodErr.message })
+  if (productIds.length) {
+    const { data: productRows, error: prodErr } = await supabase
+      .from('products')
+      .select(productSelect)
+      .in('id', productIds)
+      .eq('status', 'published')
+      .eq('is_active', true)
 
-  const products = (productRows ?? []).map(row => mapProduct(row) as Product)
-  if (products.length !== productIds.length) {
-    throw createError({ statusCode: 400, message: 'มีสินค้าที่เลือกไม่พร้อมแสดงหรือไม่พบในระบบ' })
-  }
+    if (prodErr) throw createError({ statusCode: 500, message: prodErr.message })
 
-  const byId = new Map(products.map(p => [p.id, p]))
-  const defaultSummaries = await fetchDefaultPlanPricingSummaries(supabase, products)
-
-  const items: InquiryItem[] = []
-
-  for (const entry of cartItems) {
-    const product = byId.get(entry.product_id)
-    if (!product) continue
-
-    let planId = entry.plan_id?.trim() || ''
-    if (!planId) {
-      planId = defaultSummaries.get(product.id)?.plan_id ?? ''
+    const products = (productRows ?? []).map(row => mapProduct(row) as Product)
+    if (products.length !== productIds.length) {
+      throw createError({ statusCode: 400, message: 'มีสินค้าที่เลือกไม่พร้อมแสดงหรือไม่พบในระบบ' })
     }
-    if (!planId) {
-      throw createError({
-        statusCode: 400,
-        message: `สินค้า ${product.sku} ยังไม่มีแผนสัญญา — กรุณาติดต่อเจ้าหน้าที่`,
+
+    const byId = new Map(products.map(p => [p.id, p]))
+    const defaultSummaries = await fetchDefaultPlanPricingSummaries(supabase, products)
+
+    for (const entry of cartItems) {
+      const product = byId.get(entry.product_id)
+      if (!product) continue
+
+      let planId = entry.plan_id?.trim() || ''
+      if (!planId) {
+        planId = defaultSummaries.get(product.id)?.plan_id ?? ''
+      }
+      if (!planId) {
+        throw createError({
+          statusCode: 400,
+          message: `สินค้า ${product.sku} ยังไม่มีแผนสัญญา — กรุณาติดต่อเจ้าหน้าที่`,
+        })
+      }
+
+      const plan = await fetchProductPlanById(supabase, product.id, planId)
+      if (!plan?.is_active) {
+        throw createError({
+          statusCode: 400,
+          message: `แผนสัญญาของ ${product.sku} ไม่พร้อมใช้งาน`,
+        })
+      }
+
+      items.push({
+        ...planToInquirySnapshot(product, plan),
+        quantity: entry.quantity,
       })
     }
 
-    const plan = await fetchProductPlanById(supabase, product.id, planId)
-    if (!plan?.is_active) {
-      throw createError({
-        statusCode: 400,
-        message: `แผนสัญญาของ ${product.sku} ไม่พร้อมใช้งาน`,
-      })
+    if (!items.length) {
+      throw createError({ statusCode: 400, message: 'กรุณาเลือกสินค้าอย่างน้อย 1 รายการ' })
     }
-
-    items.push({
-      ...planToInquirySnapshot(product, plan),
-      quantity: entry.quantity,
-    })
-  }
-
-  if (!items.length) {
-    throw createError({ statusCode: 400, message: 'กรุณาเลือกสินค้าอย่างน้อย 1 รายการ' })
   }
 
   const comboSegment = parseComboCustomerSegment(body.combo_customer_segment)
-  const comboSnapshot = await buildInquiryComboSnapshot(supabase, items, comboSegment)
+  const comboSnapshot = items.length
+    ? await buildInquiryComboSnapshot(supabase, items, comboSegment)
+    : null
 
   const contact = {
     name: contactName,
@@ -137,6 +151,7 @@ export default defineEventHandler(async (event) => {
     .insert({
       customer_id: user?.id ?? null,
       applicant_type: contact.applicantType,
+      inquiry_source: inquirySource,
       contact_profile: contact.profile,
       contact_name: contact.name,
       contact_phone: contact.phone,
@@ -159,11 +174,15 @@ export default defineEventHandler(async (event) => {
     note: contact.note,
     profile: contact.profile,
     applicant_type: contact.applicantType,
+    inquiry_source: inquirySource,
   }, items, comboSnapshot)
 
   if (isLineConfigured()) {
+    const pushTitle = inquirySource === 'corporate'
+      ? '🏢 คำขอลูกค้าองค์กรใหม่'
+      : '📩 คำขอสนใจผ่อนใหม่'
     const pushText = [
-      '📩 คำขอสนใจผ่อนใหม่',
+      pushTitle,
       line_summary,
       '',
       `รหัสคำขอ: ${data.id}`,

@@ -25,6 +25,7 @@ const navGroups = [
       { label: 'Tags', icon: 'heroicons:hashtag', to: '/admin/tags' },
       { label: 'ลูกค้า', icon: 'heroicons:user-group', to: '/admin/customers' },
       { label: 'คำขอสนใจผ่อน', icon: 'heroicons:chat-bubble-left-right', to: '/admin/inquiries' },
+      { label: 'ใบสมัคร LP', icon: 'heroicons:briefcase', to: '/admin/lp-applications' },
       { label: 'โปรโมชั่น', icon: 'heroicons:gift', to: '/admin/promotions' },
       { label: 'บทความ', icon: 'heroicons:newspaper', to: '/admin/articles' },
       { label: 'YouTube หน้าแรก', icon: 'heroicons:play-circle', to: '/admin/home-youtube' },

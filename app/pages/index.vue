@@ -66,8 +66,10 @@ const featuredGroups = computed(() => groupProducts(featuredProducts.value ?? []
       :groups="featuredGroups"
       :loading="featuredPending"
     />
+    <CorporateSubscribeSection variant="home" />
     <HomeArticles />
     <HomeExperiences />
+    <HomeLpCareersSection />
     <HomePaymentBanks />
   </main>
 </template>

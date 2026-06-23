@@ -1,4 +1,5 @@
 import type { InquiryApplicantType, InquiryContactProfile } from '~~/shared/types/inquiry'
+import { isPreferredContactTimeOption } from '~~/shared/utils/preferredContactTime'
 
 const THAI_NAME_RE = /^[\u0E00-\u0E7F\s.]+$/
 const PHONE_RE = /^0\d{8,9}$/
@@ -91,6 +92,11 @@ export function validateInquiryContactForm(input: {
     return { ok: false, message: 'กรุณากรอกรหัสไปรษณีย์ 5 หลัก' }
   }
 
+  const preferredRaw = input.preferred_contact_time?.trim() ?? ''
+  if (preferredRaw && !isPreferredContactTimeOption(preferredRaw)) {
+    return { ok: false, message: 'กรุณาเลือกช่วงเวลาที่สะดวกให้ติดต่อกลับ' }
+  }
+
   let company_name: string | undefined
   let company_registration: string | undefined
   let director_first_name: string | undefined
@@ -129,8 +135,8 @@ export function validateInquiryContactForm(input: {
     district,
     province,
     postal_code,
-    ...(input.preferred_contact_time?.trim()
-      ? { preferred_contact_time: input.preferred_contact_time.trim() }
+    ...(preferredRaw
+      ? { preferred_contact_time: preferredRaw }
       : {}),
     ...(applicant_type === 'corporate'
       ? {

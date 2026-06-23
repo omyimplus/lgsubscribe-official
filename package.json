@@ -20,7 +20,9 @@
     "test:lg-card-groups": "tsx scripts/test-lg-import-card-groups.mjs",
     "test:ac-import-names": "npx tsx scripts/test-ac-import-names.mjs",
     "test:lg-multi-variant": "npx tsx scripts/test-lg-multi-variant.mjs",
-    "test:admin-category-label": "node scripts/test-admin-category-delete-label.mjs"
+    "test:admin-category-label": "node scripts/test-admin-category-delete-label.mjs",
+    "test:new-features": "npx tsx --tsconfig .nuxt/tsconfig.shared.json scripts/test-new-storefront-features.mjs",
+    "test:new-features:live": "npx tsx --tsconfig .nuxt/tsconfig.shared.json scripts/test-new-storefront-features.mjs --live"
   },
   "dependencies": {
     "@nuxt/icon": "^2.2.2",

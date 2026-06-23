@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import type { InquiryApplicantType, SubscriptionInquiryInput } from '~~/shared/types/inquiry'
 import { validateInquiryContactForm } from '~~/shared/utils/inquiryForm'
+import { PREFERRED_CONTACT_TIME_OPTIONS } from '~~/shared/utils/preferredContactTime'
 
 const emit = defineEmits<{
   submit: [payload: SubscriptionInquiryInput]
 }>()
 
-defineProps<{
+const props = defineProps<{
   submitting?: boolean
   error?: string
+  lockedApplicantType?: InquiryApplicantType
 }>()
 
 const inputClass =
@@ -18,6 +20,7 @@ const noticeClass =
   'rounded-lg bg-[#ea1917] px-4 py-3.5 text-sm text-white'
 
 const applicantType = ref<InquiryApplicantType>('individual')
+const route = useRoute()
 
 const form = reactive({
   first_name: '',
@@ -47,7 +50,15 @@ function refreshCaptcha() {
   form.security_code = ''
 }
 
-onMounted(() => refreshCaptcha())
+onMounted(() => {
+  refreshCaptcha()
+  if (props.lockedApplicantType) {
+    applicantType.value = props.lockedApplicantType
+  }
+  else if (route.query.applicant === 'corporate') {
+    applicantType.value = 'corporate'
+  }
+})
 
 function buildPayload(): SubscriptionInquiryInput {
   return {
@@ -101,7 +112,7 @@ defineExpose({ setProfileFromName })
       <p class="text-sm font-medium text-gray-800">
         กรุณากรอกข้อมูลเบื้องต้น เพื่อให้แอดมินติดต่อกลับ
       </p>
-      <div class="mt-3 flex flex-wrap gap-4">
+      <div v-if="!lockedApplicantType" class="mt-3 flex flex-wrap gap-4">
         <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-800">
           <input
             v-model="applicantType"
@@ -121,7 +132,7 @@ defineExpose({ setProfileFromName })
           นิติบุคคล (บริษัท)
         </label>
       </div>
-      <hr class="mt-4 border-gray-200">
+      <hr v-if="!lockedApplicantType" class="mt-4 border-gray-200">
     </div>
 
     <div v-if="applicantType === 'individual'" :class="noticeClass">
@@ -317,12 +328,21 @@ defineExpose({ setProfileFromName })
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">เวลาที่สะดวกให้ติดต่อกลับ</label>
-      <input
+      <select
         v-model="form.preferred_contact_time"
-        type="text"
         :class="inputClass"
-        placeholder="เช่น จันทร์–ศุกร์ 10:00–17:00"
       >
+        <option value="">
+          ไม่ระบุ / เลือกภายหลัง
+        </option>
+        <option
+          v-for="slot in PREFERRED_CONTACT_TIME_OPTIONS"
+          :key="slot"
+          :value="slot"
+        >
+          {{ slot }}
+        </option>
+      </select>
     </div>
 
     <div>

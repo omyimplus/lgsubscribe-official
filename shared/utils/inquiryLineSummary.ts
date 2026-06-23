@@ -1,7 +1,8 @@
-import type { InquiryApplicantType, InquiryComboSnapshot, InquiryContactProfile, InquiryItem } from '~~/shared/types/inquiry'
+import type { InquiryApplicantType, InquiryComboSnapshot, InquiryContactProfile, InquiryItem, InquirySource } from '~~/shared/types/inquiry'
 import { getCartItemQuantity, lineAdvanceTotal, lineMonthlyTotal, lineNetTotal } from '~~/shared/utils/cartQuantity'
 import { comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
 import { formatContactAddress } from '~~/shared/utils/inquiryForm'
+import { inquirySourceLabel } from '~~/shared/utils/inquirySource'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
 import { formatBahtPlain } from '~~/shared/utils/moneyFormat'
 import { serviceModeLabels } from '~~/shared/utils/planDisplay'
@@ -18,6 +19,7 @@ export function buildLineSummary(
     note: string
     profile?: InquiryContactProfile
     applicant_type?: InquiryApplicantType
+    inquiry_source?: InquirySource
   },
   items: InquiryItem[],
   combo?: InquiryComboSnapshot | null,
@@ -25,7 +27,10 @@ export function buildLineSummary(
   const profile = contact.profile
   const applicantType = profile?.applicant_type ?? contact.applicant_type ?? 'individual'
   const lines = [
-    'สนใจผ่อน LG Subscribe',
+    contact.inquiry_source === 'corporate'
+      ? 'สอบถาม LG Subscribe — ลูกค้าองค์กร'
+      : 'สนใจผ่อน LG Subscribe',
+    `แหล่ง: ${inquirySourceLabel(contact.inquiry_source)}`,
     applicantType === 'corporate' ? 'ประเภท: นิติบุคคล' : 'ประเภท: บุคคลธรรมดา',
   ]
   if (applicantType === 'corporate' && profile?.company_name) {
@@ -50,7 +55,15 @@ export function buildLineSummary(
     lines.push(`เวลาที่สะดวกให้ติดต่อกลับ: ${profile.preferred_contact_time}`)
   }
   if (contact.lineId) lines.push(`Line: ${contact.lineId}`)
-  lines.push('', 'รายการสินค้า:')
+  if (items.length) {
+    lines.push('', 'รายการสินค้า:')
+  }
+  else if (contact.inquiry_source === 'corporate') {
+    lines.push('', 'รายการสินค้า: ยังไม่ระบุ — รอทีมงานติดต่อกลับ')
+  }
+  else {
+    lines.push('', 'รายการสินค้า:')
+  }
   for (const item of items) {
     const qty = getCartItemQuantity(item)
     const mode = serviceModeLabels[item.service_mode] ?? item.service_mode ?? '—'

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InquiryStatus, SubscriptionInquiry } from '~~/shared/types/inquiry'
 import { comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
+import { inquirySourceLabel } from '~~/shared/utils/inquirySource'
 import {
   buildInquiryItemExportRows,
   buildInquirySummaryExportRows,
@@ -488,6 +489,12 @@ async function exportInquiriesExcel() {
                     {{ applicantLabel(row) }}
                   </span>
                   <span
+                    v-if="row.inquiry_source === 'corporate'"
+                    class="rounded-md bg-violet-50 px-2 py-0.5 font-medium text-violet-700"
+                  >
+                    {{ inquirySourceLabel(row.inquiry_source) }}
+                  </span>
+                  <span
                     v-if="row.customer_id"
                     class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700"
                   >
@@ -498,6 +505,12 @@ async function exportInquiriesExcel() {
                 </div>
 
                 <div class="flex flex-wrap items-start gap-3">
+                  <p
+                    v-if="!(row.items?.length)"
+                    class="rounded-xl border border-dashed border-violet-200 bg-violet-50/60 px-3 py-2 text-xs text-violet-800"
+                  >
+                    ฟอร์มลูกค้าองค์กร — ยังไม่มีรายการสินค้า
+                  </p>
                   <div
                     v-for="item in (row.items ?? []).slice(0, 3)"
                     :key="item.product_id"

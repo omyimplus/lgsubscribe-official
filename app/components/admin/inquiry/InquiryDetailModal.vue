@@ -3,6 +3,7 @@ import type { InquiryContactProfile, InquiryStatus, SubscriptionInquiry } from '
 import { comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
 import { formatContactAddress } from '~~/shared/utils/inquiryForm'
 import { buildLineSummary } from '~~/shared/utils/inquiryLineSummary'
+import { inquirySourceLabel } from '~~/shared/utils/inquirySource'
 
 const open = defineModel<boolean>('open', { default: false })
 
@@ -60,6 +61,7 @@ const lineSummary = computed(() => {
       note: row.contact_note,
       profile: profile.value ?? undefined,
       applicant_type: row.applicant_type,
+      inquiry_source: row.inquiry_source,
     },
     row.items ?? [],
     comboSnapshot.value,
@@ -117,6 +119,12 @@ function saveStatus() {
           </span>
           <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
             {{ applicantLabel(inquiry) }}
+          </span>
+          <span
+            v-if="inquiry.inquiry_source === 'corporate'"
+            class="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-800"
+          >
+            {{ inquirySourceLabel(inquiry.inquiry_source) }}
           </span>
           <span
             v-if="inquiry.combo_customer_segment"

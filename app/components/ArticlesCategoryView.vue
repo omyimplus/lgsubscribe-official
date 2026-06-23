@@ -5,6 +5,8 @@ import {
   HOME_ARTICLES_CATEGORY,
   articleCategoryLabel,
 } from '~~/shared/utils/articleDisplay'
+import { SEO_ARTICLE_CATEGORY } from '~~/shared/utils/siteSeoPresets'
+import { buildItemListJsonLd } from '~~/shared/utils/siteSeoJsonLd'
 
 const props = withDefaults(defineProps<{
   category: ArticleCategory
@@ -31,9 +33,26 @@ const errorMessage = computed(() => {
   return err?.data?.message ?? err?.message ?? 'โหลดบทความไม่สำเร็จ'
 })
 
-useSeoMeta({
-  title: () => `${categoryLabel.value} — LG Subscribe`,
+const siteUrl = useSiteUrl()
+
+useSiteSeoFromPreset(SEO_ARTICLE_CATEGORY[props.category], {
+  title: () => categoryLabel.value,
   description: () => `บทความหมวด${categoryLabel.value} จาก LG Subscribe`,
+  schema: {
+    pageType: 'CollectionPage',
+    breadcrumbs: computed(() => [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'บทความ', path: '/articles' },
+      { name: categoryLabel.value },
+    ]),
+  },
+  jsonLd: computed(() => {
+    const items = (articles.value ?? []).slice(0, 30).map(article => ({
+      name: article.title,
+      url: `${siteUrl.value}/articles/${article.slug}`,
+    }))
+    return items.length ? buildItemListJsonLd(items) : undefined
+  }),
 })
 
 watch(

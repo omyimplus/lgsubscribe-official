@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { SEO_TRUST } from '~~/shared/utils/siteSeoPresets'
+
 definePageMeta({
   layout: 'default',
   breadcrumb: [
@@ -7,9 +9,14 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({
-  title: 'ความน่าเชื่อถือ — LG Subscribe',
-  description: 'การรับประกันและบริการหลังการขาย LG Subscribe',
+useSiteSeoFromPreset(SEO_TRUST, {
+  schema: {
+    pageType: 'AboutPage',
+    breadcrumbs: [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'ความน่าเชื่อถือ' },
+    ],
+  },
 })
 </script>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SubscriptionInquiryInput } from '~~/shared/types/inquiry'
 import SubscribeInquiryForm from '~/components/subscribe/SubscribeInquiryForm.vue'
+import { SEO_CORPORATE_INQUIRY } from '~~/shared/utils/siteSeoPresets'
 
 definePageMeta({
   layout: 'default',
@@ -11,10 +12,7 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({
-  title: 'กรอกข้อมูลองค์กร — LG Subscribe',
-  description: 'ส่งข้อมูลนิติบุคคลเพื่อให้ทีม LG Subscribe ติดต่อกลับ',
-})
+useSiteSeoFromPreset(SEO_CORPORATE_INQUIRY)
 
 const { $supabase } = useNuxtApp()
 const { lineOaUrl } = useLineOa()

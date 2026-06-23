@@ -1,2 +1,9 @@
 User-Agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /auth
+Disallow: /account
+Disallow: /subscribe/inquiry
+Disallow: /corporate/inquiry
+
+Sitemap: /sitemap.xml

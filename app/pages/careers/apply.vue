@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { LpApplicationInput } from '~~/shared/types/lpApplication'
 import { LP_CAREERS_SECTION } from '~~/shared/utils/lpApplicationContent'
+import { SEO_CAREERS } from '~~/shared/utils/siteSeoPresets'
 import LpApplicationForm from '~/components/careers/LpApplicationForm.vue'
 
 definePageMeta({
@@ -11,8 +12,7 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({
-  title: 'สมัคร LP — Lifestyle Planner | LG Subscribe',
+useSiteSeoFromPreset(SEO_CAREERS, {
   description: LP_CAREERS_SECTION.title,
 })
 

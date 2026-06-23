@@ -7,6 +7,10 @@ import {
   productHasPlanPricing,
 } from '~/composables/useProductPlanPricing'
 import { hasRichHtmlContent } from '~~/shared/utils/richHtmlContent'
+import {
+  buildProductJsonLd,
+} from '~~/shared/utils/siteSeoJsonLd'
+import { productKeywords } from '~~/shared/utils/siteSeoPresets'
 
 definePageMeta({ layout: 'default' })
 
@@ -104,8 +108,43 @@ watch(product, (p) => {
   ])
 }, { immediate: true })
 
-useSeoMeta({
+const siteUrl = useSiteUrl()
+
+useSiteSeo({
   title: () => product.value?.name ?? 'สินค้า',
+  description: () => product.value?.headline || product.value?.description || product.value?.name || undefined,
+  keywords: () => product.value
+    ? productKeywords(product.value.name, product.value.category?.name, product.value.sku)
+    : undefined,
+  image: () => product.value?.image_urls?.[0] || product.value?.image_url || undefined,
+  imageAlt: () => product.value?.name,
+  type: 'product',
+  schema: {
+    breadcrumbs: computed(() => {
+      const p = product.value
+      if (!p) return undefined
+      return [
+        { name: 'หน้าแรก', path: '/' },
+        { name: 'สินค้าทั้งหมด', path: '/products' },
+        { name: p.name },
+      ]
+    }),
+  },
+  jsonLd: () => {
+    const p = product.value
+    if (!p) return undefined
+    const monthly = p.plan_pricing?.from_monthly_price ?? p.plan_pricing?.display_monthly_price
+    return buildProductJsonLd({
+      siteUrl: siteUrl.value,
+      path: `/products/${p.id}`,
+      name: p.name,
+      description: p.headline || p.description,
+      image: p.image_urls?.[0] || p.image_url,
+      sku: p.sku,
+      category: p.category?.name,
+      price: monthly ?? null,
+    })
+  },
 })
 
 useEmbeddedVideos(tabPanelRef, activeTabHtml)
@@ -122,6 +161,10 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
               :src="selectedImage || product.image_url || ''"
               class="mx-auto h-auto max-h-[28rem] w-full object-contain"
               :alt="product.name"
+              width="640"
+              height="640"
+              fetchpriority="high"
+              decoding="async"
             >
           </section>
 
@@ -138,6 +181,10 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
                 :src="url"
                 class="h-16 w-16 object-contain"
                 :alt="`${product.name}-${idx + 1}`"
+                width="64"
+                height="64"
+                loading="lazy"
+                decoding="async"
               >
             </button>
           </div>

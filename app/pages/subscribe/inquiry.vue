@@ -12,7 +12,9 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({ title: 'สนใจผ่อน — LG Subscribe' })
+import { SEO_SUBSCRIBE_INQUIRY } from '~~/shared/utils/siteSeoPresets'
+
+useSiteSeoFromPreset(SEO_SUBSCRIBE_INQUIRY)
 
 const cart = useInterestCart()
 const combo = useComboCart()

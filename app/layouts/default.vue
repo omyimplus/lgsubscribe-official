@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const route = useRoute()
 
+const InterestCartPanel = defineAsyncComponent(() => import('~/components/InterestCartPanel.vue'))
+const CustomerAuthDialog = defineAsyncComponent(() => import('~/components/CustomerAuthDialog.vue'))
+const SiteLineQrPromoDialog = defineAsyncComponent(() => import('~/components/SiteLineQrPromoDialog.vue'))
+
 /** Hero ทุกหน้าร้าน ยกเว้น contact (หรือ meta.showHero === false) */
 const showHero = computed(() => {
   if (route.meta.showHero === false) return false

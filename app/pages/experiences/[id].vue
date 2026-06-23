@@ -5,6 +5,7 @@ import {
   customerExperienceImageSrc,
   formatExperienceEventDate,
 } from '~~/shared/utils/customerExperienceDisplay'
+import { SEO_EXPERIENCES } from '~~/shared/utils/siteSeoPresets'
 import { customerExperienceGalleryUrls } from '~~/shared/utils/customerExperienceImages'
 
 const id = useRoute().params.id as string
@@ -43,9 +44,10 @@ watch(
   { immediate: true },
 )
 
-useSeoMeta({
-  title: () => `${pageTitle.value} — LG Subscribe`,
-  description: () => experience.value?.description ?? 'กิจกรรม LG Subscribe Customer Experiences',
+useSiteSeoFromPreset(SEO_EXPERIENCES, {
+  title: () => pageTitle.value,
+  description: () => experience.value?.description ?? SEO_EXPERIENCES.description,
+  image: () => experience.value?.image_url ?? undefined,
 })
 </script>
 

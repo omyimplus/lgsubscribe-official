@@ -22,7 +22,9 @@
     "test:lg-multi-variant": "npx tsx scripts/test-lg-multi-variant.mjs",
     "test:admin-category-label": "node scripts/test-admin-category-delete-label.mjs",
     "test:new-features": "npx tsx --tsconfig .nuxt/tsconfig.shared.json scripts/test-new-storefront-features.mjs",
-    "test:new-features:live": "npx tsx --tsconfig .nuxt/tsconfig.shared.json scripts/test-new-storefront-features.mjs --live"
+    "test:new-features:live": "npx tsx --tsconfig .nuxt/tsconfig.shared.json scripts/test-new-storefront-features.mjs --live",
+    "test:storefront-regression": "node scripts/test-storefront-regression.mjs",
+    "generate:favicons": "node scripts/generate-favicons.mjs"
   },
   "dependencies": {
     "@nuxt/icon": "^2.2.2",
@@ -45,6 +47,7 @@
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.6",
-    "@types/ws": "^8.18.1"
+    "@types/ws": "^8.18.1",
+    "to-ico": "^1.1.5"
   }
 }

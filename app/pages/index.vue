@@ -3,12 +3,17 @@ import type { HomeCategoryCard } from '~~/shared/types/homeCategory'
 import type { Product } from '~~/shared/types/product'
 import type { Promotion } from '~~/shared/types/promotion'
 import { groupProducts } from '~~/shared/utils/productGroupDisplay'
+import { buildServiceJsonLd, buildWebSiteJsonLd, mergeJsonLd } from '~~/shared/utils/siteSeoJsonLd'
+import { SEO_HOME } from '~~/shared/utils/siteSeoPresets'
 
 definePageMeta({ layout: 'default' })
 
-useSeoMeta({
-  title: 'LG Subscribe — เป็นเจ้าของ LG ง่ายกว่าใคร',
-  description: 'เริ่มต้นเพียงหลักร้อย จ่ายง่ายผ่อนสบาย สมัครใช้เครื่องใช้ไฟฟ้า LG แบบรายเดือน',
+const siteUrl = useSiteUrl()
+useSiteSeoFromPreset(SEO_HOME, {
+  jsonLd: computed(() => mergeJsonLd(
+    buildWebSiteJsonLd(siteUrl.value),
+    buildServiceJsonLd(siteUrl.value),
+  )),
 })
 
 const HOME_CATEGORIES_KEY = 'public-home-categories'

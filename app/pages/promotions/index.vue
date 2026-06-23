@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Promotion } from '~~/shared/types/promotion'
 import { promotionBannerSrc } from '~~/shared/utils/promotionDisplay'
+import { SEO_PROMOTIONS } from '~~/shared/utils/siteSeoPresets'
 
 definePageMeta({
   layout: 'default',
@@ -10,7 +11,7 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({ title: 'โปรโมชั่น — LG Subscribe' })
+useSiteSeoFromPreset(SEO_PROMOTIONS)
 
 type PromotionRow = Promotion & { product_count: number }
 

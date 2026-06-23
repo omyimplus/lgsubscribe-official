@@ -32,5 +32,5 @@ export type SiteSocialLink = {
 
 export const SITE_SOCIAL_LINKS: SiteSocialLink[] = [
   { label: 'Facebook', href: SITE_FACEBOOK_URL, icon: 'mdi:facebook' },
-  { label: 'TikTok', href: SITE_TIKTOK_URL, icon: 'mdi:tiktok' },
+  { label: 'TikTok', href: SITE_TIKTOK_URL, icon: 'simple-icons:tiktok' },
 ]

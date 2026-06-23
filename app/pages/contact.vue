@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { SEO_CONTACT } from '~~/shared/utils/siteSeoPresets'
+import { buildLocalBusinessJsonLd } from '~~/shared/utils/siteSeoJsonLd'
+
 definePageMeta({
   layout: 'default',
   showHero: false,
@@ -49,8 +52,17 @@ const quickLinks = [
   },
 ]
 
-useSeoMeta({
-  title: 'ติดต่อเรา — LG Subscribe',
+const siteUrl = useSiteUrl()
+
+useSiteSeoFromPreset(SEO_CONTACT, {
+  schema: {
+    pageType: 'ContactPage',
+    breadcrumbs: [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'ติดต่อเรา' },
+    ],
+  },
+  jsonLd: computed(() => buildLocalBusinessJsonLd(siteUrl.value)),
   description: () =>
     `ติดต่อ LG Subscribe — โทร ${phonesDisplay} หรือ Line ${lineOaIdDisplay.value} ${businessHours}`,
 })
@@ -289,7 +301,7 @@ useSeoMeta({
               class="group flex h-full items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_14px_rgba(0,0,0,0.06)] transition hover:border-[#ea1917]/25 hover:shadow-[0_6px_24px_rgba(234,25,23,0.1)]"
             >
               <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-900/10 text-gray-900">
-                <Icon name="mdi:tiktok" class="h-6 w-6" />
+                <Icon name="simple-icons:tiktok" class="h-6 w-6" />
               </div>
               <div>
                 <p class="font-semibold text-gray-900 group-hover:text-[#ea1917]">TikTok</p>

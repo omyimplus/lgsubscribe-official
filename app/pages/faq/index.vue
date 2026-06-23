@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { FaqItem } from '~~/shared/types/faqItem'
 
+import { SEO_FAQ } from '~~/shared/utils/siteSeoPresets'
+import { buildFaqPageJsonLd } from '~~/shared/utils/siteSeoJsonLd'
+
 definePageMeta({ layout: 'default' })
 
 const { set: setBreadcrumb } = usePageBreadcrumb()
@@ -10,9 +13,23 @@ const { data: items, pending, error } = await useFetch<FaqItem[]>('/api/public/f
   default: () => [],
 })
 
-useSeoMeta({
-  title: 'FAQ — LG Subscribe',
-  description: 'คำถามที่พบบ่อยเกี่ยวกับ LG Subscribe',
+useSiteSeoFromPreset(SEO_FAQ, {
+  schema: {
+    pageType: 'FAQPage',
+    skipWebPage: true,
+    breadcrumbs: [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'FAQ' },
+    ],
+  },
+  jsonLd: computed(() => {
+    const list = items.value ?? []
+    if (!list.length) return undefined
+    return buildFaqPageJsonLd(list.map(item => ({
+      question: item.tab_title,
+      answer: (item.body_html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || item.tab_title,
+    })))
+  }),
 })
 
 setBreadcrumb([

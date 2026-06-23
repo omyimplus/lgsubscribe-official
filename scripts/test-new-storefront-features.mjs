@@ -173,6 +173,11 @@ async function testFilesAndRoutes() {
     'supabase/migrations/0048_lp_applications.sql',
     'app/pages/corporate/index.vue',
     'app/pages/corporate/inquiry.vue',
+    'app/composables/useSiteSeo.ts',
+    'shared/utils/siteSeoPresets.ts',
+    'shared/utils/siteSeoJsonLd.ts',
+    'app/plugins/site-seo-global.ts',
+    'server/routes/sitemap.xml.get.ts',
     'app/pages/careers/apply.vue',
     'app/pages/admin/lp-applications.vue',
     'app/components/corporate/CorporateSubscribeSection.vue',
@@ -222,6 +227,13 @@ async function testLiveHttp() {
     assert('Homepage LP apply CTA', html.includes('สมัครเป็นตัวแทน LP') || html.includes('กรอกใบสมัคร LP'))
     assert('Homepage careers nav text', html.includes('ร่วมงานกับเรา'))
     assert('Homepage corporate apply CTA', html.includes('กรอกข้อมูลสำหรับองค์กร'))
+    assert('Homepage html lang th', html.includes('lang="th"'))
+    assert('Homepage og:title', html.includes('og:title') || html.includes('property="og:title"'))
+    assert('Homepage canonical link', html.includes('rel="canonical"'))
+    assert('Homepage meta keywords', html.includes('name="keywords"') || html.includes('keywords'))
+    assert('Homepage JSON-LD', html.includes('application/ld+json'))
+    assert('Homepage favicon 32', html.includes('/favicon-32x32.png'))
+    assert('Homepage apple-touch-icon', html.includes('/apple-touch-icon.png'))
   }
   catch (err) {
     fail('GET /', err instanceof Error ? err.message : String(err))
@@ -250,6 +262,22 @@ async function testLiveHttp() {
     catch (err) {
       fail(`GET ${path}`, err instanceof Error ? err.message : String(err))
     }
+  }
+
+  try {
+    const robots = await fetch(`${BASE}/robots.txt`)
+    const robotsText = await robots.text()
+    assert('GET /robots.txt returns 200', robots.ok)
+    assert('robots disallows admin', robotsText.includes('Disallow: /admin'))
+    assert('robots has sitemap', robotsText.includes('Sitemap:'))
+
+    const sitemap = await fetch(`${BASE}/sitemap.xml`)
+    const sitemapXml = await sitemap.text()
+    assert('GET /sitemap.xml returns 200', sitemap.ok)
+    assert('sitemap has homepage', sitemapXml.includes('<loc>') && sitemapXml.includes('/products'))
+  }
+  catch (err) {
+    fail('SEO routes', err instanceof Error ? err.message : String(err))
   }
 
   // API validation-only (no DB write)

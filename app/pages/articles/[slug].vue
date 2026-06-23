@@ -6,6 +6,10 @@ import {
   articleCoverSrc,
   isArticleCategorySlug,
 } from '~~/shared/utils/articleDisplay'
+import {
+  buildArticleJsonLd,
+} from '~~/shared/utils/siteSeoJsonLd'
+import { articleKeywords } from '~~/shared/utils/siteSeoPresets'
 
 definePageMeta({ layout: 'default' })
 
@@ -27,9 +31,50 @@ const { data: article, pending, error } = await useFetch<Article>(
 
 useEmbeddedVideos(bodyRef, () => article.value?.body_html)
 
-useSeoMeta({
-  title: () => article.value?.title ? `${article.value.title} — LG Subscribe` : 'บทความ — LG Subscribe',
+const siteUrl = useSiteUrl()
+
+useSiteSeo({
+  title: () => article.value?.title ?? 'บทความ',
   description: () => article.value?.excerpt ?? undefined,
+  keywords: () => article.value
+    ? articleKeywords(article.value.title, articleCategoryLabel(article.value.category))
+    : undefined,
+  image: () => article.value?.cover_image_url
+    ? articleCoverSrc(article.value.cover_image_url, article.value.updated_at)
+    : undefined,
+  imageAlt: () => article.value?.title,
+  type: 'article',
+  schema: {
+    breadcrumbs: computed(() => {
+      const a = article.value
+      if (!a) return undefined
+      return [
+        { name: 'หน้าแรก', path: '/' },
+        { name: 'บทความ', path: '/articles' },
+        { name: a.title },
+      ]
+    }),
+  },
+  article: {
+    publishedTime: () => article.value?.published_at ?? article.value?.created_at,
+    modifiedTime: () => article.value?.updated_at,
+    section: () => article.value ? articleCategoryLabel(article.value.category) : undefined,
+    tags: () => article.value ? [articleCategoryLabel(article.value.category)] : undefined,
+  },
+  jsonLd: () => {
+    const a = article.value
+    if (!a) return undefined
+    return buildArticleJsonLd({
+      siteUrl: siteUrl.value,
+      path: `/articles/${a.slug}`,
+      headline: a.title,
+      description: a.excerpt,
+      image: a.cover_image_url ? articleCoverSrc(a.cover_image_url, a.updated_at) : null,
+      datePublished: a.published_at ?? a.created_at,
+      dateModified: a.updated_at,
+      section: articleCategoryLabel(a.category),
+    })
+  },
 })
 
 watch(

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { SEO_INSTALLMENT } from '~~/shared/utils/siteSeoPresets'
+
 definePageMeta({
   layout: 'default',
   breadcrumb: [
@@ -7,9 +9,13 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({
-  title: 'เงื่อนไขการผ่อน — LG Subscribe',
-  description: 'ผ่อนสบายรายเดือนกับ LG Subscribe เริ่มต้นเพียงหลักร้อย',
+useSiteSeoFromPreset(SEO_INSTALLMENT, {
+  schema: {
+    breadcrumbs: [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'เงื่อนไขการผ่อน' },
+    ],
+  },
 })
 </script>
 

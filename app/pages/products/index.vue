@@ -3,6 +3,8 @@ import type { Product } from '~~/shared/types/product'
 import ProductListingFilterDrawer from '~/components/products/ProductListingFilterDrawer.vue'
 import ProductListingPagination from '~/components/products/ProductListingPagination.vue'
 import ProductListingSidebar from '~/components/products/ProductListingSidebar.vue'
+import { SEO_PRODUCTS } from '~~/shared/utils/siteSeoPresets'
+import { buildItemListJsonLd } from '~~/shared/utils/siteSeoJsonLd'
 
 definePageMeta({
   layout: 'default',
@@ -12,13 +14,28 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({
-  title: 'สินค้าทั้งหมด — LG Subscribe',
-})
+const siteUrl = useSiteUrl()
 
 const { data: products, pending, error } = await useFetch<Product[]>('/api/public/products', {
   key: 'public-products-list',
   default: () => [],
+})
+
+useSiteSeoFromPreset(SEO_PRODUCTS, {
+  schema: {
+    pageType: 'CollectionPage',
+    breadcrumbs: [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'สินค้าทั้งหมด' },
+    ],
+  },
+  jsonLd: computed(() => {
+    const items = (products.value ?? []).slice(0, 30).map(product => ({
+      name: product.name,
+      url: `${siteUrl.value}/products/${product.id}`,
+    }))
+    return items.length ? buildItemListJsonLd(items) : undefined
+  }),
 })
 
 const productsRef = computed(() => products.value)

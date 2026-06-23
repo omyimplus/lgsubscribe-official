@@ -2,6 +2,7 @@
 import type { PromotionWithProducts } from '~~/shared/types/promotion'
 import type { ProductDisplayGroup } from '~~/shared/utils/productGroupDisplay'
 import { promotionBannerSrc } from '~~/shared/utils/promotionDisplay'
+import { promotionKeywords } from '~~/shared/utils/siteSeoPresets'
 
 definePageMeta({ layout: 'default' })
 
@@ -16,8 +17,14 @@ const { data: promotion, pending, error } = await useFetch<PromotionPage>(
   { key: `promotion-public-${slug}` },
 )
 
-useSeoMeta({
-  title: () => promotion.value?.title ? `${promotion.value.title} — LG Subscribe` : 'โปรโมชั่น — LG Subscribe',
+useSiteSeo({
+  title: () => promotion.value?.title ?? 'โปรโมชั่น',
+  description: () => promotion.value?.description || promotion.value?.headline || undefined,
+  keywords: () => promotion.value ? promotionKeywords(promotion.value.title) : undefined,
+  image: () => promotion.value?.image_url
+    ? promotionBannerSrc(promotion.value.image_url, promotion.value.updated_at)
+    : undefined,
+  imageAlt: () => promotion.value?.title,
 })
 
 watch(
@@ -46,6 +53,10 @@ watch(
             :src="promotionBannerSrc(promotion.image_url, promotion.updated_at)"
             :alt="promotion.title"
             class="max-h-72 w-full object-cover"
+            width="1200"
+            height="288"
+            loading="lazy"
+            decoding="async"
           >
         </div>
 

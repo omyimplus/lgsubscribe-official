@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { ARTICLE_SECTION_NAV } from '~~/shared/utils/articleDisplay'
+import type { ArticleListItem } from '~~/shared/types/article'
+
+import { SEO_ARTICLES } from '~~/shared/utils/siteSeoPresets'
+import { buildItemListJsonLd } from '~~/shared/utils/siteSeoJsonLd'
 
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
+const siteUrl = useSiteUrl()
 const { set: setBreadcrumb } = usePageBreadcrumb()
+
+const { data: articles } = await useFetch<ArticleListItem[]>('/api/public/articles', {
+  key: 'public-articles-all',
+  default: () => [],
+})
 
 const categoryQuery = computed(() => {
   const c = route.query.category
@@ -28,9 +38,21 @@ onMounted(() => {
   if (target) navigateTo(target.to, { replace: true })
 })
 
-useSeoMeta({
-  title: 'บทความ — LG Subscribe',
-  description: 'ทำไมต้อง LG Subscribe วิธีสั่งซื้อ สาระน่ารู้ และ FAQ',
+useSiteSeoFromPreset(SEO_ARTICLES, {
+  schema: {
+    pageType: 'CollectionPage',
+    breadcrumbs: [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'บทความ' },
+    ],
+  },
+  jsonLd: computed(() => {
+    const items = (articles.value ?? []).slice(0, 30).map(article => ({
+      name: article.title,
+      url: `${siteUrl.value}/articles/${article.slug}`,
+    }))
+    return items.length ? buildItemListJsonLd(items) : undefined
+  }),
 })
 
 setBreadcrumb([

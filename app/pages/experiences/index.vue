@@ -4,6 +4,7 @@ import {
   EXPERIENCES_PAGE_PATH,
   HOME_EXPERIENCES_SECTION_TITLE,
 } from '~~/shared/utils/customerExperienceDisplay'
+import { SEO_EXPERIENCES } from '~~/shared/utils/siteSeoPresets'
 
 definePageMeta({
   layout: 'default',
@@ -13,9 +14,8 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({
-  title: `${HOME_EXPERIENCES_SECTION_TITLE} — LG Subscribe`,
-  description: 'ภาพบรรยากาศและกิจกรรม LG Subscribe — งานอีเวนต์และประสบการณ์ลูกค้า',
+useSiteSeoFromPreset(SEO_EXPERIENCES, {
+  title: HOME_EXPERIENCES_SECTION_TITLE,
 })
 
 const { data: experiences, pending, error } = await useFetch<CustomerExperiencePublic[]>(

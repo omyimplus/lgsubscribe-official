@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { CORPORATE_INQUIRY_PATH, CORPORATE_SECTION } from '~~/shared/utils/corporateSection'
+import { SEO_CORPORATE } from '~~/shared/utils/siteSeoPresets'
+import { buildServiceJsonLd } from '~~/shared/utils/siteSeoJsonLd'
 
 definePageMeta({
   layout: 'default',
@@ -9,9 +11,21 @@ definePageMeta({
   ],
 })
 
-useSeoMeta({
-  title: 'ลูกค้าองค์กร — LG Subscribe',
-  description: `${CORPORATE_SECTION.subtitle} — ${CORPORATE_SECTION.intro}`,
+const siteUrl = useSiteUrl()
+
+useSiteSeoFromPreset(SEO_CORPORATE, {
+  schema: {
+    breadcrumbs: [
+      { name: 'หน้าแรก', path: '/' },
+      { name: 'ลูกค้าองค์กร' },
+    ],
+  },
+  jsonLd: computed(() => buildServiceJsonLd(siteUrl.value, {
+    path: '/corporate',
+    name: 'LG Subscribe สำหรับลูกค้าองค์กร',
+    description: SEO_CORPORATE.description,
+    audience: 'Business',
+  })),
 })
 </script>
 

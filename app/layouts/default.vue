@@ -4,6 +4,7 @@ const route = useRoute()
 const InterestCartPanel = defineAsyncComponent(() => import('~/components/InterestCartPanel.vue'))
 const CustomerAuthDialog = defineAsyncComponent(() => import('~/components/CustomerAuthDialog.vue'))
 const SiteLineQrPromoDialog = defineAsyncComponent(() => import('~/components/SiteLineQrPromoDialog.vue'))
+const SiteCookieConsent = defineAsyncComponent(() => import('~/components/SiteCookieConsent.vue'))
 
 /** Hero ทุกหน้าร้าน ยกเว้น contact (หรือ meta.showHero === false) */
 const showHero = computed(() => {
@@ -22,5 +23,6 @@ const showHero = computed(() => {
     <InterestCartPanel />
     <CustomerAuthDialog />
     <SiteLineQrPromoDialog />
+    <SiteCookieConsent />
   </div>
 </template>

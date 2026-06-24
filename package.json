@@ -27,6 +27,7 @@
     "generate:favicons": "node scripts/generate-favicons.mjs"
   },
   "dependencies": {
+    "@fontsource/prompt": "^5.2.8",
     "@nuxt/icon": "^2.2.2",
     "@supabase/supabase-js": "^2.106.2",
     "@tailwindcss/vite": "^4.3.0",
@@ -46,6 +47,9 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@iconify-json/heroicons": "^1.2.3",
+    "@iconify-json/mdi": "^1.2.3",
+    "@iconify-json/simple-icons": "^1.2.87",
     "@types/qrcode": "^1.5.6",
     "@types/ws": "^8.18.1",
     "to-ico": "^1.1.5"

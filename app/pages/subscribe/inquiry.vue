@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { CustomerProfile } from '~~/shared/types/customer'
 import type { InquiryItem, SubscriptionInquiryInput } from '~~/shared/types/inquiry'
 import { lineAdvanceTotal, lineMonthlyTotal, lineUnitMonthlyPrice } from '~~/shared/utils/cartQuantity'
-import type SubscribeInquiryForm from '~/components/subscribe/SubscribeInquiryForm.vue'
 
 definePageMeta({
   layout: 'default',
@@ -22,8 +20,6 @@ const comboQuote = computed(() =>
   cart.count.value > 0 ? combo.quote.value : null,
 )
 const { $supabase } = useNuxtApp()
-const inquiryFormRef = ref<InstanceType<typeof SubscribeInquiryForm> | null>(null)
-const loadingProfile = ref(true)
 const submitting = ref(false)
 const error = ref('')
 const success = ref<{ id: string, line_summary: string } | null>(null)
@@ -39,31 +35,8 @@ function openItemDetail(item: InquiryItem) {
 const { lineOaUrl } = useLineOa()
 const cartReady = ref(false)
 
-onMounted(async () => {
+onMounted(() => {
   cartReady.value = true
-  if (!cart.items.value.length) {
-    loadingProfile.value = false
-    return
-  }
-
-  try {
-    const { data: { session } } = await $supabase.auth.getSession()
-    if (!session?.access_token) {
-      loadingProfile.value = false
-      return
-    }
-
-    const profile = await $fetch<CustomerProfile>('/api/me/profile', {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    })
-    inquiryFormRef.value?.setProfileFromName(profile.full_name || '', profile.phone || undefined)
-  }
-  catch {
-    /* guest หรือ session หมดอายุ */
-  }
-  finally {
-    loadingProfile.value = false
-  }
 })
 
 async function handleFormSubmit(payload: SubscriptionInquiryInput) {
@@ -243,9 +216,7 @@ async function copySummary() {
         </section>
 
         <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <div v-if="loadingProfile" class="mb-4 text-sm text-gray-400">กำลังโหลดข้อมูลบัญชี...</div>
           <SubscribeInquiryForm
-            ref="inquiryFormRef"
             :submitting="submitting"
             :error="error"
             @submit="handleFormSubmit"

@@ -41,8 +41,8 @@ function emptyTier(): PlanBillingTierInput {
 function emptyForm(): CreatePlanInput {
   return {
     policy_code: null,
-    contract_years: 2,
-    contract_months: 24,
+    contract_years: 5,
+    contract_months: 60,
     service_mode: 'visit',
     service_interval_months: 6,
     sale_type: 'subscription',

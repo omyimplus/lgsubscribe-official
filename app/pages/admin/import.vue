@@ -94,7 +94,7 @@ onMounted(async () => {
   catch {
     importSources.value = [{
       lgSlug: 'tvs',
-      label: 'โทรทัศน์',
+      label: 'ทีวี',
       categorySlug: 'television',
       listUrl: '',
       variantAxis: 'screen_inches',

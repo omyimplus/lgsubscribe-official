@@ -16,10 +16,12 @@ const {
   phonesDisplay,
   businessHours,
   officeAddress,
+  officeCompanyName,
   lineOaUrl,
   lineOaIdDisplay,
   lineQrImage,
   facebookUrl,
+  facebookHandle,
   tiktokUrl,
   tiktokHandle,
 } = useSiteContact()
@@ -259,7 +261,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
             </div>
             <div class="min-w-0 flex-1">
               <h2 class="text-lg font-bold text-gray-900 sm:text-xl">
-                ที่อยู่
+                {{ officeCompanyName }}
               </h2>
               <p class="mt-3 text-sm leading-relaxed text-gray-700 sm:text-base">
                 {{ officeAddress }}
@@ -289,7 +291,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
               </div>
               <div>
                 <p class="font-semibold text-gray-900 group-hover:text-[#ea1917]">Facebook</p>
-                <p class="text-sm text-gray-600">SubscribeDGua</p>
+                <p class="text-sm text-gray-600">{{ facebookHandle }}</p>
               </div>
             </a>
           </li>
@@ -301,7 +303,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
               class="group flex h-full items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_14px_rgba(0,0,0,0.06)] transition hover:border-[#ea1917]/25 hover:shadow-[0_6px_24px_rgba(234,25,23,0.1)]"
             >
               <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-900/10 text-gray-900">
-                <Icon name="simple-icons:tiktok" class="h-6 w-6" />
+                <SiteTiktokIcon class="h-6 w-6" />
               </div>
               <div>
                 <p class="font-semibold text-gray-900 group-hover:text-[#ea1917]">TikTok</p>
@@ -368,7 +370,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
         </NuxtLink>
         หรือ
         <NuxtLink to="/installment" class="font-medium text-[#ea1917] hover:underline">
-          เงื่อนไขการผ่อน
+          ข้อกำหนดและเงื่อนไขให้บริการ
         </NuxtLink>
       </p>
     </main>

@@ -6,12 +6,13 @@ const {
   lineOaIdDisplay,
   socialLinks,
   facebookUrl,
+  facebookHandle,
   tiktokUrl,
   tiktokHandle,
 } = useSiteContact()
 
 const productLinks = [
-  { label: 'โทรทัศน์', to: '/products?category=television' },
+  { label: 'ทีวี', to: '/products?category=television' },
   { label: 'เครื่องปรับอากาศ', to: '/products?category=air-conditioner' },
   { label: 'เครื่องซักผ้า', to: '/products?category=washing-machine' },
   { label: 'เครื่องอบผ้า', to: '/products?category=dryer' },
@@ -22,10 +23,9 @@ const productLinks = [
 
 const helpLinks = [
   { label: 'คำถามที่พบบ่อย', to: '/faq' },
-  { label: 'เงื่อนไขการผ่อน', to: '/installment' },
-  { label: 'การรับประกัน', to: '/trust' },
+  { label: 'ข้อกำหนดและเงื่อนไขให้บริการ', to: '/installment' },
   { label: 'ติดต่อเรา', to: '/contact' },
-  { label: 'นโยบายความเป็นส่วนตัว', to: '/contact' },
+  { label: 'นโยบายความเป็นส่วนตัว', to: '/privacy' },
 ]
 </script>
 
@@ -56,7 +56,8 @@ const helpLinks = [
               class="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-gray-400 hover:text-gray-900"
               :aria-label="s.label"
             >
-              <Icon :name="s.icon" class="h-5 w-5" />
+              <SiteTiktokIcon v-if="s.icon === 'site-tiktok'" class="h-5 w-5" />
+              <Icon v-else :name="s.icon" class="h-5 w-5" />
             </a>
           </div>
         </div>
@@ -125,7 +126,7 @@ const helpLinks = [
                   rel="noopener noreferrer"
                   class="font-medium text-gray-900 hover:text-[#ea1917] hover:underline"
                 >
-                  Facebook
+                  Facebook {{ facebookHandle }}
                 </a>
               </li>
               <li>

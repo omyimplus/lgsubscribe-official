@@ -9,6 +9,12 @@ const session = useCustomerSession()
 const { openAuthDialog } = useCustomerAuthDialog()
 const menuOpen = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
+/** รอ mount ก่อนแสดงสถานะ auth — ให้ตรง SSR (skeleton) ตอน hydrate */
+const clientReady = ref(false)
+
+onMounted(() => {
+  clientReady.value = true
+})
 
 function closeMenu() {
   menuOpen.value = false
@@ -43,7 +49,7 @@ async function handleSignOut() {
 
 <template>
   <div
-    v-if="!session.ready.value"
+    v-if="!clientReady || !session.ready.value"
     class="animate-pulse rounded-full bg-gray-100"
     :class="compact ? 'h-10 w-10' : 'h-9 w-16 sm:w-20'"
   />
@@ -83,29 +89,29 @@ async function handleSignOut() {
       >
         <div
           v-if="menuOpen"
-          class="absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+          class="absolute right-0 z-50 mt-2 min-w-[13rem] w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
         >
-          <div class="border-b border-gray-100 px-4 py-2.5">
+          <div class="border-b border-gray-100 px-4 py-3">
             <p class="truncate text-sm font-semibold text-gray-900">{{ session.displayName.value }}</p>
-            <p v-if="session.user.value?.email" class="truncate text-xs text-gray-500">
+            <p v-if="session.user.value?.email" class="mt-0.5 truncate text-xs text-gray-500">
               {{ session.user.value.email }}
             </p>
           </div>
           <NuxtLink
             to="/account"
-            class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+            class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-gray-50"
             @click="closeMenu"
           >
-            <Icon name="heroicons:user-circle" class="h-4 w-4 text-gray-400" />
-            บัญชีของฉัน
+            <Icon name="heroicons:user-circle" class="h-4 w-4 shrink-0 text-gray-400" />
+            <span class="whitespace-nowrap">บัญชีของฉัน</span>
           </NuxtLink>
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
+            class="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
             @click="handleSignOut"
           >
-            <Icon name="heroicons:arrow-left-on-rectangle" class="h-4 w-4" />
-            ออกจากระบบ
+            <Icon name="heroicons:arrow-left-on-rectangle" class="h-4 w-4 shrink-0" />
+            <span class="whitespace-nowrap">ออกจากระบบ</span>
           </button>
         </div>
       </Transition>

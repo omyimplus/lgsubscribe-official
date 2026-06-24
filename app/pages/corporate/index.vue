@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { CORPORATE_INQUIRY_PATH, CORPORATE_SECTION } from '~~/shared/utils/corporateSection'
+import {
+  CORPORATE_LINE_CTA_LABEL,
+} from '~~/shared/utils/corporateSection'
 import { SEO_CORPORATE } from '~~/shared/utils/siteSeoPresets'
 import { buildServiceJsonLd } from '~~/shared/utils/siteSeoJsonLd'
 
@@ -11,6 +13,7 @@ definePageMeta({
   ],
 })
 
+const { lineOaUrl } = useSiteContact()
 const siteUrl = useSiteUrl()
 
 useSiteSeoFromPreset(SEO_CORPORATE, {
@@ -40,15 +43,19 @@ useSiteSeoFromPreset(SEO_CORPORATE, {
             สนใจสมัคร LG Subscribe สำหรับองค์กร?
           </h2>
           <p class="mt-3 text-sm leading-relaxed text-gray-600 sm:text-base">
-            กรอกแบบฟอร์มสนใจผ่อนแบบนิติบุคคล ทีมงานจะติดต่อกลับเพื่อให้คำปรึกษาแผนรายเดือนที่เหมาะกับธุรกิจของคุณ
+            แอด Line Official แล้วแจ้งชื่อบริษัทและความต้องการ ทีมงานจะติดต่อกลับเพื่อให้คำปรึกษาแผนรายเดือนที่เหมาะกับธุรกิจของคุณ
           </p>
           <div class="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <NuxtLink
-              :to="CORPORATE_INQUIRY_PATH"
-              class="inline-flex items-center justify-center rounded-full bg-[#ea1917] px-6 py-3 text-sm font-semibold text-white shadow-[0_2px_10px_rgba(234,25,23,0.35)] transition hover:bg-[#d01514]"
+            <a
+              v-if="lineOaUrl"
+              :href="lineOaUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-[#06C755] px-6 py-3 text-sm font-semibold text-white shadow-[0_2px_10px_rgba(6,199,85,0.35)] transition hover:bg-[#05b34c]"
             >
-              กรอกข้อมูลสำหรับองค์กร
-            </NuxtLink>
+              <Icon name="mdi:chat" class="h-5 w-5" />
+              {{ CORPORATE_LINE_CTA_LABEL }}
+            </a>
             <NuxtLink
               to="/contact"
               class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-800 transition hover:border-gray-300 hover:bg-gray-50"

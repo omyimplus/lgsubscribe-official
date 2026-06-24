@@ -48,7 +48,7 @@ export function subscriptionListPageUrl(listUrl: string, pageIndex: number) {
 
 export const LG_SUBSCRIPTION_SOURCES: LgSubscriptionSource[] = [
   { lgSlug: 'all', label: 'ทั้งหมด', categorySlug: null, listUrl: listUrl('all'), variantChipSelector: '', variantAxis: 'other' },
-  { lgSlug: 'tvs', label: 'โทรทัศน์', categorySlug: 'television', listUrl: listUrl('tvs'), variantChipSelector: LG_VARIANT_SWATCH_SELECTOR, variantAxis: 'screen_inches' },
+  { lgSlug: 'tvs', label: 'ทีวี', categorySlug: 'television', listUrl: listUrl('tvs'), variantChipSelector: LG_VARIANT_SWATCH_SELECTOR, variantAxis: 'screen_inches' },
   { lgSlug: 'soundbars', label: 'ลำโพง Soundbars', categorySlug: 'soundbar', listUrl: listUrl('soundbars'), variantChipSelector: LG_VARIANT_SWATCH_SELECTOR, variantAxis: 'other' },
   { lgSlug: 'washers', label: 'เครื่องซักผ้า', categorySlug: 'washing-machine', listUrl: listUrl('washers'), variantChipSelector: LG_VARIANT_SWATCH_SELECTOR, variantAxis: 'other' },
   { lgSlug: 'dryers', label: 'เครื่องอบผ้า', categorySlug: 'dryer', listUrl: listUrl('dryers'), variantChipSelector: LG_VARIANT_SWATCH_SELECTOR, variantAxis: 'other' },

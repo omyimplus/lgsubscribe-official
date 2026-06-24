@@ -33,7 +33,7 @@ const menu = [
   {
     main: { name: 'ทีวี & Soundbars', slug: 'tv-soundbars', sort_order: 1 },
     subs: [
-      { name: 'โทรทัศน์', slug: 'television', sort_order: 1 },
+      { name: 'ทีวี', slug: 'television', sort_order: 1 },
       { name: 'ลำโพง Soundbars', slug: 'soundbar', sort_order: 2 },
     ],
   },

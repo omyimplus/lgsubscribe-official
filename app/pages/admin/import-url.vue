@@ -407,7 +407,7 @@ function variantLabelFromName(name: string | null | undefined) {
       </label>
 
       <p class="text-xs text-gray-500">
-        ตัวอย่าง: <code class="text-[11px]">tv-soundbars</code> → โทรทัศน์,
+        ตัวอย่าง: <code class="text-[11px]">tv-soundbars</code> → ทีวี,
         <code class="text-[11px]">laundry</code> → ซักผ้า,
         <code class="text-[11px]">air-conditioner-inverter</code> → แอร์
         · ราคา subscribe ดึงจากหน้า <code class="text-[11px]">/lgsubscribe</code> ตอน import

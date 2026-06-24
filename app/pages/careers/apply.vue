@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { LpApplicationInput } from '~~/shared/types/lpApplication'
+import type { LpCareersPagePublic } from '~~/shared/types/lpCareersPage'
 import { LP_CAREERS_SECTION } from '~~/shared/utils/lpApplicationContent'
 import { SEO_CAREERS } from '~~/shared/utils/siteSeoPresets'
 import LpApplicationForm from '~/components/careers/LpApplicationForm.vue'
+import LpCareersSlideShow from '~/components/careers/LpCareersSlideShow.vue'
+import LpCareersYoutube from '~/components/careers/LpCareersYoutube.vue'
 
 definePageMeta({
   layout: 'default',
@@ -15,6 +18,14 @@ definePageMeta({
 useSiteSeoFromPreset(SEO_CAREERS, {
   description: LP_CAREERS_SECTION.title,
 })
+
+const { data: careersPage } = await useFetch<LpCareersPagePublic>('/api/public/lp-careers-page', {
+  key: 'public-lp-careers-page',
+  default: () => ({ slide_images: [], video: null }),
+})
+
+const hasSlides = computed(() => (careersPage.value?.slide_images?.length ?? 0) > 0)
+const careersVideo = computed(() => careersPage.value?.video ?? null)
 
 const submitting = ref(false)
 const error = ref('')
@@ -54,6 +65,14 @@ async function handleSubmit(payload: LpApplicationInput) {
         </p>
       </div>
     </section>
+
+    <LpCareersYoutube
+      v-if="careersVideo"
+      :video-id="careersVideo.video_id"
+      :title="careersVideo.title"
+      :watch-url="careersVideo.watch_url"
+    />
+    <LpCareersSlideShow v-if="hasSlides" :images="careersPage?.slide_images ?? []" />
 
     <main class="index-container max-w-3xl py-8 sm:py-12">
       <template v-if="success">

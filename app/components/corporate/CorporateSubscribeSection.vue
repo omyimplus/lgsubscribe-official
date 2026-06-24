@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  CORPORATE_INQUIRY_PATH,
+  CORPORATE_LINE_CTA_LABEL,
   CORPORATE_PAGE_PATH,
   CORPORATE_SECTION,
 } from '~~/shared/utils/corporateSection'
@@ -10,6 +10,8 @@ const props = withDefaults(defineProps<{
 }>(), {
   variant: 'page',
 })
+
+const { lineOaUrl } = useSiteContact()
 
 const isHome = computed(() => props.variant === 'home')
 </script>
@@ -82,12 +84,16 @@ const isHome = computed(() => props.variant === 'home')
         v-if="isHome"
         class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
       >
-        <NuxtLink
-          :to="CORPORATE_INQUIRY_PATH"
-          class="inline-flex items-center justify-center rounded-full bg-[#ea1917] px-6 py-3 text-sm font-semibold text-white shadow-[0_2px_10px_rgba(234,25,23,0.35)] transition hover:bg-[#d01514]"
+        <a
+          v-if="lineOaUrl"
+          :href="lineOaUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-[#06C755] px-6 py-3 text-sm font-semibold text-white shadow-[0_2px_10px_rgba(6,199,85,0.35)] transition hover:bg-[#05b34c]"
         >
-          กรอกข้อมูลสำหรับองค์กร
-        </NuxtLink>
+          <Icon name="mdi:chat" class="h-5 w-5" />
+          {{ CORPORATE_LINE_CTA_LABEL }}
+        </a>
         <NuxtLink
           :to="CORPORATE_PAGE_PATH"
           class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#ea1917] transition hover:underline"

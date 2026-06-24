@@ -110,16 +110,9 @@ export const SEO_CORPORATE = preset(
   ],
 )
 
-export const SEO_CORPORATE_INQUIRY = preset(
-  'กรอกข้อมูลองค์กร',
-  'ส่งข้อมูลนิติบุคคลเพื่อให้ทีม LG Subscribe ติดต่อกลับและแนะนำแผนรายเดือนสำหรับธุรกิจ',
-  ['ฟอร์ม LG Subscribe องค์กร', 'สมัคร LG นิติบุคคล'],
-  true,
-)
-
 export const SEO_CONTACT = preset(
   'ติดต่อเรา',
-  'ติดต่อ LG Subscribe Official — โทร 062-5969446, 089-3546442 หรือ Line @LGSub.Official จันทร์–อาทิตย์ 09:00–20:00 น.',
+  'ติดต่อ LG Subscribe Official — โทร 062-5969446, 089-3546442 หรือ Line @LGSub.Official บริการ 24 ชั่วโมง',
   [
     'ติดต่อ LG Subscribe',
     'LG Subscribe เบอร์โทร',
@@ -149,13 +142,26 @@ export const SEO_FAQ = preset(
 )
 
 export const SEO_INSTALLMENT = preset(
-  'เงื่อนไขการผ่อน',
-  'เงื่อนไขการผ่อนรายเดือน LG Subscribe เริ่มต้นเพียงหลักร้อย จ่ายง่าย ไม่มีค่าใช้จ่ายแอบแฝง',
+  'ข้อกำหนดและเงื่อนไขให้บริการ',
+  'ข้อกำหนดและเงื่อนไขให้บริการ LG Subscribe — การรับประกัน การบำรุงรักษา และเงื่อนไขการให้บริการ',
   [
+    'ข้อกำหนด LG Subscribe',
     'เงื่อนไข LG Subscribe',
-    'ผ่อน LG รายเดือน',
-    'อัตราผ่อน LG Subscribe',
-    'LG Subscribe กี่บาทต่อเดือน',
+    'การรับประกัน LG Subscribe',
+    'การบำรุงรักษา LG Subscribe',
+  ],
+)
+
+export const SEO_PRIVACY = preset(
+  'นโยบายความเป็นส่วนตัว',
+  'นโยบายความเป็นส่วนตัวและการใช้คุกกี้ LG Subscribe Official — การเก็บ ใช้ และคุ้มครองข้อมูลส่วนบุคคลตาม PDPA',
+  [
+    'นโยบายความเป็นส่วนตัว',
+    'นโยบายคุกกี้',
+    'PDPA LG Subscribe',
+    'ความเป็นส่วนตัว LG Subscribe',
+    'privacy policy',
+    'cookie policy',
   ],
 )
 

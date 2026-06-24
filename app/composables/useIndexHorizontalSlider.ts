@@ -10,14 +10,15 @@ export type IndexHorizontalSliderOptions = {
 
 export function useIndexHorizontalSlider(
   itemCount: Ref<number>,
-  getVisibleCount: () => number = defaultVisibleCount,
+  getVisibleCount: (forSsr?: boolean) => number = defaultVisibleCount,
   options?: IndexHorizontalSliderOptions,
 ) {
   const scrollerRef = ref<HTMLElement | null>(null)
   const canScrollLeft = ref(false)
   const canScrollRight = ref(false)
   const slideWidthPx = ref<number | null>(null)
-  const visibleSlots = ref(getVisibleCount())
+  /** ค่าเริ่มต้นต้องตรง SSR — อย่าใช้ window ก่อน mount */
+  const visibleSlots = ref(getVisibleCount(true))
   const autoPlayPaused = ref(false)
 
   const showArrows = computed(() => itemCount.value > visibleSlots.value)
@@ -42,7 +43,7 @@ export function useIndexHorizontalSlider(
       slideWidthPx.value = null
       return
     }
-    visibleSlots.value = getVisibleCount()
+    visibleSlots.value = getVisibleCount(false)
     const width = el.clientWidth
     if (width <= 0) {
       return
@@ -161,6 +162,7 @@ export function useIndexHorizontalSlider(
   }
 
   onMounted(() => {
+    visibleSlots.value = getVisibleCount(false)
     scheduleLayoutRefresh()
     bindScroller(scrollerRef.value)
     window.addEventListener('resize', refreshLayout)
@@ -211,39 +213,39 @@ export function useIndexHorizontalSlider(
   }
 }
 
-function defaultVisibleCount() {
-  if (!import.meta.client) return 2
+function defaultVisibleCount(forSsr = false) {
+  if (!import.meta.client || forSsr) return 2
   if (window.innerWidth >= 1024) return 2
   if (window.innerWidth >= 640) return 2
   return 1
 }
 
 /** สินค้าแนะนำ — 4 ชิ้นต่อแถวบนจอใหญ่ */
-export function featuredProductsVisibleCount() {
-  if (!import.meta.client) return 4
+export function featuredProductsVisibleCount(forSsr = false) {
+  if (!import.meta.client || forSsr) return 4
   if (window.innerWidth >= 1024) return 4
   if (window.innerWidth >= 640) return 2
   return 1
 }
 
 /** โปรโมชั่น — 2 ใบต่อแถวบนจอใหญ่ (ตาม mockup) */
-export function promotionsVisibleCount() {
-  if (!import.meta.client) return 2
+export function promotionsVisibleCount(forSsr = false) {
+  if (!import.meta.client || forSsr) return 2
   if (window.innerWidth >= 640) return 2
   return 1
 }
 
 /** Customer Experiences — 4 การ์ดต่อแถวบนจอใหญ่ */
-export function experiencesVisibleCount() {
-  if (!import.meta.client) return 4
+export function experiencesVisibleCount(forSsr = false) {
+  if (!import.meta.client || forSsr) return 4
   if (window.innerWidth >= 1024) return 4
   if (window.innerWidth >= 640) return 2
   return 1
 }
 
 /** รีวิวลูกค้าบน PDP — 3 การ์ดต่อแถว */
-export function pdpCustomerReviewsVisibleCount() {
-  if (!import.meta.client) return 3
+export function pdpCustomerReviewsVisibleCount(forSsr = false) {
+  if (!import.meta.client || forSsr) return 3
   if (window.innerWidth >= 640) return 3
   return 1
 }

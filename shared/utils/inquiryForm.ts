@@ -45,7 +45,7 @@ export type InquiryFormValidationResult =
   | { ok: false, message: string }
 
 export function validateInquiryContactForm(input: {
-  applicant_type: InquiryApplicantType
+  applicant_type?: InquiryApplicantType
   first_name?: string
   last_name?: string
   contact_phone?: string
@@ -63,6 +63,10 @@ export function validateInquiryContactForm(input: {
   security_code_expected?: string
 }): InquiryFormValidationResult {
   const applicant_type = input.applicant_type
+  if (applicant_type !== 'individual' && applicant_type !== 'corporate') {
+    return { ok: false, message: 'กรุณาเลือกประเภทผู้สมัคร' }
+  }
+
   const first_name = input.first_name?.trim() ?? ''
   const last_name = input.last_name?.trim() ?? ''
   const phoneRaw = input.contact_phone?.trim() ?? ''

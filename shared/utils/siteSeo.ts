@@ -34,6 +34,7 @@ export const SITE_PUBLIC_ROUTES = [
   '/trust',
   '/faq',
   '/installment',
+  '/privacy',
   '/experiences',
   '/careers/apply',
 ] as const
@@ -43,7 +44,6 @@ export const SITE_NOINDEX_PREFIXES = [
   '/auth',
   '/account',
   '/subscribe/inquiry',
-  '/corporate/inquiry',
 ] as const
 
 export function formatSiteTitle(title: string): string {

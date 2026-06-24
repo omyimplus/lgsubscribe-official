@@ -5,9 +5,6 @@ import {
   SITE_LINE_QR_IMAGE,
 } from './shared/utils/siteContact'
 
-const PROMPT_FONT_URL =
-  'https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap'
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -15,25 +12,18 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/icon'],
 
+  icon: {
+    serverBundle: {
+      collections: ['heroicons', 'mdi', 'simple-icons'],
+    },
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 512,
+    },
+  },
+
   routeRules: {
     '/admin/**': { ssr: false },
-    '/': { swr: 300 },
-    '/products': { swr: 300 },
-    '/products/**': { swr: 300 },
-    '/promotions/**': { swr: 600 },
-    '/articles/**': { swr: 600 },
-    '/faq/**': { swr: 3600 },
-    '/trust': { swr: 3600 },
-    '/contact': { swr: 3600 },
-    '/installment': { swr: 3600 },
-    '/corporate': { swr: 3600 },
-    '/experiences/**': { swr: 600 },
-    '/api/public/products': { swr: 120 },
-    '/api/public/home-categories': { swr: 600 },
-    '/api/public/featured-products': { swr: 300 },
-    '/api/public/promotions': { swr: 600 },
-    '/api/public/articles/**': { swr: 600 },
-    '/sitemap.xml': { swr: 3600 },
   },
 
   nitro: {
@@ -71,19 +61,6 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        {
-          rel: 'preload',
-          as: 'style',
-          href: PROMPT_FONT_URL,
-        },
-        {
-          rel: 'stylesheet',
-          href: PROMPT_FONT_URL,
-          media: 'print',
-          onload: 'this.media=\'all\'',
-        },
       ],
       meta: [
         { name: 'theme-color', content: '#ea1917' },

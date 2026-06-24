@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   const inquirySource = body.inquiry_source === 'corporate' ? 'corporate' : 'product_cart'
 
   const validated = validateInquiryContactForm({
-    applicant_type: body.applicant_type ?? 'individual',
+    applicant_type: body.applicant_type,
     first_name: body.first_name ?? body.contact_name,
     last_name: body.last_name,
     contact_phone: body.contact_phone,

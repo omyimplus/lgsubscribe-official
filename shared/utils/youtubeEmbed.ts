@@ -63,3 +63,12 @@ export function youtubeWatchUrl(videoId: string) {
   if (!id) return ''
   return `https://www.youtube.com/watch?v=${id}`
 }
+
+export function youtubeThumbnailUrl(
+  videoId: string,
+  quality: 'hqdefault' | 'maxresdefault' = 'hqdefault',
+) {
+  const id = extractYoutubeVideoId(videoId)
+  if (!id) return ''
+  return `https://i.ytimg.com/vi/${id}/${quality}.jpg`
+}

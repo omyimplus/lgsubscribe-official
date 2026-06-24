@@ -171,8 +171,14 @@ async function testFilesAndRoutes() {
   const required = [
     'supabase/migrations/0047_inquiry_source.sql',
     'supabase/migrations/0048_lp_applications.sql',
+    'supabase/migrations/0049_lp_careers_page.sql',
+    'supabase/migrations/0050_trust_page.sql',
     'app/pages/corporate/index.vue',
-    'app/pages/corporate/inquiry.vue',
+    'app/components/SiteCookieConsent.vue',
+    'app/components/SiteTiktokIcon.vue',
+    'app/components/trust/TrustPageSlideImages.vue',
+    'server/utils/adminSlideUpload.ts',
+    'app/composables/useStaffFormUpload.ts',
     'app/composables/useSiteSeo.ts',
     'shared/utils/siteSeoPresets.ts',
     'shared/utils/siteSeoJsonLd.ts',
@@ -191,10 +197,18 @@ async function testFilesAndRoutes() {
     assert(`file exists: ${rel}`, existsSync(resolve(ROOT, rel)))
   }
 
-  const { CORPORATE_INQUIRY_PATH, CORPORATE_PAGE_PATH } = await importShared('shared/utils/corporateSection.ts')
+  const { CORPORATE_PAGE_PATH } = await importShared('shared/utils/corporateSection.ts')
   const { LP_APPLY_PATH } = await importShared('shared/utils/lpApplicationContent.ts')
-  assert('CORPORATE_INQUIRY_PATH', CORPORATE_INQUIRY_PATH === '/corporate/inquiry')
+  assert('CORPORATE_PAGE_PATH', CORPORATE_PAGE_PATH === '/corporate')
   assert('LP_APPLY_PATH', LP_APPLY_PATH === '/careers/apply')
+  assert('corporate inquiry page removed', !existsSync(resolve(ROOT, 'app/pages/corporate/inquiry.vue')))
+
+  const {
+    SITE_BUSINESS_HOURS,
+    SITE_OFFICE_COMPANY_NAME,
+  } = await importShared('shared/utils/siteContact.ts')
+  assert('SITE_BUSINESS_HOURS', SITE_BUSINESS_HOURS === '24 ชั่วโมง')
+  assert('SITE_OFFICE_COMPANY_NAME', SITE_OFFICE_COMPANY_NAME.includes('LG อิเล็กทรอนิกส์'))
 
   const indexHtml = readFileSync(resolve(ROOT, 'app/pages/index.vue'), 'utf8')
   assert('index has CorporateSubscribeSection', indexHtml.includes('CorporateSubscribeSection'))
@@ -226,7 +240,7 @@ async function testLiveHttp() {
     assert('Homepage LP motivational headline', html.includes('มาร่วมงานกับเรา'))
     assert('Homepage LP apply CTA', html.includes('สมัครเป็นตัวแทน LP') || html.includes('กรอกใบสมัคร LP'))
     assert('Homepage careers nav text', html.includes('ร่วมงานกับเรา'))
-    assert('Homepage corporate apply CTA', html.includes('กรอกข้อมูลสำหรับองค์กร'))
+    assert('Homepage corporate apply CTA', html.includes('แอดไลน์สอบถาม'))
     assert('Homepage html lang th', html.includes('lang="th"'))
     assert('Homepage og:title', html.includes('og:title') || html.includes('property="og:title"'))
     assert('Homepage canonical link', html.includes('rel="canonical"'))
@@ -241,7 +255,7 @@ async function testLiveHttp() {
 
   if (!homeOk) return
 
-  for (const path of ['/careers/apply', '/corporate/inquiry', '/corporate']) {
+  for (const path of ['/careers/apply', '/corporate']) {
     try {
       const res = await fetch(`${BASE}${path}`)
       const html = await res.text()
@@ -250,13 +264,28 @@ async function testLiveHttp() {
         assert(`${path} has apply page title`, html.includes('สมัคร LP') || html.includes('กรอกข้อมูลสำหรับองค์กร'))
         assert(`${path} no unresolved LpApplicationForm`, !html.includes('Failed to resolve component: LpApplicationForm'))
       }
-      if (path === '/corporate/inquiry') {
-        assert(`${path} inquiry page title`, html.includes('กรอกข้อมูลองค์กร'))
-        assert(`${path} corporate form fields`, html.includes('ชื่อบริษัท'))
-        assert(`${path} not corporate landing only`, !html.includes('สนใจสมัคร LG Subscribe สำหรับองค์กร?'))
-      }
       if (path === '/corporate') {
-        assert(`${path} landing CTA`, html.includes('กรอกข้อมูลสำหรับองค์กร'))
+        assert(`${path} landing CTA`, html.includes('แอดไลน์สอบถาม'))
+        assert(`${path} Line link direct`, html.includes('lin.ee') || html.includes('line.me'))
+        assert(`${path} no inquiry route`, !html.includes('/corporate/inquiry'))
+      }
+    }
+    catch (err) {
+      fail(`GET ${path}`, err instanceof Error ? err.message : String(err))
+    }
+  }
+
+  for (const path of ['/contact', '/trust']) {
+    try {
+      const res = await fetch(`${BASE}${path}`)
+      const html = await res.text()
+      assert(`GET ${path} returns 200`, res.ok)
+      if (path === '/contact') {
+        assert(`${path} 24h hours`, html.includes('24 ชั่วโมง'))
+        assert(`${path} company name`, html.includes('บริษัท LG อิเล็กทรอนิกส์ ไทยแลนด์'))
+      }
+      if (path === '/trust') {
+        assert(`${path} kapook image`, html.includes('/images/kapook-cer.webp'))
       }
     }
     catch (err) {
@@ -265,11 +294,19 @@ async function testLiveHttp() {
   }
 
   try {
+    const corpInquiry = await fetch(`${BASE}/corporate/inquiry`)
+    assert('GET /corporate/inquiry removed (404)', corpInquiry.status === 404)
+  }
+  catch (err) {
+    fail('GET /corporate/inquiry', err instanceof Error ? err.message : String(err))
+  }
+
+  try {
     const robots = await fetch(`${BASE}/robots.txt`)
     const robotsText = await robots.text()
     assert('GET /robots.txt returns 200', robots.ok)
     assert('robots disallows admin', robotsText.includes('Disallow: /admin'))
-    assert('robots has sitemap', robotsText.includes('Sitemap:'))
+    assert('robots sitemap absolute URL', /Sitemap:\s+https?:\/\//.test(robotsText))
 
     const sitemap = await fetch(`${BASE}/sitemap.xml`)
     const sitemapXml = await sitemap.text()

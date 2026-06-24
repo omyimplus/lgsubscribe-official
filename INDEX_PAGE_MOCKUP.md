@@ -106,7 +106,7 @@
 
 | ชื่อไทย (mockup) | slug (DB) | ไฟล์ไอคอนแนะนำ |
 |------------------|-----------|----------------|
-| โทรทัศน์ | `television` | `television.webp` |
+| ทีวี | `television` | `television.webp` |
 | Soundbars | `soundbar` | `soundbar.webp` |
 | เครื่องซักผ้า | `washing-machine` | `washing-machine.webp` |
 | เครื่องอบผ้า | `dryer` | `dryer.webp` |

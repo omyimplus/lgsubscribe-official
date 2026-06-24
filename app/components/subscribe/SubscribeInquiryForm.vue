@@ -17,10 +17,9 @@ const inputClass =
   'w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/15'
 
 const noticeClass =
-  'rounded-lg bg-[#ea1917] px-4 py-3.5 text-sm text-white'
+  'rounded-lg bg-gray-950 px-4 py-3.5 text-sm text-white'
 
-const applicantType = ref<InquiryApplicantType>(props.lockedApplicantType ?? 'individual')
-const route = useRoute()
+const applicantType = ref<InquiryApplicantType | ''>(props.lockedApplicantType ?? '')
 
 const form = reactive({
   first_name: '',
@@ -55,14 +54,11 @@ onMounted(() => {
   if (props.lockedApplicantType) {
     applicantType.value = props.lockedApplicantType
   }
-  else if (route.query.applicant === 'corporate') {
-    applicantType.value = 'corporate'
-  }
 })
 
 function buildPayload(): SubscriptionInquiryInput {
   return {
-    applicant_type: applicantType.value,
+    applicant_type: applicantType.value as InquiryApplicantType,
     first_name: form.first_name,
     last_name: form.last_name,
     contact_phone: form.contact_phone,
@@ -83,6 +79,10 @@ function buildPayload(): SubscriptionInquiryInput {
 
 function onSubmit() {
   localError.value = ''
+  if (!applicantType.value) {
+    localError.value = 'กรุณาเลือกประเภทผู้สมัคร'
+    return
+  }
   const result = validateInquiryContactForm(buildPayload())
   if (!result.ok) {
     localError.value = result.message
@@ -90,24 +90,10 @@ function onSubmit() {
   }
   emit('submit', buildPayload())
 }
-
-function setProfileFromName(fullName: string, phone?: string) {
-  const parts = fullName.trim().split(/\s+/)
-  if (parts.length >= 2) {
-    form.first_name = parts[0]!
-    form.last_name = parts.slice(1).join(' ')
-  }
-  else if (parts[0]) {
-    form.first_name = parts[0]!
-  }
-  if (phone) form.contact_phone = phone
-}
-
-defineExpose({ setProfileFromName })
 </script>
 
 <template>
-  <form class="space-y-5" @submit.prevent="onSubmit">
+  <form class="space-y-5" autocomplete="off" @submit.prevent="onSubmit">
     <div>
       <p class="text-sm font-medium text-gray-800">
         กรุณากรอกข้อมูลเบื้องต้น เพื่อให้แอดมินติดต่อกลับ
@@ -190,10 +176,11 @@ defineExpose({ setProfileFromName })
       </p>
     </div>
 
-    <h3 class="text-base font-semibold text-gray-900">
+    <h3 v-if="applicantType" class="text-base font-semibold text-gray-900">
       ข้อมูลที่เราต้องการ
     </h3>
 
+    <template v-if="applicantType">
     <div
       v-if="applicantType === 'corporate'"
       class="space-y-4 rounded-lg border border-gray-200 bg-gray-50/80 p-4"
@@ -255,6 +242,7 @@ defineExpose({ setProfileFromName })
           v-model="form.first_name"
           type="text"
           required
+          autocomplete="off"
           :class="inputClass"
           placeholder="ระบุชื่อภาษาไทย"
         >
@@ -265,6 +253,7 @@ defineExpose({ setProfileFromName })
           v-model="form.last_name"
           type="text"
           required
+          autocomplete="off"
           :class="inputClass"
           placeholder="ระบุนามสกุลภาษาไทย"
         >
@@ -277,6 +266,7 @@ defineExpose({ setProfileFromName })
         v-model="form.contact_phone"
         type="tel"
         required
+        autocomplete="off"
         :class="inputClass"
         placeholder="เช่น 0812345678"
       >
@@ -383,5 +373,6 @@ defineExpose({ setProfileFromName })
     >
       {{ submitting ? 'กำลังส่ง...' : 'ส่งคำขอสนใจผ่อน' }}
     </button>
+    </template>
   </form>
 </template>

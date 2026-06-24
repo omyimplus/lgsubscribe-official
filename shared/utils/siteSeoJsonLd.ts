@@ -52,8 +52,8 @@ function siteOpeningHours() {
       'Saturday',
       'Sunday',
     ],
-    opens: '09:00',
-    closes: '20:00',
+    opens: '00:00',
+    closes: '23:59',
   }]
 }
 

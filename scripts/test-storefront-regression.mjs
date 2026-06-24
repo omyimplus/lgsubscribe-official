@@ -20,11 +20,11 @@ const STATIC_ROUTES = [
   '/articles/how-to-order',
   '/articles/why-subscribe',
   '/corporate',
-  '/corporate/inquiry',
   '/contact',
   '/trust',
   '/faq',
   '/installment',
+  '/privacy',
   '/experiences',
   '/careers/apply',
   '/subscribe/inquiry',
@@ -99,8 +99,9 @@ async function testSeoByPageType() {
     { path: '/', indexable: true },
     { path: '/products', indexable: true },
     { path: '/contact', indexable: true },
+    { path: '/privacy', indexable: true },
     { path: '/faq', indexable: true },
-    { path: '/corporate/inquiry', indexable: false },
+    { path: '/corporate', indexable: true },
     { path: '/subscribe/inquiry', indexable: false },
     { path: '/auth/login', indexable: false, seoOptional: true },
   ]
@@ -187,22 +188,53 @@ async function testSeoInfra() {
     assert('Homepage WebSite JSON-LD', home.html.includes('"@type":"WebSite"') || home.html.includes('"@type": "WebSite"'))
     assert('Homepage Organization JSON-LD', home.html.includes('"@type":"Organization"') || home.html.includes('"@type": "Organization"'))
     assert('Footer TikTok link', home.html.includes('tiktok.com'))
-    assert('Footer TikTok icon', home.html.includes('simple-icons:tiktok') || home.html.includes('i-simple-icons--tiktok') || home.html.includes('href="https://www.tiktok.com'))
+    assert('Footer TikTok icon', home.html.includes('M19.59 6.69') || home.html.includes('simple-icons:tiktok') || home.html.includes('i-simple-icons--tiktok') || home.html.includes('href="https://www.tiktok.com'))
     assert('Footer Facebook icon', home.html.includes('mdi:facebook') || home.html.includes('i-mdi:facebook'))
+    assert('Footer terms link label', home.html.includes('ข้อกำหนดและเงื่อนไขให้บริการ'))
+    assert('Footer no warranty help link', !home.html.includes('>การรับประกัน</a>'))
+    assert('Footer TV label', home.html.includes('>ทีวี</a>') || home.html.includes('category=television'))
 
     const robots = await fetch(`${BASE}/robots.txt`).then(r => r.text())
-    assert('robots.txt OK', robots.includes('Sitemap:') && robots.includes('Disallow: /admin'))
+    assert('robots.txt OK', robots.includes('Disallow: /admin'))
+    assert('robots no corporate inquiry', !robots.includes('/corporate/inquiry'))
+    assert('robots sitemap absolute URL', /Sitemap:\s+https?:\/\//.test(robots))
 
     const sitemap = await fetch(`${BASE}/sitemap.xml`).then(r => r.text())
     assert('sitemap.xml OK', sitemap.includes('<urlset') && sitemap.includes('/products'))
+    assert('sitemap privacy', sitemap.includes('/privacy'))
+    assert('sitemap no corporate inquiry', !sitemap.includes('/corporate/inquiry'))
+    assert('Footer privacy link', home.html.includes('href="/privacy"') || home.html.includes("to:\"/privacy\""))
 
-    const corp = await fetchText('/corporate/inquiry')
-    assert('Corporate inquiry form', corp.html.includes('ชื่อบริษัท'))
-    assert('Corporate inquiry not landing', !corp.html.includes('สนใจสมัคร LG Subscribe สำหรับองค์กร?'))
+    const corp = await fetchText('/corporate')
+    assert('Corporate Line CTA', corp.html.includes('แอดไลน์สอบถาม'))
+    assert('Corporate opens Line directly', corp.html.includes('lin.ee') || corp.html.includes('line.me'))
+    assert('Corporate no inquiry route', !corp.html.includes('/corporate/inquiry'))
+
+    const corpInquiry = await fetch(`${BASE}/corporate/inquiry`)
+    assert('Corporate inquiry removed (404)', corpInquiry.status === 404)
+
+    const contact = await fetchText('/contact')
+    assert('Contact 24h hours', contact.html.includes('24 ชั่วโมง'))
+    assert('Contact company name', contact.html.includes('บริษัท LG อิเล็กทรอนิกส์ ไทยแลนด์'))
 
     const careers = await fetchText('/careers/apply')
     assert('LP apply form', careers.html.includes('ส่งใบสมัคร') || careers.html.includes('Lifestyle Planner'))
     assert('LP form component resolved', !careers.html.includes('Failed to resolve component: LpApplicationForm'))
+
+    const trust = await fetchText('/trust')
+    assert('Trust kapook cert image', trust.html.includes('/images/kapook-cer.webp'))
+    assert('Trust page title', trust.html.includes('ความน่าเชื่อถือ'))
+    assert('Trust uses slide images component', trust.html.includes('ภาพความน่าเชื่อถือ') || trust.html.includes('object-contain'))
+
+    const installment = await fetchText('/installment')
+    assert('Installment hub title', installment.html.includes('ข้อกำหนดและเงื่อนไขให้บริการ'))
+    assert('Installment hub has 3 term cards', installment.html.includes('/installment/warranty') && installment.html.includes('/installment/maintenance') && installment.html.includes('/installment/service'))
+
+    const warranty = await fetchText('/installment/warranty')
+    assert('Installment warranty content', warranty.html.includes('ระยะเวลาการรับประกัน'))
+
+    const service = await fetchText('/installment/service')
+    assert('Installment service content', service.html.includes('ข้อกำหนดและเงื่อนไขการให้บริการ'))
   }
   catch (err) {
     fail('SEO infra', err instanceof Error ? err.message : String(err))
@@ -220,6 +252,8 @@ async function testPublicApis() {
     '/api/public/articles',
     '/api/public/faq-items',
     '/api/public/customer-experiences',
+    '/api/public/lp-careers-page',
+    '/api/public/trust-page',
   ]
 
   for (const path of apis) {
@@ -233,9 +267,70 @@ async function testPublicApis() {
   }
 }
 
+async function testSessionFiles() {
+  console.log('\n[Files] session feature artifacts')
+  const { existsSync, readFileSync } = await import('node:fs')
+  const { resolve } = await import('node:path')
+  const root = resolve(import.meta.dirname, '..')
+
+  const required = [
+    'app/components/SubscribeTermsDocument.vue',
+    'shared/utils/subscribeTermsContent.ts',
+    'shared/types/serviceCare.ts',
+    'app/components/installment/ServiceCareSection.vue',
+    'app/components/storefront/YoutubeVideoModal.vue',
+    'supabase/migrations/0052_service_care_videos.sql',
+    'app/components/SiteCookieConsent.vue',
+    'app/components/trust/TrustPageSlideImages.vue',
+    'app/composables/useStaffFormUpload.ts',
+    'app/composables/useCookieConsent.ts',
+    'server/utils/adminSlideUpload.ts',
+    'shared/utils/cookieConsent.ts',
+    'supabase/migrations/0049_lp_careers_page.sql',
+    'supabase/migrations/0050_trust_page.sql',
+  ]
+
+  for (const rel of required) {
+    assert(`file exists: ${rel}`, existsSync(resolve(root, rel)))
+  }
+
+  assert('corporate inquiry page removed', !existsSync(resolve(root, 'app/pages/corporate/inquiry.vue')))
+
+  const footer = readFileSync(resolve(root, 'app/components/SiteFooter.vue'), 'utf8')
+  assert('footer terms label', footer.includes('ข้อกำหนดและเงื่อนไขให้บริการ'))
+  assert('footer no warranty link', !footer.includes('การรับประกัน'))
+
+  const layout = readFileSync(resolve(root, 'app/layouts/default.vue'), 'utf8')
+  assert('layout has cookie consent', layout.includes('SiteCookieConsent'))
+
+  const corpSection = readFileSync(resolve(root, 'app/components/corporate/CorporateSubscribeSection.vue'), 'utf8')
+  assert('corporate CTA opens Line', corpSection.includes('lineOaUrl') && corpSection.includes('target="_blank"'))
+  assert('corporate CTA no inquiry path', !corpSection.includes('/corporate/inquiry'))
+}
+
+async function testSessionConstants() {
+  console.log('\n[Unit] site contact & SEO constants')
+  const { readFileSync } = await import('node:fs')
+  const { resolve } = await import('node:path')
+  const root = resolve(import.meta.dirname, '..')
+
+  const siteContact = readFileSync(resolve(root, 'shared/utils/siteContact.ts'), 'utf8')
+  assert('SITE_BUSINESS_HOURS 24h', siteContact.includes("SITE_BUSINESS_HOURS = '24 ชั่วโมง'"))
+  assert('SITE_OFFICE_COMPANY_NAME', siteContact.includes('บริษัท LG อิเล็กทรอนิกส์ ไทยแลนด์'))
+
+  const trustPage = readFileSync(resolve(root, 'shared/types/trustPage.ts'), 'utf8')
+  assert('TRUST_KAPOOK_CERT_IMAGE path', trustPage.includes("'/images/kapook-cer.webp'"))
+
+  const seoPresets = readFileSync(resolve(root, 'shared/utils/siteSeoPresets.ts'), 'utf8')
+  assert('SEO_CONTACT mentions 24h', seoPresets.includes('24 ชั่วโมง'))
+}
+
 async function main() {
   console.log('=== Storefront regression (SEO + speed) ===')
   console.log(`base: ${BASE}`)
+
+  await testSessionFiles()
+  await testSessionConstants()
 
   try {
     const ping = await fetch(`${BASE}/`)

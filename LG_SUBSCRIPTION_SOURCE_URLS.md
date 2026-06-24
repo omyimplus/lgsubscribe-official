@@ -51,7 +51,7 @@
 
 ## ทีวี / เครื่องเสียง
 
-- โทรทัศน์: https://www.lg.com/th/subscription/tvs/?ec_model_status_code=ACTIVE
+- ทีวี: https://www.lg.com/th/subscription/tvs/?ec_model_status_code=ACTIVE
 - ลำโพง Soundbars: https://www.lg.com/th/subscription/soundbars/?ec_model_status_code=ACTIVE
 
 ## เครื่องใช้ไฟฟ้าภายในบ้าน

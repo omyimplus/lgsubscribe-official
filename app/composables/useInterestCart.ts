@@ -38,17 +38,11 @@ function saveToStorage(items: InterestCartItem[]) {
 }
 
 export function useInterestCart() {
-  const items = useState<InterestCartItem[]>('interest-cart', () => {
-    if (import.meta.server) return []
-    return loadFromStorage()
-  })
+  const items = useState<InterestCartItem[]>('interest-cart', () => [])
   const isOpen = useState('interest-cart-open', () => false)
 
   onMounted(() => {
-    const stored = loadFromStorage()
-    if (stored.length && !items.value.length) {
-      items.value = stored
-    }
+    items.value = loadFromStorage()
   })
 
   watch(items, (list) => {

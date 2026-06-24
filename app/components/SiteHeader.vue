@@ -93,7 +93,7 @@ onUnmounted(() => {
         </NuxtLink>
       </nav>
 
-      <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1.5 [&_button]:h-9 [&_button]:w-9 sm:[&_button]:h-10 sm:[&_button]:w-10">
+      <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1.5">
         <NuxtLink
           :to="LP_APPLY_PATH"
           class="hidden shrink-0 rounded-full bg-[#ea1917] px-4 py-2.5 text-sm font-semibold leading-none text-white shadow-[0_2px_8px_rgba(234,25,23,0.3)] transition hover:bg-[#d01514] lg:inline-flex"

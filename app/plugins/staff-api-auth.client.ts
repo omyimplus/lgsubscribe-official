@@ -35,6 +35,11 @@ export default defineNuxtPlugin({
 
         const headers = new Headers(options.headers as HeadersInit)
         headers.set('Authorization', `Bearer ${session.access_token}`)
+
+        if (options.body instanceof FormData) {
+          headers.delete('content-type')
+        }
+
         options.headers = headers
       },
     })

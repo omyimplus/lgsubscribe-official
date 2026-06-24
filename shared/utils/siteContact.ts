@@ -16,10 +16,13 @@ export const SITE_PHONES: SitePhone[] = [
 export const SITE_PHONES_DISPLAY = SITE_PHONES.map(p => p.display).join(', ')
 
 export const SITE_FACEBOOK_URL = 'https://web.facebook.com/SubscribeDGua'
+export const SITE_FACEBOOK_HANDLE = 'SubscribeDGua'
 export const SITE_TIKTOK_HANDLE = '@LG_Subscription'
 export const SITE_TIKTOK_URL = 'https://www.tiktok.com/@LG_Subscription'
 
-export const SITE_BUSINESS_HOURS = 'จันทร์–อาทิตย์ 09:00–20:00 น.'
+export const SITE_BUSINESS_HOURS = '24 ชั่วโมง'
+
+export const SITE_OFFICE_COMPANY_NAME = 'บริษัท LG อิเล็กทรอนิกส์ ไทยแลนด์'
 
 export const SITE_OFFICE_ADDRESS =
   'เลขที่ 195 อาคารวัน แบงค็อก ทาวเวอร์ 4 ห้องเลขที่ 2301-2314 ชั้น 23 ถนนวิทยุ แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330'
@@ -32,5 +35,5 @@ export type SiteSocialLink = {
 
 export const SITE_SOCIAL_LINKS: SiteSocialLink[] = [
   { label: 'Facebook', href: SITE_FACEBOOK_URL, icon: 'mdi:facebook' },
-  { label: 'TikTok', href: SITE_TIKTOK_URL, icon: 'simple-icons:tiktok' },
+  { label: 'TikTok', href: SITE_TIKTOK_URL, icon: 'site-tiktok' },
 ]

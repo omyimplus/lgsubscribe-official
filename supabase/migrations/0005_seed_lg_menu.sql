@@ -21,7 +21,7 @@ insert into public.categories (name, slug, main_category_id, sort_order, is_acti
 select v.name, v.slug, mc.id, v.sort_order, true
 from (values
   -- ทีวี & Soundbars
-  ('โทรทัศน์',           'television',       'tv-soundbars',     1),
+  ('ทีวี',           'television',       'tv-soundbars',     1),
   ('ลำโพง Soundbars',    'soundbar',         'tv-soundbars',     2),
   -- เครื่องใช้ไฟฟ้าภายในบ้าน
   ('เครื่องซักผ้า',       'washing-machine',  'home-appliances',  1),

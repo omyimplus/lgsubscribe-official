@@ -108,7 +108,7 @@ watch(pending, async (loading) => {
 
       <div
         ref="scrollerRef"
-        class="flex gap-3 overflow-x-auto scroll-smooth px-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        class="flex min-w-0 max-w-full gap-3 overflow-x-auto scroll-smooth px-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <div
           v-for="item in experiences"

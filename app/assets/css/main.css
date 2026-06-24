@@ -73,7 +73,7 @@
 @layer components {
   /** เนื้อหาหน้าแรก — max 1200px กลางจอ (section ที่ full-bleed ใช้ wrapper นอก + index-container ด้านใน) */
   .index-container {
-    @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6;
+    @apply mx-auto w-full min-w-0 max-w-[1200px] px-4 sm:px-6;
   }
 
   /** Header / navigation — กว้างกว่า index-container เล็กน้อย */

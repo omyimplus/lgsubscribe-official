@@ -119,6 +119,7 @@
 .faq-body img {
   display: block;
   max-width: 100%;
+  width: auto;
   height: auto;
   margin-top: 60px;
   margin-bottom: 60px;
@@ -198,6 +199,27 @@
 .product-detail-html table,
 .article-body table,
 .faq-body table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.product-detail-html,
+.storefront-rich-html {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.product-detail-html img,
+.product-detail-html video,
+.product-detail-html iframe,
+.product-detail-html table,
+.product-detail-html pre,
+.storefront-rich-html img,
+.storefront-rich-html video,
+.storefront-rich-html iframe,
+.storefront-rich-html table,
+.storefront-rich-html pre {
   max-width: 100%;
 }
 

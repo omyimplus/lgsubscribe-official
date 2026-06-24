@@ -58,7 +58,7 @@ function formatValueBaht(n: number | null | undefined) {
       <img
         :src="benefitsImage"
         alt="Subscribe ได้อะไรมากกว่าที่คุณคิด"
-        class="w-full object-contain"
+        class="mx-auto h-auto max-h-[28rem] w-full max-w-full min-w-0 object-contain"
       >
     </div>
 

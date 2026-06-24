@@ -1,11 +1,15 @@
 import type { Ref } from 'vue'
 
 const GAP_PX = 16
+const MAX_SLIDER_TRACK_PX = 10000
+const MAX_SLIDE_WIDTH_PX = 800
 
 export type IndexHorizontalSliderOptions = {
   /** เลื่อนอัตโนมัติเมื่อมีรายการมากกว่าที่แสดงในจอ */
   autoPlay?: boolean
   autoPlayIntervalMs?: number
+  /** ระยะห่างระหว่าง slide (px) — ต้องตรงกับ gap ใน CSS */
+  gapPx?: number
 }
 
 export function useIndexHorizontalSlider(
@@ -20,6 +24,7 @@ export function useIndexHorizontalSlider(
   /** ค่าเริ่มต้นต้องตรง SSR — อย่าใช้ window ก่อน mount */
   const visibleSlots = ref(getVisibleCount(true))
   const autoPlayPaused = ref(false)
+  const gapPx = options?.gapPx ?? GAP_PX
 
   const showArrows = computed(() => itemCount.value > visibleSlots.value)
 
@@ -45,14 +50,23 @@ export function useIndexHorizontalSlider(
     }
     visibleSlots.value = getVisibleCount(false)
     const width = el.clientWidth
-    if (width <= 0) {
+    if (width <= 0 || width > MAX_SLIDER_TRACK_PX) {
+      slideWidthPx.value = null
       return
     }
-    const next = Math.floor(
-      (width - GAP_PX * (visibleSlots.value - 1)) / visibleSlots.value,
+    const slots = visibleSlots.value
+    const gapCount = Math.max(0, Math.ceil(slots) - 1)
+    const next = Math.min(
+      MAX_SLIDE_WIDTH_PX,
+      Math.floor(
+        (width - gapPx * gapCount) / slots,
+      ),
     )
     if (next > 0) {
       slideWidthPx.value = next
+    }
+    else {
+      slideWidthPx.value = null
     }
   }
 
@@ -84,7 +98,7 @@ export function useIndexHorizontalSlider(
   function scrollBy(direction: -1 | 1) {
     const el = scrollerRef.value
     if (!el || !slideWidthPx.value) return
-    const step = (slideWidthPx.value + GAP_PX) * visibleSlots.value
+    const step = (slideWidthPx.value + gapPx) * visibleSlots.value
     el.scrollBy({ left: direction * step, behavior: 'smooth' })
   }
 
@@ -248,4 +262,9 @@ export function pdpCustomerReviewsVisibleCount(forSsr = false) {
   if (!import.meta.client || forSsr) return 3
   if (window.innerWidth >= 640) return 3
   return 1
+}
+
+/** แกลอรี่รูปย่อบน PDP (มือถือ) — 3.5 รูปให้เห็นขอบรูปถัดไป */
+export function pdpGalleryThumbnailsVisibleCount(_forSsr = false) {
+  return 3.5
 }

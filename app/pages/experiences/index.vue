@@ -22,6 +22,13 @@ const { data: experiences, pending, error } = await useFetch<CustomerExperienceP
   '/api/public/customer-experiences',
   { key: 'public-experiences-all', default: () => [] },
 )
+
+const {
+  lightboxOpen,
+  lightboxItem,
+  lightboxImageIndex,
+  openLightbox,
+} = useCustomerExperienceLightbox()
 </script>
 
 <template>
@@ -54,15 +61,32 @@ const { data: experiences, pending, error } = await useFetch<CustomerExperienceP
         v-else
         class="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
       >
-        <NuxtLink
+        <div
           v-for="item in experiences"
           :key="item.id"
-          :to="`${EXPERIENCES_PAGE_PATH}/${item.id}`"
-          class="block rounded-xl transition hover:ring-2 hover:ring-[#ea1917]/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ea1917]"
+          class="flex flex-col"
         >
-          <HomeExperienceCard :item="item" />
-        </NuxtLink>
+          <HomeExperienceCard
+            :item="item"
+            clickable
+            @view="openLightbox"
+          />
+          <NuxtLink
+            :to="`${EXPERIENCES_PAGE_PATH}/${item.id}`"
+            class="mt-2 text-center text-xs font-medium text-[#ea1917] hover:underline sm:text-sm"
+          >
+            ดูรายละเอียด
+          </NuxtLink>
+        </div>
       </div>
+
+      <ClientOnly>
+        <CustomerExperienceLightbox
+          v-model:open="lightboxOpen"
+          :item="lightboxItem"
+          :initial-index="lightboxImageIndex"
+        />
+      </ClientOnly>
     </main>
   </div>
 </template>

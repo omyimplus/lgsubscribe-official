@@ -53,6 +53,16 @@ watch(pending, async (loading) => {
     refreshLayout()
   }
 })
+
+const {
+  lightboxOpen,
+  lightboxItem,
+  lightboxImageIndex,
+  openLightbox,
+} = useCustomerExperienceLightbox({
+  onOpen: pauseAutoPlay,
+  onClose: resumeAutoPlay,
+})
 </script>
 
 <template>
@@ -116,9 +126,21 @@ watch(pending, async (loading) => {
           class="shrink-0"
           :style="slideStyle"
         >
-          <HomeExperienceCard :item="item" />
+          <HomeExperienceCard
+            :item="item"
+            clickable
+            @view="openLightbox"
+          />
         </div>
       </div>
     </div>
+
+    <ClientOnly>
+      <CustomerExperienceLightbox
+        v-model:open="lightboxOpen"
+        :item="lightboxItem"
+        :initial-index="lightboxImageIndex"
+      />
+    </ClientOnly>
   </section>
 </template>

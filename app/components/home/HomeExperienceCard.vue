@@ -6,8 +6,17 @@ import {
 } from '~~/shared/utils/customerExperienceDisplay'
 import { customerExperienceGalleryUrls } from '~~/shared/utils/customerExperienceImages'
 
-const props = defineProps<{
-  item: CustomerExperiencePublic
+const props = withDefaults(
+  defineProps<{
+    item: CustomerExperiencePublic
+    /** กดรูปเพื่อเปิดดูใหญ่ (เช่น บล็อกรีวิวบน PDP) */
+    clickable?: boolean
+  }>(),
+  { clickable: false },
+)
+
+const emit = defineEmits<{
+  view: [payload: { item: CustomerExperiencePublic, imageIndex: number }]
 }>()
 
 const SLIDE_MS = 4000
@@ -48,7 +57,14 @@ const currentUrl = computed(() => galleryUrls.value[slideIndex.value] ?? null)
 
 <template>
   <article class="h-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-    <div class="relative aspect-[4/3] bg-gray-100">
+    <component
+      :is="clickable && currentUrl ? 'button' : 'div'"
+      type="button"
+      class="relative block aspect-[4/3] w-full bg-gray-100 text-left"
+      :class="clickable && currentUrl ? 'cursor-zoom-in transition hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ea1917] focus-visible:ring-offset-2' : ''"
+      :aria-label="clickable && currentUrl ? `ดูรูปใหญ่: ${item.title}` : undefined"
+      @click="clickable && currentUrl ? emit('view', { item, imageIndex: slideIndex }) : undefined"
+    >
       <Transition
         v-if="currentUrl"
         mode="out-in"
@@ -94,7 +110,7 @@ const currentUrl = computed(() => galleryUrls.value[slideIndex.value] ?? null)
           {{ formatExperienceEventDate(item.event_date) }}
         </p>
       </div>
-    </div>
+    </component>
     <p
       v-if="item.description"
       class="line-clamp-2 px-3 py-2.5 text-xs text-gray-600 sm:text-sm"

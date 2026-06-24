@@ -29,6 +29,13 @@ const eventLabel = computed(() =>
 
 const pageTitle = computed(() => experience.value?.title ?? 'กิจกรรม')
 
+const {
+  lightboxOpen,
+  lightboxItem,
+  lightboxImageIndex,
+  openLightbox,
+} = useCustomerExperienceLightbox()
+
 definePageMeta({ layout: 'default' })
 
 watch(
@@ -98,10 +105,13 @@ useSiteSeoFromPreset(SEO_EXPERIENCES, {
             class="-mx-4 overflow-x-auto scroll-smooth px-4 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
           >
             <div class="flex w-max min-w-full gap-3 sm:gap-4">
-              <figure
+              <button
                 v-for="(url, idx) in galleryUrls"
                 :key="`${url}-${idx}`"
-                class="shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-sm"
+                type="button"
+                class="shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-sm transition hover:ring-2 hover:ring-[#ea1917]/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ea1917]"
+                :aria-label="`ดูรูปใหญ่: ${experience.title} — รูปที่ ${idx + 1}`"
+                @click="openLightbox({ item: experience, imageIndex: idx })"
               >
                 <img
                   :src="customerExperienceImageSrc(url)"
@@ -109,7 +119,7 @@ useSiteSeoFromPreset(SEO_EXPERIENCES, {
                   class="block h-52 w-auto max-w-[min(85vw,28rem)] object-cover sm:h-64 md:h-80"
                   loading="lazy"
                 >
-              </figure>
+              </button>
             </div>
           </div>
         </section>
@@ -117,6 +127,14 @@ useSiteSeoFromPreset(SEO_EXPERIENCES, {
         <p v-else class="mt-8 rounded-xl border border-dashed border-gray-200 bg-gray-50 py-12 text-center text-sm text-gray-500">
           ยังไม่มีรูปในกิจกรรมนี้
         </p>
+
+        <ClientOnly>
+          <CustomerExperienceLightbox
+            v-model:open="lightboxOpen"
+            :item="lightboxItem"
+            :initial-index="lightboxImageIndex"
+          />
+        </ClientOnly>
       </template>
     </main>
   </div>

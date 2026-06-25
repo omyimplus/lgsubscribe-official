@@ -1,17 +1,34 @@
 import type { ComboCustomerSegment, ComboProgramStatus, ComboTierMode } from '~~/shared/types/comboProgram'
 
-/** บิลแรกจ่ายเต็ม — ส่วนลด combo มีผลตั้งแต่บิลนี้ (คงที่ในโค้ด ไม่เก็บใน DB) */
+/** ไม่มีมัดจำ — ส่วนลด combo มีผลตั้งแต่บิลนี้ (เลื่อนส่วนลดงวด 1 ไปรวมในงวด 2) */
 export const COMBO_EFFECTIVE_FROM_BILL = 2
 
-/** โหมดคำนวณเดียว: เลื่อนราคาลด (ไม่ใช่เครดิตส่วนต่าง) */
-export const COMBO_DISCOUNT_MODE = 'defer_rate' as const
+/** ไม่มีมัดจำ — เลื่อนส่วนลดงวด 1 ไปรวมในงวด 2 */
+export const COMBO_DISCOUNT_MODE_DEFER = 'defer_rate' as const
+
+/** มีมัดจำ — หัก combo ตั้งแต่เดือนที่ 1 งวดละ % ของงวดนั้น */
+export const COMBO_DISCOUNT_MODE_IMMEDIATE = 'immediate_rate' as const
+
+/** @deprecated ใช้ COMBO_DISCOUNT_MODE_DEFER */
+export const COMBO_DISCOUNT_MODE = COMBO_DISCOUNT_MODE_DEFER
 
 export const comboCalculationNote =
-  'งวดที่ 1 จ่ายเต็ม · งวดที่ 2 หักส่วนลด = % ของงวด 1 + % ของงวด 2 · งวดที่ 3 ขึ้นไปหัก % ของงวดนั้น'
+  'ไม่มีมัดจำ: งวดที่ 1 จ่ายเต็ม · งวดที่ 2 หัก % งวด 1+2 · งวดที่ 3 ขึ้นไปหัก % งวดนั้น'
+export const comboCalculationNoteWithAdvance =
+  'มีมัดจำ: เดือนที่ 1 หัก combo ทันที · เดือนที่ 2 ขึ้นไปหัก % เฉพาะงวดนั้น (ไม่รวมส่วนลดเดือนแรก)'
 
-/** คำอธิบายสั้นสำหรับ UI งวดที่ 2 */
+export function comboCalculationNoteForCart(hasAdvanceItems: boolean): string {
+  return hasAdvanceItems
+    ? comboCalculationNoteWithAdvance
+    : comboCalculationNote
+}
+
+/** คำอธิบายสั้นสำหรับ UI งวดที่ 2 (ไม่มีมัดจำ) */
 export const comboDeferFromBill1Note =
   'งวดที่ 1 ชำระราคาเต็ม (ยังไม่หัก combo) · งวดที่ 2 รวมส่วนลดทั้งจาก % ของงวดแรกที่เลื่อนมา และ % ของงวดที่ 2'
+
+export const comboImmediateFromBill1Note =
+  'มีมัดจำ — เดือนที่ 1 หัก combo ทันที · เดือนที่ 2 ขึ้นไปหัก % เฉพาะงวดนั้น'
 
 export const comboSegmentLabels: Record<ComboCustomerSegment, string> = {
   new: 'ลูกค้าใหม่',

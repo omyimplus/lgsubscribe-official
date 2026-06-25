@@ -8,6 +8,7 @@ type LineOaStatus = {
   notifyUserCount: number
   hasChannelSecret: boolean
   hasAccessToken: boolean
+  hasNotifyUserIds: boolean
 }
 
 const { data: status, pending, error: fetchError, refresh } = await useFetch<LineOaStatus>(
@@ -19,6 +20,7 @@ const { data: status, pending, error: fetchError, refresh } = await useFetch<Lin
     notifyUserCount: 0,
     hasChannelSecret: false,
     hasAccessToken: false,
+    hasNotifyUserIds: false,
   }) },
 )
 
@@ -64,7 +66,7 @@ async function copyWebhookUrl() {
   <div class="space-y-6">
     <AdminPageHeader
       title="Line Official Account"
-      description="แจ้งเตือนทีมงานเมื่อมีคำขอสนใจผ่อนใหม่ — ตั้งค่าผ่านตัวแปรสภาพแวดล้อม (ไม่เก็บ secret ในฐานข้อมูล)"
+      description="แจ้งเตือนทีมงานเมื่อมีคำขอสนใจผ่อนใหม่ — รูปแบบเดียวกับ wp-property (ใส่ User ID ใน .env)"
     >
       <template #actions>
         <NuxtLink
@@ -115,7 +117,7 @@ async function copyWebhookUrl() {
         </p>
       </div>
       <div class="rounded-xl border border-white/80 bg-white p-4 shadow-sm">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">ผู้รับแจ้งเตือน</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">ผู้รับแจ้งเตือน (.env)</p>
         <p class="mt-1 text-lg font-bold text-gray-900">
           {{ status?.notifyUserCount ?? 0 }} คน
         </p>
@@ -126,7 +128,7 @@ async function copyWebhookUrl() {
       <h3 class="text-sm font-semibold text-gray-900">Webhook URL</h3>
       <p class="mt-1 text-sm text-gray-500">
         ใส่ใน Line Developers Console → Messaging API → Webhook URL
-        (รูปแบบ <code class="text-xs">{{ '{site}' }}/api/line/webhook</code>)
+        — ใช้ดึง User ID ตอนพนักงาน Add friend (หรือพิมพ์ <code class="text-xs">id</code> ในแชท)
       </p>
       <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
         <code class="flex-1 break-all rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm text-gray-800">
@@ -154,19 +156,29 @@ async function copyWebhookUrl() {
       </p>
     </section>
 
+    <section class="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-6">
+      <h3 class="text-sm font-semibold text-emerald-900">วิธีตั้งผู้รับแจ้งเตือน (พนักงาน)</h3>
+      <ol class="mt-2 list-inside list-decimal space-y-1 text-sm text-emerald-900/90">
+        <li>เปิด Webhook URL ด้านบนใน OA Manager (ต้องเป็น HTTPS)</li>
+        <li>พนักงาน Add friend <strong>@subhome</strong> จากมือถือ</li>
+        <li>Bot จะส่ง User ID กลับมา — copy ไปใส่ <code>NUXT_LINE_NOTIFY_USER_ID</code> ใน <code>.env</code></li>
+        <li>หลายคน: คั่นด้วย comma เช่น <code>Uaaa,Ubbb</code> แล้ว restart server</li>
+        <li>หรือพิมพ์ <code>id</code> / <code>ทดสอบ</code> ในแชทเพื่อดู User ID อีกครั้ง</li>
+      </ol>
+    </section>
+
     <section class="rounded-2xl border border-amber-100 bg-amber-50/80 p-6">
-      <h3 class="text-sm font-semibold text-amber-900">ข้อจำกัด (MVP)</h3>
+      <h3 class="text-sm font-semibold text-amber-900">ข้อจำกัด</h3>
       <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-amber-900/90">
-        <li>ส่ง Push ได้เฉพาะ <strong>line_user_id</strong> ของผู้ที่เพิ่มเพื่อน OA แล้ว — ไม่สามารถ push ไปหา @line_id ที่ลูกค้ากรอกในฟอร์มได้</li>
-        <li>ระบบนี้แจ้งเตือนทีมงานเมื่อมีคำขอใหม่ + รับ webhook พื้นฐาน (follow / ข้อความ)</li>
-        <li>ลูกค้าเปิด Line OA เองผ่านลิงก์สาธารณะหลังส่งฟอร์ม</li>
+        <li>ส่ง Push ได้เฉพาะ User ID ที่ Add friend OA แล้ว — ไม่สามารถ push ไปหา @line_id ที่ลูกค้ากรอกในฟอร์มได้</li>
+        <li>เพิ่ม/ลบผู้รับ = แก้ <code>NUXT_LINE_NOTIFY_USER_ID</code> แล้ว restart server</li>
       </ul>
     </section>
 
     <section class="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">
       <h3 class="text-sm font-semibold text-gray-900">ทดสอบการแจ้งเตือน</h3>
       <p class="mt-1 text-sm text-gray-500">
-        ส่งข้อความ «ทดสอบ LG Subscribe Line OA» ไปยัง user id ใน LINE_NOTIFY_USER_IDS
+        ส่งข้อความ «ทดสอบ LG Subscribe Line OA» ไปยังทุก User ID ใน <code>NUXT_LINE_NOTIFY_USER_ID</code>
       </p>
       <button
         type="button"
@@ -182,7 +194,7 @@ async function copyWebhookUrl() {
         ส่งข้อความทดสอบ
       </button>
       <p v-if="!status?.configured && !pending" class="mt-2 text-xs text-amber-700">
-        ต้องตั้ง LINE_CHANNEL_ACCESS_TOKEN และ LINE_NOTIFY_USER_IDS ก่อน
+        ต้องตั้ง NUXT_LINE_CHANNEL_ACCESS_TOKEN และ NUXT_LINE_NOTIFY_USER_ID
       </p>
       <p v-if="testMessage" class="mt-3 text-sm text-emerald-700">{{ testMessage }}</p>
       <p v-if="testError" class="mt-3 text-sm text-red-600">{{ testError }}</p>
@@ -192,11 +204,10 @@ async function copyWebhookUrl() {
       <h3 class="text-sm font-semibold text-gray-900 not-prose">วิธีตั้งค่า (สรุป)</h3>
       <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm">
         <li>สร้าง Messaging API channel ที่ <a href="https://developers.line.biz/" target="_blank" rel="noopener" class="text-red-600 underline">Line Developers Console</a></li>
-        <li>คัดลอก Channel access token และ Channel secret ใส่ใน <code>.env</code></li>
-        <li>เปิด Webhook แล้ววาง Webhook URL ด้านบน — ใช้ HTTPS (production หรือ ngrok ตอนพัฒนา)</li>
-        <li>ให้แอดมินเพิ่มเพื่อน OA จากมือถือ — ดู <code>line_user_id</code> ใน log ของ webhook เมื่อมี event <code>follow</code></li>
-        <li>ใส่ user id นั้นใน <code>LINE_NOTIFY_USER_IDS</code> (คั่นด้วย comma ถ้าหลายคน) แล้วรีสตาร์ทเซิร์ฟเวอร์</li>
-        <li>กด «ส่งข้อความทดสอบ» — เมื่อสำเร็จ ระบบจะ push สรุปคำขอใหม่ให้อัตโนมัติ</li>
+        <li>คัดลอก Channel access token, Channel secret ใส่ใน <code>.env</code></li>
+        <li>เปิด Webhook แล้ววาง Webhook URL ด้านบน</li>
+        <li>พนักงาน Add friend OA → copy User ID → ใส่ <code>NUXT_LINE_NOTIFY_USER_ID</code></li>
+        <li>Restart server แล้วกด «ส่งข้อความทดสอบ»</li>
       </ol>
     </section>
   </div>

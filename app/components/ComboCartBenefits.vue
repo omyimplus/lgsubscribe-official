@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ComboCustomerSegment } from '~~/shared/types/comboProgram'
-import { comboCalculationNote, comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
+import { comboCalculationNoteForCart, comboSegmentLabels } from '~~/shared/utils/comboProgramDisplay'
 import { isTimelineStepActive } from '~~/shared/utils/comboPricing'
 
 const props = withDefaults(
@@ -73,6 +73,10 @@ const maxTierReached = computed(() =>
   && !combo.nextTierHint.value
   && currentPercent.value > 0,
 )
+
+const calculationNote = computed(() =>
+  comboCalculationNoteForCart(combo.quote.value.has_advance_items),
+)
 </script>
 
 <template>
@@ -111,14 +115,14 @@ const maxTierReached = computed(() =>
         </span>
       </summary>
       <p class="mt-1 text-[10px] leading-snug text-gray-500">
-        {{ comboCalculationNote }}
+        {{ calculationNote }}
       </p>
     </details>
     <p
       v-else
       class="mt-1.5 text-[11px] leading-relaxed text-gray-500"
     >
-      {{ comboCalculationNote }}
+      {{ calculationNote }}
     </p>
 
     <div

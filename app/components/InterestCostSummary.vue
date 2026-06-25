@@ -114,7 +114,9 @@ const showContract = ref(false)
         มีมัดจำ = ชำระมัดจำวันรับสินค้า · ไม่มีมัดจำ = ชำระงวดแรกวันเริ่มสัญญา
         · ยอดสุทธิรวมงวดถัดไปตามตารางบิล
         <template v-if="comboQuote?.savings">
-          · combo มีผลตั้งแต่บิลที่ 2
+          · {{ comboQuote.has_advance_items
+            ? 'มีมัดจำ — combo หักตั้งแต่เดือนที่ 1'
+            : 'combo มีผลตั้งแต่บิลที่ 2' }}
         </template>
       </p>
     </div>

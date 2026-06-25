@@ -22,7 +22,7 @@ const cartComboActive = computed(
   () => props.variant === 'cart' && props.schedule.combo_percent > 0,
 )
 
-/** งวดบิลแผน 1 ที่ยังไม่หัก combo — ไม่ใช้เมื่อแสดง — วันทำรายการแล้ว */
+/** งวดบิลแผน 1 ที่ยังไม่หัก combo — เฉพาะรายการไม่มีมัดจำ */
 function showBill1FullPriceNote(
   cell: {
     source_bill: number | null
@@ -40,19 +40,6 @@ function showBill1FullPriceNote(
     && !colHasAdvance
 }
 
-function showBill2ComboBreakdown(cell: {
-  source_bill: number | null
-  combo_applied: boolean
-  is_advance: boolean
-  deferred_discount: number
-  own_discount: number
-}) {
-  return cell.combo_applied
-    && !cell.is_advance
-    && cell.source_bill === 2
-    && (cell.deferred_discount > 0 || cell.own_discount > 0)
-}
-
 function showSimpleComboDiscount(
   cell: {
     source_bill: number | null
@@ -66,7 +53,51 @@ function showSimpleComboDiscount(
     && cell.percent > 0
     && !cell.is_advance
     && !showBill1FullPriceNote(cell, colHasAdvance)
-    && !showBill2ComboBreakdown(cell)
+}
+
+function comboSavingsAmount(
+  cell: {
+    source_bill: number | null
+    in_contract: boolean
+    base: number
+    charged: number
+    combo_applied: boolean
+    is_advance: boolean
+    is_signup_payment: boolean
+    prepaid_at_signup: boolean
+    percent: number
+    deferred_discount: number
+    own_discount: number
+  },
+  colHasAdvance: boolean,
+) {
+  if (cell.is_advance || cell.is_signup_payment || cell.prepaid_at_signup) return 0
+  if (showBill1FullPriceNote(cell, colHasAdvance)) return 0
+  if (!cell.combo_applied || cell.percent <= 0) return 0
+  return Math.max(0, cell.base - cell.charged)
+}
+
+/** ไม่มีมัดจำ เดือนที่ 2 — เลื่อนส่วนลด combo งวดแรกมาหักในงวดนี้ */
+function showDeferBill1ComboNote(
+  cell: {
+    source_bill: number | null
+    combo_applied: boolean
+    is_advance: boolean
+    is_signup_payment: boolean
+    prepaid_at_signup: boolean
+    deferred_discount: number
+    percent: number
+  },
+  colHasAdvance: boolean,
+) {
+  return !colHasAdvance
+    && !cell.is_advance
+    && !cell.is_signup_payment
+    && !cell.prepaid_at_signup
+    && cell.source_bill === 2
+    && cell.combo_applied
+    && cell.percent > 0
+    && cell.deferred_discount > 0
 }
 
 const footnote = computed(() => {
@@ -74,7 +105,7 @@ const footnote = computed(() => {
     return 'แต่ละคอลัมน์ = แผนสัญญาหนึ่งแบบ · วันทำรายการ = มัดจำ (ถ้ามี) หรืองวด 1 (ถ้าไม่มีมัดจำ) · เดือนที่ 1 = — ถ้างวด 1 ชำระแล้ววันทำรายการ'
   }
   if (props.schedule.has_advance_shift) {
-    return 'วันทำรายการ = มัดจำ · เดือนที่ 1 = บิลแผน 1 · เดือนที่ 2 = บิลแผน 2 · combo ตามสูตรบิลแผน (เดือนที่ 2 หัก % บิล 1 + งวดนี้) · ยอดรวมต่อแถว = ผลรวมทุกรายการ'
+    return 'วันทำรายการ = มัดจำ · เดือนที่ 1 = บิลแผน 1 (หัก combo ทันที) · เดือนที่ 2 ขึ้นไปหัก % เฉพาะงวดนั้น · ยอดรวมต่อแถว = ผลรวมทุกรายการ'
   }
   return 'วันทำรายการ = งวดที่ 1 · เดือนที่ 1 = ไม่ต้องชำระ (—) · เดือนที่ 2 หัก % ของงวด 1 (เลื่อน) + % ของงวด 2 · เดือนที่ 3 เป็นต้นไป หัก % ของงวดนั้น · ยอดรวมต่อแถว = ผลรวมทุกรายการในตะกร้า'
 })
@@ -255,22 +286,33 @@ const footnote = computed(() => {
                     ยังไม่หัก combo
                   </p>
                 </template>
-                <template v-else-if="showBill2ComboBreakdown(cell)">
+                <template v-else-if="showDeferBill1ComboNote(cell, schedule.columns[colIndex]!.has_advance)">
                   <p class="text-[10px] text-gray-500 sm:text-xs">
                     {{ formatNormalBaht(cell.base) }}
                   </p>
-                  <p class="text-[10px] text-gray-500 sm:text-xs">
+                  <p class="text-[10px] font-medium text-[#ea1917] sm:text-xs">
                     รวม combo งวดแรก
+                  </p>
+                  <p class="text-[10px] font-medium text-[#ea1917] sm:text-xs">
+                    ส่วนลด combo −{{ formatPrice(comboSavingsAmount(cell, schedule.columns[colIndex]!.has_advance)) }} บาท
+                  </p>
+                  <p class="mt-0.5 text-sm font-bold text-[#ea1917] sm:text-lg">
+                    {{ formatPrice(cell.charged) }}
+                  </p>
+                </template>
+                <template v-else-if="showSimpleComboDiscount(cell, schedule.columns[colIndex]!.has_advance) || cell.base > 0">
+                  <p class="text-[10px] text-gray-500 sm:text-xs">
+                    {{ formatNormalBaht(cell.base) }}
+                  </p>
+                  <p
+                    v-if="comboSavingsAmount(cell, schedule.columns[colIndex]!.has_advance) > 0"
+                    class="text-[10px] font-medium text-[#ea1917] sm:text-xs"
+                  >
+                    ส่วนลด combo −{{ formatPrice(comboSavingsAmount(cell, schedule.columns[colIndex]!.has_advance)) }} บาท
                   </p>
                 </template>
                 <p
-                  v-else-if="showSimpleComboDiscount(cell, schedule.columns[colIndex]!.has_advance) || cell.base > 0"
-                  class="text-[10px] text-gray-500 sm:text-xs"
-                >
-                  {{ formatNormalBaht(cell.base) }}
-                </p>
-                <p
-                  v-if="!cell.is_advance && !cell.is_signup_payment && !cell.prepaid_at_signup"
+                  v-if="!cell.is_advance && !cell.is_signup_payment && !cell.prepaid_at_signup && !showDeferBill1ComboNote(cell, schedule.columns[colIndex]!.has_advance)"
                   class="mt-0.5 text-sm font-bold text-[#ea1917] sm:text-lg"
                 >
                   {{ formatPrice(cell.charged) }}

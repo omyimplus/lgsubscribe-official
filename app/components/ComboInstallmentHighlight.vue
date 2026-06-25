@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { ComboQuoteResult } from '~~/shared/utils/comboPricing'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
-import { comboDeferFromBill1Note } from '~~/shared/utils/comboProgramDisplay'
+import {
+  comboDeferFromBill1Note,
+  comboImmediateFromBill1Note,
+} from '~~/shared/utils/comboProgramDisplay'
 
 const props = defineProps<{
   quote: ComboQuoteResult
@@ -10,10 +13,15 @@ const props = defineProps<{
 }>()
 
 const pct = computed(() => props.quote.percent)
+const hasAdvance = computed(() => props.quote.has_advance_items)
 const bill1 = computed(() => summarizeComboBillTotals(props.quote, 1))
 const bill2 = computed(() => summarizeComboBillTotals(props.quote, 2))
 
 const showBill2 = computed(() => props.quote.percent > 0 && bill2.value.has_data)
+const bill1HasCombo = computed(() => hasAdvance.value && props.quote.percent > 0 && bill1.value.savings > 0)
+const comboNote = computed(() =>
+  hasAdvance.value ? comboImmediateFromBill1Note : comboDeferFromBill1Note,
+)
 </script>
 
 <template>
@@ -23,13 +31,22 @@ const showBill2 = computed(() => props.quote.percent > 0 && bill2.value.has_data
   >
     <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
       <p class="text-xs font-semibold text-gray-900">
-        งวดแรกที่ต้องชำระ (บิลที่ 1)
+        {{ hasAdvance ? 'เดือนที่ 1 (บิลแผน 1)' : 'งวดแรกที่ต้องชำระ (บิลที่ 1)' }}
       </p>
       <div class="mt-1.5 flex items-baseline justify-between gap-2">
-        <span class="text-sm text-gray-700">รวมค่างวดงวดแรก</span>
+        <span class="text-sm text-gray-700">รวมค่างวด</span>
         <span class="text-lg font-bold text-gray-900">{{ formatBaht(bill1.total_charged) }}</span>
       </div>
-      <p class="mt-0.5 text-[11px] text-gray-500">
+      <p
+        v-if="bill1HasCombo"
+        class="mt-0.5 text-[11px] text-red-700"
+      >
+        หลังหัก combo {{ pct }}% (ประหยัด {{ formatBaht(bill1.savings) }})
+      </p>
+      <p
+        v-else
+        class="mt-0.5 text-[11px] text-gray-500"
+      >
         ราคาเต็มตามแผน · ยังไม่หักส่วนลด combo
       </p>
       <ul
@@ -52,10 +69,10 @@ const showBill2 = computed(() => props.quote.percent > 0 && bill2.value.has_data
       class="rounded-lg border border-red-200/80 bg-gradient-to-b from-red-50/80 to-white px-3 py-2.5"
     >
       <p class="text-xs font-semibold text-gray-900">
-        งวดที่ 2 (หลังรวมส่วนลด combo)
+        {{ hasAdvance ? 'เดือนที่ 2 (หลังหัก combo)' : 'งวดที่ 2 (รวมส่วนลด combo งวดที่ 1+2)' }}
       </p>
       <div class="mt-1.5 flex items-baseline justify-between gap-2">
-        <span class="text-sm text-gray-700">รวมชำระงวดที่ 2</span>
+        <span class="text-sm text-gray-700">รวมชำระ</span>
         <span class="text-lg font-bold text-red-700">{{ formatBaht(bill2.total_charged) }}</span>
       </div>
       <p class="mt-0.5 text-right text-[11px] text-gray-500">
@@ -67,10 +84,12 @@ const showBill2 = computed(() => props.quote.percent > 0 && bill2.value.has_data
         class="mt-2.5 space-y-1 rounded-md bg-white/90 px-2.5 py-2 text-[11px] text-gray-700"
       >
         <p class="font-medium text-gray-800">
-          ส่วนลดในงวดที่ 2 รวม {{ formatBaht(bill2.savings) }}
+          {{ hasAdvance
+            ? `ส่วนลดในงวดที่ 2 รวม ${formatBaht(bill2.savings)}`
+            : `ส่วนลด combo รวมงวดที่ 1+2 ${formatBaht(bill2.savings)}` }}
         </p>
         <div
-          v-if="bill2.total_deferred_discount > 0"
+          v-if="!hasAdvance && bill2.total_deferred_discount > 0"
           class="flex justify-between gap-2"
         >
           <span>{{ pct }}% ของงวดที่ 1 (เลื่อนมาหักในงวดนี้)</span>
@@ -86,7 +105,7 @@ const showBill2 = computed(() => props.quote.percent > 0 && bill2.value.has_data
       </div>
 
       <p class="mt-2.5 border-t border-red-100 pt-2 text-[11px] leading-relaxed text-gray-600">
-        {{ comboDeferFromBill1Note }}
+        {{ comboNote }}
       </p>
 
       <ul
@@ -103,7 +122,7 @@ const showBill2 = computed(() => props.quote.percent > 0 && bill2.value.has_data
             <span class="shrink-0 text-red-700">{{ formatBaht(line.charged) }}</span>
           </div>
           <p
-            v-if="(line.deferred_discount ?? 0) > 0"
+            v-if="!hasAdvance && (line.deferred_discount ?? 0) > 0"
             class="mt-0.5 flex justify-between text-gray-600"
           >
             <span>เลื่อนจากงวด 1 ({{ pct }}%)</span>

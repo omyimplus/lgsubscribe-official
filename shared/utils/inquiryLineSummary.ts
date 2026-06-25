@@ -112,13 +112,29 @@ export function buildLineSummary(
     }
     if (quote.percent > 0) {
       lines.push(`  ส่วนลด: ${quote.percent}% (${quote.item_count} ชิ้น)`)
-      lines.push(`  งวดที่ 1 ชำระเต็ม: ${formatBahtLine(bill1.total_charged)}`)
+      if (quote.has_advance_items) {
+        lines.push(`  เดือนที่ 1 หลัง combo: ${formatBahtLine(bill1.total_charged)}`)
+      }
+      else {
+        lines.push(`  งวดที่ 1 ชำระเต็ม: ${formatBahtLine(bill1.total_charged)}`)
+      }
       if (bill2.has_data) {
-        lines.push(`  งวดที่ 2 หลัง combo: ${formatBahtLine(bill2.total_charged)}`)
-        if (bill2.total_deferred_discount > 0) {
-          lines.push(`    - เลื่อนจากงวด 1 (${quote.percent}%): ${formatBahtLine(bill2.total_deferred_discount)}`)
+        if (quote.has_advance_items) {
+          lines.push(`  งวดที่ 2 หลัง combo: ${formatBahtLine(bill2.total_charged)}`)
         }
-        if (bill2.total_own_discount > 0) {
+        else {
+          lines.push(`  งวดที่ 2 หลัง combo (รวมงวดที่ 1+2): ${formatBahtLine(bill2.total_charged)}`)
+          if (bill2.savings > 0) {
+            lines.push(`    - ส่วนลด combo รวมงวดที่ 1+2: ${formatBahtLine(bill2.savings)}`)
+          }
+        }
+        if (!quote.has_advance_items && bill2.total_deferred_discount > 0) {
+          lines.push(`    - งวด 1 เลื่อน (${quote.percent}%): ${formatBahtLine(bill2.total_deferred_discount)}`)
+        }
+        if (bill2.total_own_discount > 0 && quote.has_advance_items) {
+          lines.push(`    - งวด 2 (${quote.percent}%): ${formatBahtLine(bill2.total_own_discount)}`)
+        }
+        else if (bill2.total_own_discount > 0 && !quote.has_advance_items) {
           lines.push(`    - งวด 2 (${quote.percent}%): ${formatBahtLine(bill2.total_own_discount)}`)
         }
       }

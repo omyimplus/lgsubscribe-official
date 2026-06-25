@@ -2,7 +2,9 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import type { H3Event } from 'h3'
 
 const LINE_PUSH_URL = 'https://api.line.me/v2/bot/message/push'
+const LINE_MULTICAST_URL = 'https://api.line.me/v2/bot/message/multicast'
 const LINE_REPLY_URL = 'https://api.line.me/v2/bot/message/reply'
+const MAX_LINE_TEXT = 5000
 
 function getLineRuntime() {
   return useRuntimeConfig()
@@ -15,9 +17,13 @@ export function parseNotifyUserIds(raw?: string): string[] {
 }
 
 export function isLineConfigured(): boolean {
-  const config = getLineRuntime()
-  const token = String(config.lineChannelAccessToken ?? '').trim()
-  return Boolean(token) && parseNotifyUserIds().length > 0
+  return hasLineAccessToken() && parseNotifyUserIds().length > 0
+}
+
+function truncateLineText(text: string): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= MAX_LINE_TEXT) return trimmed
+  return `${trimmed.slice(0, MAX_LINE_TEXT - 1)}…`
 }
 
 export function hasLineAccessToken(): boolean {
@@ -55,13 +61,34 @@ export type LinePushResult = {
 
 export async function sendLinePush(userIds: string[], text: string): Promise<LinePushResult> {
   const token = String(getLineRuntime().lineChannelAccessToken ?? '').trim()
-  const ids = userIds.filter(Boolean)
+  const ids = [...new Set(userIds.map(id => id.trim()).filter(Boolean))]
+  const message = truncateLineText(text)
   if (!token || !ids.length) {
     return { ok: false, error: 'Line push ไม่ได้ตั้งค่า (token หรือ user ids)' }
   }
 
   try {
-    const res = await fetch(LINE_PUSH_URL, {
+    if (ids.length === 1) {
+      const res = await fetch(LINE_PUSH_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          to: ids[0],
+          messages: [{ type: 'text', text: message }],
+        }),
+      })
+      if (!res.ok) {
+        const detail = await res.text().catch(() => '')
+        console.error('[line] push failed', res.status, detail)
+        return { ok: false, error: `Line API ${res.status}` }
+      }
+      return { ok: true, sentTo: 1 }
+    }
+
+    const res = await fetch(LINE_MULTICAST_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -69,22 +96,24 @@ export async function sendLinePush(userIds: string[], text: string): Promise<Lin
       },
       body: JSON.stringify({
         to: ids,
-        messages: [{ type: 'text', text }],
+        messages: [{ type: 'text', text: message }],
       }),
     })
-
     if (!res.ok) {
       const detail = await res.text().catch(() => '')
-      console.error('[line] push failed', res.status, detail)
+      console.error('[line] multicast failed', res.status, detail)
       return { ok: false, error: `Line API ${res.status}` }
     }
-
     return { ok: true, sentTo: ids.length }
   }
   catch (err) {
     console.error('[line] push error', err)
     return { ok: false, error: err instanceof Error ? err.message : 'push failed' }
   }
+}
+
+export async function sendLinePushToStaff(text: string): Promise<LinePushResult> {
+  return sendLinePush(parseNotifyUserIds(), text)
 }
 
 export async function sendLineReply(replyToken: string, text: string): Promise<void> {

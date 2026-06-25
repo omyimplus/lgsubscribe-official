@@ -4,9 +4,6 @@ import {
   verifyLineWebhookSignature,
 } from '~~/server/utils/lineMessaging'
 
-const WELCOME_TEXT = 'ยินดีต้อนรับ LG Subscribe — ระบบจะแจ้งทีมงานเมื่อมีลูกค้าส่งคำขอสนใจผ่อนผ่านเว็บไซต์'
-const AUTO_REPLY_TEXT = 'ขอบคุณที่ติดต่อ LG Subscribe ทีมงานจะตอบกลับโดยเร็วที่สุดในช่วงเวลาทำการ'
-
 type LineWebhookBody = {
   events?: LineEvent[]
 }
@@ -44,17 +41,39 @@ export default defineEventHandler(async (event) => {
   const canReply = hasLineAccessToken()
   for (const ev of payload.events ?? []) {
     const userId = ev.source?.userId
+    if (!userId || !ev.replyToken) continue
+
     if (userId) {
       console.info('[line] webhook event', ev.type, userId)
     }
 
-    if (!canReply || !ev.replyToken) continue
+    if (!canReply) continue
 
     if (ev.type === 'follow') {
-      await sendLineReply(ev.replyToken, WELCOME_TEXT)
+      await sendLineReply(
+        ev.replyToken,
+        [
+          'เชื่อม LG Subscribe สำเร็จ',
+          'User ID ของคุณ:',
+          userId,
+          '',
+          'นำไปใส่ใน NUXT_LINE_NOTIFY_USER_ID',
+        ].join('\n'),
+      )
+      continue
     }
-    else if (ev.type === 'message' && ev.message?.type === 'text') {
-      await sendLineReply(ev.replyToken, AUTO_REPLY_TEXT)
+
+    if (ev.type === 'message' && ev.message?.type === 'text') {
+      const text = ev.message.text?.trim().toLowerCase() ?? ''
+      if (text === 'id' || text === 'ทดสอบ' || text === 'test') {
+        await sendLineReply(
+          ev.replyToken,
+          [
+            'LG Subscribe setup',
+            `NUXT_LINE_NOTIFY_USER_ID=${userId}`,
+          ].join('\n'),
+        )
+      }
     }
   }
 

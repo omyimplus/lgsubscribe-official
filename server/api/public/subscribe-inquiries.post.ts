@@ -7,7 +7,7 @@ import type { Product } from '~~/shared/types/product'
 import { getOptionalAuthUserFromEvent } from '~~/server/utils/authUser'
 import { buildInquiryComboSnapshot, parseComboCustomerSegment } from '~~/server/utils/comboInquiry'
 import { buildLineSummary } from '~~/shared/utils/inquiryLineSummary'
-import { isLineConfigured, parseNotifyUserIds, sendLinePush } from '~~/server/utils/lineMessaging'
+import { isLineConfigured, sendLinePushToStaff } from '~~/server/utils/lineMessaging'
 import { fetchProductPlanById } from '~~/server/utils/productPlansDb'
 import { fetchDefaultPlanPricingSummaries, planToInquirySnapshot } from '~~/server/utils/productPlanStorefront'
 import { mapProduct, productSelect } from '~~/server/utils/productDb'
@@ -188,7 +188,7 @@ export default defineEventHandler(async (event) => {
       `รหัสคำขอ: ${data.id}`,
       'ดูในแอดมิน: /admin/inquiries',
     ].join('\n')
-    void sendLinePush(parseNotifyUserIds(), pushText)
+    void sendLinePushToStaff(pushText)
   }
 
   return {

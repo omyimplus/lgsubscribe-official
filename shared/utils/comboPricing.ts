@@ -49,6 +49,8 @@ export type ComboQuoteResult = {
   order_total_base: number
   order_total_charged: number
   savings: number
+  /** มีอย่างน้อย 1 รายการที่มีมัดจำ → ใช้โหมดหัก combo ตั้งแต่เดือนที่ 1 */
+  has_advance_items: boolean
 }
 
 export type ComboBillLineDetail = {
@@ -103,18 +105,33 @@ export function inquiryItemHasAdvance(item: Pick<InquiryItem, 'advance_amount'>)
 }
 
 /**
- * งวด 1 = จ่ายเต็ม
- * งวด 2 = หัก (pct% ของงวด 1) + (pct% ของงวด 2) เป็นส่วนลดในงวดนี้
- * งวด 3+ = หัก pct% ของงวดนั้น
+ * ไม่มีมัดจำ (defer_rate):
+ *   งวด 1 = จ่ายเต็ม
+ *   งวด 2 = หัก (pct% ของงวด 1) + (pct% ของงวด 2)
+ *   งวด 3+ = หัก pct% ของงวดนั้น
+ *
+ * มีมัดจำ (immediate_rate):
+ *   ทุกงวด = หัก pct% ของงวดนั้น (ไม่เลื่อนส่วนลดจากงวด 1 ไปงวด 2)
  */
 export function computeComboChargedForBill(
   bill: number,
   base: number,
   percent: number,
   bill1Base: number,
+  hasAdvance = false,
   effectiveFromBill = COMBO_EFFECTIVE_FROM_BILL,
 ): Pick<ComboBillLine, 'charged' | 'combo_applied' | 'deferred_discount' | 'own_discount'> {
-  if (percent <= 0 || bill < effectiveFromBill) {
+  if (percent <= 0) {
+    return { charged: base, combo_applied: false }
+  }
+
+  if (hasAdvance) {
+    const own_discount = base * percent / 100
+    const charged = Math.max(0, base - own_discount)
+    return { charged, combo_applied: true, own_discount }
+  }
+
+  if (bill < effectiveFromBill) {
     return { charged: base, combo_applied: false }
   }
 
@@ -154,6 +171,7 @@ export function buildComboQuoteForItem(
   percent: number,
   effectiveFromBill = COMBO_EFFECTIVE_FROM_BILL,
 ): ComboItemQuote {
+  const hasAdvance = inquiryItemHasAdvance(item)
   const bills: ComboBillLine[] = []
   let contract_total_base = 0
   let contract_total_charged = 0
@@ -167,6 +185,7 @@ export function buildComboQuoteForItem(
       base,
       percent,
       bill1Base,
+      hasAdvance,
       effectiveFromBill,
     )
 
@@ -204,6 +223,7 @@ export function buildComboQuote(
   const per_item = expanded.map(item => buildComboQuoteForItem(item, percent))
   const order_total_base = per_item.reduce((s, i) => s + i.contract_total_base, 0)
   const order_total_charged = per_item.reduce((s, i) => s + i.contract_total_charged, 0)
+  const has_advance_items = items.some(inquiryItemHasAdvance)
 
   return {
     segment,
@@ -222,6 +242,7 @@ export function buildComboQuote(
     order_total_base,
     order_total_charged,
     savings: order_total_base - order_total_charged,
+    has_advance_items,
   }
 }
 

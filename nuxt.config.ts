@@ -33,9 +33,19 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // server-side only (ไม่ถูก expose ไปฝั่ง client)
     supabaseServiceRoleKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY || '',
-    lineChannelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
-    lineChannelSecret: process.env.LINE_CHANNEL_SECRET || '',
-    lineNotifyUserIds: process.env.LINE_NOTIFY_USER_IDS || '',
+    lineChannelId: process.env.NUXT_LINE_CHANNEL_ID || '',
+    lineChannelAccessToken:
+      process.env.NUXT_LINE_CHANNEL_ACCESS_TOKEN
+      || process.env.LINE_CHANNEL_ACCESS_TOKEN
+      || '',
+    lineChannelSecret:
+      process.env.NUXT_LINE_CHANNEL_SECRET
+      || process.env.LINE_CHANNEL_SECRET
+      || '',
+    lineNotifyUserIds:
+      process.env.NUXT_LINE_NOTIFY_USER_ID
+      || process.env.LINE_NOTIFY_USER_IDS
+      || '',
     // public (เข้าถึงได้ทั้ง client และ server)
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '',

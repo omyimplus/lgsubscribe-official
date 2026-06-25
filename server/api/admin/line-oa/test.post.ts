@@ -1,4 +1,4 @@
-import { isLineConfigured, parseNotifyUserIds, sendLinePush } from '~~/server/utils/lineMessaging'
+import { isLineConfigured, sendLinePushToStaff } from '~~/server/utils/lineMessaging'
 
 const TEST_MESSAGE = 'ทดสอบ LG Subscribe Line OA'
 
@@ -6,11 +6,11 @@ export default defineEventHandler(async () => {
   if (!isLineConfigured()) {
     throw createError({
       statusCode: 400,
-      message: 'ยังไม่ได้ตั้งค่า Line — ต้องมี Channel Access Token และ LINE_NOTIFY_USER_IDS อย่างน้อย 1 คน',
+      message: 'ยังไม่พร้อม — ต้องมี NUXT_LINE_CHANNEL_ACCESS_TOKEN และ NUXT_LINE_NOTIFY_USER_ID',
     })
   }
 
-  const result = await sendLinePush(parseNotifyUserIds(), TEST_MESSAGE)
+  const result = await sendLinePushToStaff(TEST_MESSAGE)
   if (!result.ok) {
     throw createError({
       statusCode: 502,

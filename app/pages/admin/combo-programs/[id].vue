@@ -8,6 +8,7 @@ import type {
 } from '~~/shared/types/comboProgram'
 import {
   comboCalculationNote,
+  comboCalculationNoteWithAdvance,
   comboSegmentLabels,
   comboTierModeLabels,
   formatTierRange,
@@ -184,7 +185,8 @@ async function handleSave() {
       <p v-if="saveError" class="text-sm text-red-600">{{ saveError }}</p>
 
       <p class="rounded-xl border border-gray-100 bg-gray-50 px-4 py-2.5 text-xs text-gray-600">
-        {{ comboCalculationNote }}
+        <p>{{ comboCalculationNote }}</p>
+        <p class="mt-1">{{ comboCalculationNoteWithAdvance }}</p>
       </p>
 
       <form class="max-w-xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm" @submit.prevent="handleSave">

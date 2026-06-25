@@ -53,7 +53,6 @@ export type InstallmentScheduleCell = {
   /** @deprecated ใช้ is_advance */
   bill_number: number
   prepaid_note: boolean
-  defer_combo_note: boolean
 }
 
 export type InstallmentScheduleRow = {
@@ -273,7 +272,6 @@ function buildCell(
       is_signup_payment: false,
       prepaid_at_signup: false,
       prepaid_note: false,
-      defer_combo_note: false,
     }
   }
 
@@ -293,7 +291,6 @@ function buildCell(
     is_signup_payment: line.is_signup_payment,
     prepaid_at_signup: line.prepaid_at_signup,
     prepaid_note: line.is_advance || line.is_signup_payment || line.prepaid_at_signup,
-    defer_combo_note: line.source_bill === 2 && line.deferred_discount > 0,
   }
 }
 
@@ -367,7 +364,9 @@ export function buildInstallmentSchedule(
   const promo_headline = percent > 0 && quote?.program_name
     ? `ส่วนลด Combo ${percent}% · ${quote.program_name}`
     : percent > 0
-      ? `ส่วนลด Combo ${percent}% ตลอดสัญญา (ตามบิลแผน${has_advance_shift ? ' — วันทำรายการ = มัดจำ · เดือนที่ 1 = บิล 1' : ' — วันทำรายการ = งวด 1 · เดือนที่ 1 ไม่ต้องชำระ'})`
+      ? `ส่วนลด Combo ${percent}% ตลอดสัญญา (ตามบิลแผน${has_advance_shift
+        ? ' — วันทำรายการ = มัดจำ · เดือนที่ 1 หัก combo ทันที'
+        : ' — วันทำรายการ = งวด 1 · เดือนที่ 1 ไม่ต้องชำระ'})`
       : null
 
   return {

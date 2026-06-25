@@ -1,6 +1,6 @@
 import type { LpApplicationInput } from '~~/shared/types/lpApplication'
 import { validateLpApplicationForm } from '~~/shared/utils/lpApplicationForm'
-import { isLineConfigured, parseNotifyUserIds, sendLinePush } from '~~/server/utils/lineMessaging'
+import { isLineConfigured, sendLinePushToStaff } from '~~/server/utils/lineMessaging'
 import { buildLpApplicationLineSummary } from '~~/shared/utils/lpApplicationLineSummary'
 
 export default defineEventHandler(async (event) => {
@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
       `รหัสใบสมัคร: ${data.id}`,
       'ดูในแอดมิน: /admin/lp-applications',
     ].join('\n')
-    void sendLinePush(parseNotifyUserIds(), pushText)
+    void sendLinePushToStaff(pushText)
   }
 
   return { id: data.id }

@@ -45,24 +45,69 @@ export function comparePlansForDisplay<
   return a.created_at.localeCompare(b.created_at)
 }
 
-/** เลือกแผนเดียวต่อ (ปี, service_mode) สำหรับหน้าร้าน */
+/** แผนที่แสดงบนหน้าร้าน — ทุกแผน active (เรียงตาม sort_order) */
 export function pickStorefrontPlans(plans: ProductPlan[]): ProductPlan[] {
-  const groups = new Map<string, ProductPlan[]>()
+  return [...plans].sort(comparePlansForDisplay)
+}
 
-  for (const plan of plans) {
-    const key = `${plan.contract_years}:${plan.service_mode}`
-    const list = groups.get(key) ?? []
-    list.push(plan)
-    groups.set(key, list)
-  }
-
-  return [...groups.values()]
-    .map((group) => {
-      if (!group.length) return null
-      return [...group].sort(comparePlansForDisplay)[0]!
+export function plansForYearAndMode<T extends Pick<ProductPlanCardOption, 'contract_years' | 'service_mode' | 'is_default' | 'sort_order' | 'service_interval_months'>>(
+  plans: T[],
+  contractYears: number,
+  serviceMode: ServiceMode,
+): T[] {
+  return plans
+    .filter(p => p.contract_years === contractYears && p.service_mode === serviceMode)
+    .sort((a, b) => {
+      if (a.is_default !== b.is_default) return a.is_default ? -1 : 1
+      const intervalA = a.service_interval_months ?? 9999
+      const intervalB = b.service_interval_months ?? 9999
+      if (intervalA !== intervalB) return intervalA - intervalB
+      return (a.sort_order ?? 0) - (b.sort_order ?? 0)
     })
-    .filter((plan): plan is ProductPlan => plan != null)
-    .sort(comparePlansForDisplay)
+}
+
+/** รอบบริการที่เลือกได้ (Visit/Self) เมื่อปี+โหมดเดียวกันมีหลายแผน */
+export function availableServiceIntervals(
+  plans: ProductPlanCardOption[],
+  contractYears: number,
+  serviceMode: ServiceMode,
+): number[] {
+  if (serviceMode === 'none') return []
+  const intervals = plansForYearAndMode(plans, contractYears, serviceMode)
+    .map(p => p.service_interval_months)
+    .filter((n): n is number => n != null && n > 0)
+  return [...new Set(intervals)].sort((a, b) => a - b)
+}
+
+export function serviceIntervalLabel(months: number) {
+  return `ทุก ${months} เดือน`
+}
+
+export function findPlanByYearModeAndInterval(
+  plans: ProductPlanCardOption[],
+  contractYears: number,
+  serviceMode: ServiceMode,
+  serviceIntervalMonths: number,
+): ProductPlanCardOption | undefined {
+  return plansForYearAndMode(plans, contractYears, serviceMode)
+    .find(p => p.service_interval_months === serviceIntervalMonths)
+}
+
+/** ป้ายเลือกแผนเมื่อมีหลายแผนปี/บริการเดียวกัน (เช่น 5Y สองโปร / รอบบริการต่างกัน) */
+export function planVariantOptionLabel(plan: ProductPlanCardOption): string {
+  if (planShowsServiceInterval(plan)) {
+    return serviceIntervalLabel(plan.service_interval_months!)
+  }
+  const note = plan.display_price_note?.trim()
+  if (note) return note
+  const advance = plan.advance_note?.trim()
+  if (advance) return advance
+  const policy = plan.policy_code?.trim()
+  if (policy) return policy
+  if (plan.display_monthly_price != null) {
+    return `${plan.display_monthly_price.toLocaleString('th-TH')} บ./เดือน`
+  }
+  return plan.contract_label
 }
 
 export function availableContractYears(plans: ProductPlanCardOption[]): number[] {
@@ -84,12 +129,7 @@ export function findPlanByYearAndMode(
   contractYears: number,
   serviceMode: ServiceMode,
 ): ProductPlanCardOption | undefined {
-  const matches = plans.filter(p => p.contract_years === contractYears && p.service_mode === serviceMode)
-  if (!matches.length) return undefined
-  return [...matches].sort((a, b) => {
-    if (a.is_default !== b.is_default) return a.is_default ? -1 : 1
-    return (a.sort_order ?? 0) - (b.sort_order ?? 0)
-  })[0]
+  return plansForYearAndMode(plans, contractYears, serviceMode)[0]
 }
 
 export function pickInitialPlanSelection(
@@ -108,7 +148,13 @@ export function pickInitialPlanSelection(
   }
 }
 
-export function planContractTitle(plan: Pick<ProductPlan, 'contract_label' | 'contract_years' | 'service_mode'>) {
+export function planContractTitle(
+  plan: Pick<ProductPlan, 'contract_label' | 'contract_years' | 'service_mode' | 'service_interval_months'>,
+) {
   const mode = serviceModeLabels[plan.service_mode]
-  return `${plan.contract_label} · ${plan.contract_years} ปี · ${mode}`
+  let title = `${plan.contract_label} · ${plan.contract_years} ปี · ${mode}`
+  if (planShowsServiceInterval(plan)) {
+    title += ` · ${serviceIntervalLabel(plan.service_interval_months!)}`
+  }
+  return title
 }

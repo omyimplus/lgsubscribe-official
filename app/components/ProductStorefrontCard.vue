@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
-import type { ProductDisplayGroup } from '~~/shared/utils/productGroupDisplay'
+import {
+  type ProductDisplayGroup,
+  variantStorefrontTitle,
+} from '~~/shared/utils/productGroupDisplay'
 import type { Tag } from '~~/shared/types/tag'
 import { HOME_FEATURED_TAG_LABEL, isHomeFeaturedTag } from '~~/shared/utils/homeFeatured'
 
@@ -24,9 +27,7 @@ const installmentDialogRef = ref<{ present: () => Promise<void> } | null>(null)
 
 const selected = computed(() => props.group.variants[selectedIndex.value] ?? props.group.variants[0]!)
 const hasMultipleVariants = computed(() => props.group.variants.length > 1)
-const displayTitle = computed(() =>
-  hasMultipleVariants.value ? props.group.displayName : selected.value.name,
-)
+const displayTitle = computed(() => variantStorefrontTitle(selected.value))
 const displayHeadline = computed(() => selected.value.headline?.trim() || '')
 const hasPlans = computed(() => (selected.value.plans?.length ?? 0) > 0)
 

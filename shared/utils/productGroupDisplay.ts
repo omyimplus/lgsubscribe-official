@@ -24,6 +24,39 @@ export type ProductDisplayGroup = {
   variants: Product[]
 }
 
+/** ชื่อบนการ์ด storefront ตาม variant ที่เลือก — อัปเดต BTU / นิ้ว / รุ่น (SKU) */
+export function variantStorefrontTitle(variant: Product): string {
+  const name = variant.name?.trim()
+  if (!name) return 'สินค้า'
+
+  const label = variant.variant_label?.trim()
+  const sku = variant.sku?.trim().toUpperCase()
+  if (!label && !sku) return name
+
+  let title = name
+  if (sku) {
+    title = title.replace(/รุ่น\s+[A-Z0-9-]+/gi, `รุ่น ${sku}`)
+  }
+
+  const btuLabel = label?.match(/(\d[\d,]*)\s*BTU/i)
+  if (btuLabel && /\d[\d,]*\s*BTU/i.test(title)) {
+    title = title.replace(/\d[\d,]*\s*BTU/i, `${btuLabel[1]} BTU`)
+  }
+
+  const inch = label?.match(/(\d+)\s*(?:inch|นิ้ว|")/i)?.[1]
+    ?? (label && !/BTU/i.test(label) ? label.match(/(\d+)/)?.[1] : null)
+  if (inch && /ทีวี/i.test(title)) {
+    if (/ทีวี\s*\d+/i.test(title)) {
+      title = title.replace(/ทีวี\s*\d+\s*"/i, `ทีวี ${inch}"`)
+    }
+    else {
+      title = title.replace(/^ทีวี/i, `ทีวี ${inch}"`)
+    }
+  }
+
+  return title
+}
+
 function variantSortValue(p: Product) {
   return p.variant_sort ?? parseVariantSort(p.variant_label) ?? 9999
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const LINE_EVENT_IMAGE = '/images/add_line_event.webp'
+const LINE_EVENT_IMAGE = '/images/event_add_line.webp'
 
 const { lineOaUrl } = useLineOa()
 </script>

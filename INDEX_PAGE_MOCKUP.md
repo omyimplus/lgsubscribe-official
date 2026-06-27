@@ -140,7 +140,7 @@
 **Mockup**
 
 - กล่องใน **`index-container`** (ไม่ full bleed)
-- **ซ้าย:** รูป `public/images/add_line_event.webp`
+- **ซ้าย:** รูป `public/images/event_add_line.webp`
 - **ขวา:** ข้อความสั้น — ชวนสอบถามผ่าน Line + ปุ่ม **เพิ่ม Line เพื่อสอบถาม**
 
 **โค้ด:** `app/components/home/HomeBannerPair.vue`

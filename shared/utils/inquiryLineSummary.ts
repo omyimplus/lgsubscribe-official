@@ -5,7 +5,7 @@ import { formatContactAddress } from '~~/shared/utils/inquiryForm'
 import { inquirySourceLabel } from '~~/shared/utils/inquirySource'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
 import { formatBahtPlain } from '~~/shared/utils/moneyFormat'
-import { serviceModeLabels } from '~~/shared/utils/planDisplay'
+import { formatInquiryContractSummary } from '~~/shared/utils/planDisplay'
 
 function formatBahtLine(n: number | null | undefined) {
   return formatBahtPlain(n)
@@ -66,11 +66,8 @@ export function buildLineSummary(
   }
   for (const item of items) {
     const qty = getCartItemQuantity(item)
-    const mode = serviceModeLabels[item.service_mode] ?? item.service_mode ?? '—'
     lines.push(`- ${item.name ?? 'สินค้า'}${qty > 1 ? ` ×${qty}` : ''} (${item.sku ?? '—'})`)
-    lines.push(
-      `  สัญญา: ${item.contract_label ?? '—'} · ${item.contract_years ?? '?'} ปี · ${mode}`,
-    )
+    lines.push(`  สัญญา: ${formatInquiryContractSummary(item)}`)
     if (item.display_price_note) {
       lines.push(`  ราคา: ${item.display_price_note}`)
     }

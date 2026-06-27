@@ -1,3 +1,4 @@
+import type { InquiryItem } from '../types/inquiry'
 import type { ProductPlan, ProductPlanCardOption, ServiceMode } from '~~/shared/types/productPlan'
 
 export const SERVICE_MODE_ORDER: ServiceMode[] = ['visit', 'self', 'none']
@@ -108,6 +109,48 @@ export function planVariantOptionLabel(plan: ProductPlanCardOption): string {
     return `${plan.display_monthly_price.toLocaleString('th-TH')} บ./เดือน`
   }
   return plan.contract_label
+}
+
+/** เงื่อนไขสัญญาสั้น — ตารางผ่อน / สรุปรายการ */
+export function formatContractCondition(
+  input: Pick<ProductPlan, 'contract_years' | 'contract_months' | 'service_mode' | 'service_interval_months'>,
+): string {
+  const years = `${input.contract_years} ปี`
+  const mode = serviceModeShortLabels[input.service_mode]
+  if (input.service_mode === 'none') return `${years} · ${input.contract_months} งวด`
+  if (planShowsServiceInterval(input)) {
+    return `${years} · ${mode} · ${serviceIntervalLabel(input.service_interval_months!)}`
+  }
+  return `${years} · ${mode}`
+}
+
+/** บรรทัดสัญญาในตะกร้า / หน้าส่งคำขอ */
+export function inquiryItemContractLine(
+  item: Pick<InquiryItem, 'contract_label' | 'contract_years' | 'contract_months' | 'service_mode' | 'service_interval_months'>,
+): string {
+  const label = item.contract_label?.trim()
+  if (!label) return formatContractCondition(item)
+  if (planShowsServiceInterval(item)) {
+    return `${label} · ${serviceIntervalLabel(item.service_interval_months!)}`
+  }
+  return label
+}
+
+/** สรุปสัญญาเต็ม — Line / export / แอดมิน */
+export function formatInquiryContractSummary(
+  item: Pick<InquiryItem, 'contract_label' | 'contract_years' | 'contract_months' | 'service_mode' | 'service_interval_months'>,
+): string {
+  const mode = serviceModeLabels[item.service_mode]
+  const parts = [
+    item.contract_label,
+    `${item.contract_years} ปี`,
+    `${item.contract_months} บิล`,
+    mode,
+  ]
+  if (planShowsServiceInterval(item)) {
+    parts.push(serviceIntervalLabel(item.service_interval_months!))
+  }
+  return parts.filter(Boolean).join(' · ')
 }
 
 export function availableContractYears(plans: ProductPlanCardOption[]): number[] {

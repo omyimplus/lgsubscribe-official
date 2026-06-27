@@ -5,7 +5,7 @@ import { formatContactAddress, formatContactDisplayName } from '~~/shared/utils/
 import { buildLineSummary } from '~~/shared/utils/inquiryLineSummary'
 import { inquirySourceLabel } from '~~/shared/utils/inquirySource'
 import { formatMoneyForExport } from '~~/shared/utils/moneyFormat'
-import { serviceModeLabels } from '~~/shared/utils/planDisplay'
+import { formatInquiryContractSummary, serviceModeLabels } from '~~/shared/utils/planDisplay'
 
 export const INQUIRY_EXPORT_HEADERS = [
   'รหัสคำขอ',
@@ -167,11 +167,10 @@ function inquiryTotals(row: SubscriptionInquiry) {
 }
 
 function formatItemBlock(item: InquiryItem, index: number) {
-  const mode = serviceModeLabel(item.service_mode)
   const lines = [
     `[${index + 1}] ${item.name ?? 'สินค้า'} (${item.sku ?? '—'})`,
     `  plan: ${item.plan_id ?? '—'} · policy: ${item.policy_code ?? '—'}`,
-    `  สัญญา: ${item.contract_label ?? '—'} · ${item.contract_years ?? '?'} ปี ${item.contract_months ?? '?'} ด. · ${mode}`,
+    `  สัญญา: ${formatInquiryContractSummary(item)}`,
     item.display_price_note
       ? `  ราคา: ${item.display_price_note}`
       : `  ราคา/เดือน: ${formatBaht(item.display_monthly_price)} บ.`,

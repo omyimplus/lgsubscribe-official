@@ -5,7 +5,7 @@ import {
   type ComboBillLine,
   type ComboQuoteResult,
 } from '~~/shared/utils/comboPricing'
-import { cartLineKey, getCartItemQuantity, normalizeCartItems } from '~~/shared/utils/cartQuantity'
+import { formatContractCondition } from '~~/shared/utils/planDisplay'
 
 export type InstallmentScheduleColumn = {
   /** คีย์ไม่ซ้ำต่อคอลัมน์ (product_id:plan_id) */
@@ -336,7 +336,7 @@ export function buildInstallmentSchedule(
       name: item.name,
       sku: item.sku,
       image_url: item.image_url,
-      contract_condition: item.contract_label || `${item.contract_years} ปี`,
+      contract_condition: formatContractCondition(item),
       advance_amount: unitAdvance != null ? unitAdvance * qty : null,
       advance_note: item.advance_note,
       contract_months: item.contract_months,

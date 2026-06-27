@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import type { InquiryItem } from '~~/shared/types/inquiry'
-import {
-  lineAdvanceTotal,
-  lineMonthlyTotal,
-  lineUnitAdvanceAmount,
-  lineUnitMonthlyPrice,
-} from '~~/shared/utils/cartQuantity'
+import { lineAdvanceTotal, lineMonthlyTotal, lineUnitAdvanceAmount, lineUnitMonthlyPrice } from '~~/shared/utils/cartQuantity'
+import { inquiryItemContractLine } from '~~/shared/utils/planDisplay'
 
 const cart = useInterestCart()
 const route = useRoute()
@@ -177,7 +173,7 @@ function lineQty(item: InquiryItem) {
                         {{ item.sku }}
                       </p>
                       <p class="mt-0.5 text-xs text-gray-600">
-                        {{ item.contract_label }}
+                        {{ inquiryItemContractLine(item) }}
                       </p>
                       <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
                         <CartQuantityStepper

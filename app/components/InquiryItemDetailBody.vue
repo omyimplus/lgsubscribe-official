@@ -9,7 +9,7 @@ import {
   lineUnitAdvanceAmount,
   lineUnitMonthlyPrice,
 } from '~~/shared/utils/cartQuantity'
-import { serviceModeLabels } from '~~/shared/utils/planDisplay'
+import { inquiryItemContractLine, planShowsServiceInterval, serviceIntervalLabel, serviceModeLabels } from '~~/shared/utils/planDisplay'
 
 const props = defineProps<{
   item: InquiryItem
@@ -38,7 +38,7 @@ const qty = computed(() => getCartItemQuantity(props.item))
       <dl class="space-y-2">
         <div class="flex justify-between gap-2">
           <dt class="text-gray-600">สัญญา</dt>
-          <dd class="font-medium text-gray-900">{{ item.contract_label }}</dd>
+          <dd class="text-right font-medium text-gray-900">{{ inquiryItemContractLine(item) }}</dd>
         </div>
         <div class="flex justify-between gap-2">
           <dt class="text-gray-600">ระยะเวลา</dt>
@@ -47,6 +47,10 @@ const qty = computed(() => getCartItemQuantity(props.item))
         <div class="flex justify-between gap-2">
           <dt class="text-gray-600">บริการ</dt>
           <dd class="text-right text-gray-900">{{ serviceLabel }}</dd>
+        </div>
+        <div v-if="planShowsServiceInterval(item)" class="flex justify-between gap-2">
+          <dt class="text-gray-600">รอบบริการ</dt>
+          <dd class="text-gray-900">{{ serviceIntervalLabel(item.service_interval_months!) }}</dd>
         </div>
         <div v-if="item.policy_code" class="flex justify-between gap-2">
           <dt class="shrink-0 text-gray-600">Policy</dt>

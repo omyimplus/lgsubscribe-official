@@ -100,10 +100,15 @@ function showDeferBill1ComboNote(
     && cell.deferred_discount > 0
 }
 
+const productScheduleDisclaimers = [
+  'ราคาส่วนลดพิเศษใดๆ จะมีผลเฉพาะออเดอร์ที่ทำรายการสำเร็จและได้รับอนุมัติ ภายในวันเวลาที่กำหนดเท่านั้น',
+  'ราคาข้างต้นเป็นเพียงราคาที่อาจจะมีการปรับตามราคาจริงตามระบบ ตอนสั่งซื้อ เนื่องจากการปัดเศษทศนิยมของแต่ละรายการสินค้า',
+  'บริษัทฯขอสงวนสิทธิ์ในการเปลี่ยนแปลงโปรโมชั่น โดยมิต้องแจ้งให้ทราบล่วงหน้า',
+  'เงื่อนไขเป็นไปตามที่บริษัทฯกำหนด',
+] as const
+
 const footnote = computed(() => {
-  if (props.variant !== 'cart') {
-    return 'แต่ละคอลัมน์ = แผนสัญญาหนึ่งแบบ · วันทำรายการ = มัดจำ (ถ้ามี) หรืองวด 1 (ถ้าไม่มีมัดจำ) · เดือนที่ 1 = — ถ้างวด 1 ชำระแล้ววันทำรายการ'
-  }
+  if (props.variant !== 'cart') return null
   if (props.schedule.has_advance_shift) {
     return 'วันทำรายการ = มัดจำ · เดือนที่ 1 = บิลแผน 1 (หัก combo ทันที) · เดือนที่ 2 ขึ้นไปหัก % เฉพาะงวดนั้น · ยอดรวมต่อแถว = ผลรวมทุกรายการ'
   }
@@ -335,7 +340,22 @@ const footnote = computed(() => {
       </table>
     </div>
 
-    <p class="mx-3 mb-3 px-1 text-left text-[10px] leading-relaxed text-gray-500 sm:mx-5 sm:mb-4 sm:text-center sm:text-xs">
+    <div
+      v-if="variant === 'product'"
+      class="mx-3 mb-3 px-1 text-left text-[10px] leading-relaxed text-gray-600 sm:mx-5 sm:mb-4 sm:text-xs"
+    >
+      <p class="mb-1.5 font-semibold text-gray-800">หมายเหตุ</p>
+      <ol class="list-decimal space-y-1 pl-4">
+        <li v-for="(line, index) in productScheduleDisclaimers" :key="index">
+          {{ line }}
+        </li>
+      </ol>
+    </div>
+
+    <p
+      v-else-if="footnote"
+      class="mx-3 mb-3 px-1 text-left text-[10px] leading-relaxed text-gray-500 sm:mx-5 sm:mb-4 sm:text-center sm:text-xs"
+    >
       {{ footnote }}
     </p>
   </div>

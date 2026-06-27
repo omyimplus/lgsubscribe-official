@@ -21,6 +21,7 @@ export function planToInquiryItem(
     policy_code: plan.policy_code ?? '',
     contract_label: plan.contract_label,
     service_mode: plan.service_mode,
+    service_interval_months: plan.service_interval_months ?? null,
     contract_years: plan.contract_years,
     contract_months: plan.contract_months,
     billing_tiers: tiers.map(t => ({

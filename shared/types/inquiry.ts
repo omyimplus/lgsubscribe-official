@@ -52,6 +52,7 @@ export type InquiryItem = {
   policy_code: string
   contract_label: string
   service_mode: ServiceMode
+  service_interval_months: number | null
   contract_years: number
   contract_months: number
   billing_tiers: InquiryBillingTierSnapshot[]

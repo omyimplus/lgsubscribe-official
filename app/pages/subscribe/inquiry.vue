@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InquiryItem, SubscriptionInquiryInput } from '~~/shared/types/inquiry'
 import { lineAdvanceTotal, lineMonthlyTotal, lineUnitMonthlyPrice } from '~~/shared/utils/cartQuantity'
+import { inquiryItemContractLine } from '~~/shared/utils/planDisplay'
 
 definePageMeta({
   layout: 'default',
@@ -152,7 +153,7 @@ async function copySummary() {
                 <div class="min-w-0 flex-1">
                   <p class="truncate text-sm font-medium">{{ item.name }}</p>
                   <p class="font-mono text-xs text-gray-500">{{ item.sku }}</p>
-                  <p class="text-xs text-gray-600">{{ item.contract_label }}</p>
+                  <p class="text-xs text-gray-600">{{ inquiryItemContractLine(item) }}</p>
                   <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
                     <CartQuantityStepper
                       :quantity="cart.getQuantity(item.product_id, item.plan_id)"

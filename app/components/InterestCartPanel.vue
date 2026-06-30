@@ -9,6 +9,11 @@ const route = useRoute()
 const detailItem = ref<InquiryItem | null>(null)
 const detailOpen = ref(false)
 const scheduleOpen = ref(false)
+const pdfEmailOpen = ref(false)
+const pdfLoading = ref(false)
+const pdfError = ref('')
+
+const cartPdf = useCartInstallmentSchedulePdf()
 
 watch(() => route.fullPath, () => {
   cart.closePanel()
@@ -17,6 +22,10 @@ watch(() => route.fullPath, () => {
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key !== 'Escape') return
+  if (pdfEmailOpen.value) {
+    pdfEmailOpen.value = false
+    return
+  }
   if (scheduleOpen.value) {
     scheduleOpen.value = false
     return
@@ -39,6 +48,8 @@ watch(() => cart.isOpen.value, (open) => {
     window.removeEventListener('keydown', onKeydown)
     detailOpen.value = false
     scheduleOpen.value = false
+    pdfEmailOpen.value = false
+    pdfError.value = ''
   }
 })
 
@@ -55,6 +66,26 @@ function openItemDetail(item: InquiryItem) {
 
 function lineQty(item: InquiryItem) {
   return cart.getQuantity(item.product_id, item.plan_id)
+}
+
+async function onDownloadPdf() {
+  pdfError.value = ''
+  if (!(await cartPdf.isAdminUser())) {
+    pdfEmailOpen.value = true
+    return
+  }
+
+  pdfLoading.value = true
+  try {
+    await cartPdf.downloadPdf(cart.items.value)
+  }
+  catch (e: unknown) {
+    const err = e as { data?: { message?: string }, message?: string }
+    pdfError.value = err.data?.message || err.message || 'ดาวน์โหลด PDF ไม่สำเร็จ'
+  }
+  finally {
+    pdfLoading.value = false
+  }
 }
 </script>
 
@@ -230,14 +261,32 @@ function lineQty(item: InquiryItem) {
                 class="interest-cart-panel__actions border-t border-gray-200 bg-white px-4 pt-2 sm:px-5"
                 style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom))"
               >
-                <button
-                  type="button"
-                  class="flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-800 transition hover:bg-gray-50"
-                  @click="scheduleOpen = true"
-                >
-                  <Icon name="heroicons:table-cells" class="h-4 w-4 text-gray-500" />
-                  ดูตารางผ่อน (ตะกร้า)
-                </button>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-800 transition hover:bg-gray-50"
+                    @click="scheduleOpen = true"
+                  >
+                    <Icon name="heroicons:table-cells" class="h-4 w-4 shrink-0 text-gray-500" />
+                    <span class="truncate">ดูตารางผ่อน</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-800 transition hover:bg-gray-50 disabled:opacity-60"
+                    :disabled="pdfLoading"
+                    @click="onDownloadPdf"
+                  >
+                    <Icon
+                      :name="pdfLoading ? 'heroicons:arrow-path' : 'heroicons:arrow-down-tray'"
+                      class="h-4 w-4 shrink-0 text-gray-500"
+                      :class="{ 'animate-spin': pdfLoading }"
+                    />
+                    <span class="truncate">Download PDF</span>
+                  </button>
+                </div>
+                <p v-if="pdfError" class="mt-1.5 text-center text-xs text-red-600">
+                  {{ pdfError }}
+                </p>
 
                 <div class="interest-cart-panel__actions-row mt-2 flex flex-col gap-2 sm:flex-row">
                   <button
@@ -274,6 +323,12 @@ function lineQty(item: InquiryItem) {
     :open="scheduleOpen"
     :items="cart.items.value"
     @update:open="scheduleOpen = $event"
+  />
+
+  <CartInstallmentSchedulePdfDialog
+    :open="pdfEmailOpen"
+    :items="cart.items.value"
+    @update:open="pdfEmailOpen = $event"
   />
 </template>
 

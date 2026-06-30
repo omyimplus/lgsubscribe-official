@@ -60,9 +60,6 @@ async function handleSubmit(payload: LpApplicationInput) {
         <h1 class="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">
           {{ LP_CAREERS_SECTION.title }}
         </h1>
-        <p class="mt-2 text-sm text-gray-600">
-          {{ LP_CAREERS_SECTION.roleTitle }}
-        </p>
       </div>
     </section>
 
@@ -94,21 +91,55 @@ async function handleSubmit(payload: LpApplicationInput) {
       </template>
 
       <template v-else>
-        <div class="mb-6 rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-700">
-          <ul class="space-y-2">
+        <div class="mb-6 space-y-5 rounded-xl border border-gray-200 bg-white p-5 text-sm leading-relaxed text-gray-700 sm:p-6">
+          <div class="space-y-2">
+            <p
+              v-for="(line, index) in LP_CAREERS_SECTION.intro"
+              :key="`intro-${index}`"
+            >
+              {{ line }}
+            </p>
+          </div>
+
+          <div>
+            <h2 class="text-base font-bold text-gray-900">
+              {{ LP_CAREERS_SECTION.benefitsTitle }}
+            </h2>
+            <ul class="mt-3 space-y-2">
+              <li
+                v-for="item in LP_CAREERS_SECTION.benefits"
+                :key="item"
+                class="flex gap-2"
+              >
+                <span class="shrink-0 text-[#06C755]">✅</span>
+                <span>{{ item }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="space-y-2">
+            <p
+              v-for="(line, index) in LP_CAREERS_SECTION.closing"
+              :key="`closing-${index}`"
+            >
+              {{ line }}
+            </p>
+          </div>
+
+          <ul class="space-y-2 border-t border-gray-100 pt-5">
             <li
               v-for="item in LP_CAREERS_SECTION.qualifications"
               :key="item"
               class="flex gap-2"
             >
-              <span class="text-[#06C755]">✅</span>
+              <span class="shrink-0 text-[#06C755]">✅</span>
               <span>{{ item }}</span>
             </li>
           </ul>
-          <p class="mt-4 font-semibold text-gray-800">
+          <p class="font-semibold text-gray-800">
             **{{ LP_CAREERS_SECTION.salesNote }}**
           </p>
-          <p class="mt-3 rounded-lg bg-[#ea1917] px-4 py-3 text-white">
+          <p class="rounded-lg bg-[#ea1917] px-4 py-3 text-white">
             ***{{ LP_CAREERS_SECTION.scamWarning }}***
           </p>
         </div>

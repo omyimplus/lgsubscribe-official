@@ -113,13 +113,12 @@ watch(
 
     <NuxtLink
       :to="`/products/${selected.id}`"
-      class="product-storefront-card__image mb-4 flex items-center justify-center"
+      class="product-storefront-card__image"
     >
       <img
         v-if="selected.image_url"
         :src="selected.image_url"
         :alt="selected.name"
-        class="max-h-[11.5rem] w-full object-contain"
         loading="lazy"
       >
       <div v-else class="flex h-[11.5rem] w-full items-center justify-center bg-gray-50">

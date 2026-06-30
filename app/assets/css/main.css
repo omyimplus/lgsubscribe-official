@@ -93,6 +93,18 @@
   .product-storefront-card__btn-primary {
     @apply rounded-full bg-[#ea1917] py-2.5 text-sm font-semibold text-white shadow-[0_2px_10px_rgba(234,25,23,0.2)] transition hover:bg-[#d41715] hover:shadow-[0_3px_12px_rgba(234,25,23,0.26)];
   }
+
+  .product-storefront-card__image {
+    @apply mb-4 flex cursor-pointer items-center justify-center overflow-hidden;
+  }
+
+  .product-storefront-card__image img {
+    @apply max-h-[11.5rem] w-full object-contain transition-transform duration-300 ease-out;
+  }
+
+  .product-storefront-card__image:hover img {
+    @apply scale-110;
+  }
 }
 .ql-editor {
   font-family: var(--font-sans);

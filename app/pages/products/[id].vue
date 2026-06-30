@@ -46,6 +46,8 @@ const installmentDialogRef = ref<{ present: () => Promise<void> } | null>(null)
 const copiedSku = ref(false)
 const activeTab = ref<DetailTab>('features')
 const tabPanelRef = ref<HTMLElement | null>(null)
+const pricingAnchorRef = ref<HTMLElement | null>(null)
+const pricingMobileAnchorRef = ref<HTMLElement | null>(null)
 
 const galleryUrls = computed(() => productGalleryUrls(product.value))
 
@@ -162,12 +164,13 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
           />
 
           <!-- มือถือ: ราคาผ่อนทันทีใต้แกลเลอรี่ -->
-          <ProductPdpPricingSection
-            class="lg:hidden"
-            :product="product"
-            @open-plan="openPlanDialog"
-            @open-schedule="scheduleOpen = true"
-          />
+          <div ref="pricingMobileAnchorRef" class="lg:hidden">
+            <ProductPdpPricingSection
+              :product="product"
+              @open-plan="openPlanDialog"
+              @open-schedule="scheduleOpen = true"
+            />
+          </div>
         </div>
 
         <!-- ขวา: ชื่อ · คุณลักษณะที่สำคัญ (รวม รหัสสินค้า) · ราคาผ่อน -->
@@ -207,13 +210,14 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
             </p>
           </section>
 
-          <!-- เดสก์ท็อป: ราคาผ่อนในคอลัมน์ขวา -->
-          <ProductPdpPricingSection
-            class="hidden lg:block"
-            :product="product"
-            @open-plan="openPlanDialog"
-            @open-schedule="scheduleOpen = true"
-          />
+          <!-- เดสก์ท็อป: ราคาผ่อนในคอลัมน์ขวา (ต้นฉบับ) -->
+          <div ref="pricingAnchorRef" class="hidden lg:block">
+            <ProductPdpPricingSection
+              :product="product"
+              @open-plan="openPlanDialog"
+              @open-schedule="scheduleOpen = true"
+            />
+          </div>
 
           <ProductSubscribeValueSection :product="product" />
         </div>
@@ -260,15 +264,21 @@ useEmbeddedVideos(tabPanelRef, activeTabHtml)
       </section>
 
       <ClientOnly>
-        <ProductInstallmentDialog
+        <ProductPdpPricingFloat
           v-if="hasPricing"
+          :product="product"
+          :anchor-el="pricingAnchorRef"
+          :mobile-anchor-el="pricingMobileAnchorRef"
+          @open-plan="openPlanDialog"
+          @open-schedule="scheduleOpen = true"
+        />
+        <ProductInstallmentDialog
           ref="installmentDialogRef"
           :open="planDialogOpen"
           :product="product"
           @update:open="planDialogOpen = $event"
         />
         <ProductInstallmentScheduleDialog
-          v-if="hasPricing"
           :open="scheduleOpen"
           :product="product"
           @update:open="scheduleOpen = $event"

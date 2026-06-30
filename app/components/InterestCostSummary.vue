@@ -110,15 +110,6 @@ const showContract = ref(false)
         <span class="font-medium">ยอดสุทธิโดยประมาณ</span>
         <span class="font-bold text-red-700">{{ formatBaht(comboQuote?.savings ? netAfterCombo : totalNet) }}</span>
       </div>
-      <p class="text-[11px] text-gray-500">
-        มีมัดจำ = ชำระมัดจำวันรับสินค้า · ไม่มีมัดจำ = ชำระงวดแรกวันเริ่มสัญญา
-        · ยอดสุทธิรวมงวดถัดไปตามตารางบิล
-        <template v-if="comboQuote?.savings">
-          · {{ comboQuote.has_advance_items
-            ? 'มีมัดจำ — combo หักตั้งแต่เดือนที่ 1'
-            : 'combo มีผลตั้งแต่บิลที่ 2' }}
-        </template>
-      </p>
     </div>
   </section>
 </template>

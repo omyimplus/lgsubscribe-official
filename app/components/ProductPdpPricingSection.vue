@@ -17,6 +17,7 @@ const emit = defineEmits<{
 }>()
 
 const cart = useInterestCart()
+const { lineOaUrl } = useLineOa()
 
 const hasPricing = computed(() => productHasPlanPricing(props.product))
 const pricing = computed(() => props.product.plan_pricing)
@@ -51,18 +52,30 @@ const inCart = computed(() => cart.hasProduct(props.product.id))
       </span>
     </div>
 
-    <div class="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+    <div class="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start">
+      <div class="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[12rem]">
+        <button
+          type="button"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ea1917] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d41715] sm:w-auto"
+          @click="emit('openPlan')"
+        >
+          <Icon name="heroicons:shopping-cart" class="h-5 w-5" />
+          เลือกแผน / สนใจผ่อน
+        </button>
+        <a
+          v-if="lineOaUrl"
+          :href="lineOaUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#06C755] px-6 py-3 text-sm font-semibold text-white shadow-[0_2px_10px_rgba(6,199,85,0.35)] transition hover:bg-[#05b34c] sm:w-auto"
+        >
+          <Icon name="mdi:chat" class="h-5 w-5 shrink-0" />
+          ติดต่อสอบถาม
+        </a>
+      </div>
       <button
         type="button"
-        class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#ea1917] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d41715] sm:flex-none"
-        @click="emit('openPlan')"
-      >
-        <Icon name="heroicons:shopping-cart" class="h-5 w-5" />
-        เลือกแผน / สนใจผ่อน
-      </button>
-      <button
-        type="button"
-        class="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#1e3354]/25 bg-[#1e3354]/5 py-3 text-sm font-semibold text-[#1e3354] transition hover:bg-[#1e3354]/10 sm:flex-none sm:px-6"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#1e3354]/25 bg-[#1e3354]/5 py-3 text-sm font-semibold text-[#1e3354] transition hover:bg-[#1e3354]/10 sm:w-auto sm:px-6"
         @click="emit('openSchedule')"
       >
         <Icon name="heroicons:table-cells" class="h-5 w-5" />

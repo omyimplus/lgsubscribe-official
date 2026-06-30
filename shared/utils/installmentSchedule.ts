@@ -364,9 +364,7 @@ export function buildInstallmentSchedule(
   const promo_headline = percent > 0 && quote?.program_name
     ? `ส่วนลด Combo ${percent}% · ${quote.program_name}`
     : percent > 0
-      ? `ส่วนลด Combo ${percent}% ตลอดสัญญา (ตามบิลแผน${has_advance_shift
-        ? ' — วันทำรายการ = มัดจำ · เดือนที่ 1 หัก combo ทันที'
-        : ' — วันทำรายการ = งวด 1 · เดือนที่ 1 ไม่ต้องชำระ'})`
+      ? `ส่วนลด Combo ${percent}% ตลอดสัญญา`
       : null
 
   return {

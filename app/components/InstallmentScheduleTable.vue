@@ -106,14 +106,6 @@ const productScheduleDisclaimers = [
   'บริษัทฯขอสงวนสิทธิ์ในการเปลี่ยนแปลงโปรโมชั่น โดยมิต้องแจ้งให้ทราบล่วงหน้า',
   'เงื่อนไขเป็นไปตามที่บริษัทฯกำหนด',
 ] as const
-
-const footnote = computed(() => {
-  if (props.variant !== 'cart') return null
-  if (props.schedule.has_advance_shift) {
-    return 'วันทำรายการ = มัดจำ · เดือนที่ 1 = บิลแผน 1 (หัก combo ทันที) · เดือนที่ 2 ขึ้นไปหัก % เฉพาะงวดนั้น · ยอดรวมต่อแถว = ผลรวมทุกรายการ'
-  }
-  return 'วันทำรายการ = งวดที่ 1 · เดือนที่ 1 = ไม่ต้องชำระ (—) · เดือนที่ 2 หัก % ของงวด 1 (เลื่อน) + % ของงวด 2 · เดือนที่ 3 เป็นต้นไป หัก % ของงวดนั้น · ยอดรวมต่อแถว = ผลรวมทุกรายการในตะกร้า'
-})
 </script>
 
 <template>
@@ -351,13 +343,6 @@ const footnote = computed(() => {
         </li>
       </ol>
     </div>
-
-    <p
-      v-else-if="footnote"
-      class="mx-3 mb-3 px-1 text-left text-[10px] leading-relaxed text-gray-500 sm:mx-5 sm:mb-4 sm:text-center sm:text-xs"
-    >
-      {{ footnote }}
-    </p>
   </div>
 </template>
 

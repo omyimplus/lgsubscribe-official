@@ -25,6 +25,7 @@ const navGroups = [
       { label: 'Tags', icon: 'heroicons:hashtag', to: '/admin/tags' },
       { label: 'ลูกค้า', icon: 'heroicons:user-group', to: '/admin/customers' },
       { label: 'คำขอสนใจผ่อน', icon: 'heroicons:chat-bubble-left-right', to: '/admin/inquiries' },
+      { label: 'อีเมล PDF ตารางผ่อน', icon: 'heroicons:envelope', to: '/admin/cart-pdf-email-leads' },
       { label: 'ใบสมัคร LP', icon: 'heroicons:briefcase', to: '/admin/lp-applications' },
       { label: 'หน้าสมัคร LP', icon: 'heroicons:photo', to: '/admin/lp-careers-page' },
       { label: 'โปรโมชั่น', icon: 'heroicons:gift', to: '/admin/promotions' },

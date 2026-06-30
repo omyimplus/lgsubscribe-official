@@ -28,6 +28,10 @@ export default defineNuxtConfig({
 
   nitro: {
     compressPublicAssets: true,
+    serverAssets: [{
+      baseName: 'fonts',
+      dir: './server/assets/fonts',
+    }],
   },
 
   runtimeConfig: {
@@ -46,6 +50,16 @@ export default defineNuxtConfig({
       process.env.NUXT_LINE_NOTIFY_USER_ID
       || process.env.LINE_NOTIFY_USER_IDS
       || '',
+    smtpHost: process.env.NUXT_SMTP_HOST || '',
+    smtpPort: process.env.NUXT_SMTP_PORT || '587',
+    smtpUser: process.env.NUXT_SMTP_USER || '',
+    smtpPass: process.env.NUXT_SMTP_PASS || '',
+    smtpFrom: process.env.NUXT_SMTP_FROM || '',
+    thaibulkEmailApiKey: process.env.NUXT_THAIBULK_EMAIL_API_KEY || '',
+    thaibulkEmailApiSecret: process.env.NUXT_THAIBULK_EMAIL_API_SECRET || '',
+    thaibulkEmailFrom: process.env.NUXT_THAIBULK_EMAIL_FROM || '',
+    thaibulkEmailFromName: process.env.NUXT_THAIBULK_EMAIL_FROM_NAME || 'LG Subscribe',
+    thaibulkEmailTemplateUuid: process.env.NUXT_THAIBULK_EMAIL_TEMPLATE_UUID || '',
     // public (เข้าถึงได้ทั้ง client และ server)
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || '',

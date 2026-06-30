@@ -3,6 +3,7 @@ import {
   CART_INSTALLMENT_PDF_FILENAME,
 } from '~~/server/utils/cartInstallmentSchedulePdf'
 import { isMailConfigured, sendMail } from '~~/server/utils/mailer'
+import { getPublicSiteUrl } from '~~/server/utils/siteUrl'
 import type { InquiryItem } from '~~/shared/types/inquiry'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -43,7 +44,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const pdf = await buildCartInstallmentSchedulePdf(TEST_ITEMS, null)
-  const siteUrl = useRuntimeConfig().public.siteUrl || 'https://www.lgsubscribe.com'
+  const siteUrl = getPublicSiteUrl(event)
   const subject = 'ทดสอบ — ตารางชำระรายเดือน LG Subscribe'
   const text = [
     'ทดสอบส่งอีเมล PDF ตารางผ่อนจาก LG Subscribe',

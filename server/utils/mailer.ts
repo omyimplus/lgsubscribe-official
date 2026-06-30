@@ -10,7 +10,7 @@ export type MailAttachment = {
 
 export function isSmtpConfigured() {
   const config = useRuntimeConfig()
-  return Boolean(config.smtpHost && config.smtpFrom)
+  return Boolean(config.smtpHost && config.smtpFrom && config.smtpUser && config.smtpPass)
 }
 
 /** SMTP หรือ ThaiBulkSMS Email พร้อมส่งได้ */

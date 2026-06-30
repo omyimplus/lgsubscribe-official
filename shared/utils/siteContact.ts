@@ -3,7 +3,8 @@ export type SitePhone = {
   tel: string
 }
 
-/** ช่องทางติดต่อ LG Subscribe Official — แก้ที่เดียวใช้ทั้งระบบ */
+/** โดเมนหลักของเว็บ — ใช้เมื่อไม่ได้ตั้ง NUXT_PUBLIC_SITE_URL */
+export const SITE_CANONICAL_URL = 'https://lgsubscribe-official.com'
 export const SITE_LINE_OA_URL = 'https://lin.ee/w5FowCj'
 export const SITE_LINE_OA_ID = 'LGSub.Official'
 export const SITE_LINE_QR_IMAGE = '/images/qrcode_line.jpg'

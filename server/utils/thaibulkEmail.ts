@@ -59,7 +59,7 @@ async function thaibulkRequest<T>(
     const message = typeof body === 'object' && body && 'message' in body
       ? String((body as { message: unknown }).message)
       : text || `HTTP ${resp.status}`
-    throw createError({ statusCode: 502, message: `ThaiBulkSMS Email: ${message}` })
+    throw createError({ statusCode: 500, message: `ThaiBulkSMS Email: ${message}` })
   }
 
   return body as T
@@ -81,7 +81,7 @@ async function uploadAttachment(
 
   const uuid = result?.uuid?.trim()
   if (!uuid) {
-    throw createError({ statusCode: 502, message: 'ThaiBulkSMS Email: อัปโหลดไฟล์แนบไม่สำเร็จ' })
+    throw createError({ statusCode: 500, message: 'ThaiBulkSMS Email: อัปโหลดไฟล์แนบไม่สำเร็จ' })
   }
   return uuid
 }

@@ -9,6 +9,7 @@ import {
 import { isMailConfigured, sendMail } from '~~/server/utils/mailer'
 import { markCartPdfEmailSent, upsertCartPdfEmailLead } from '~~/server/utils/cartPdfEmailLead'
 import { getUserRole } from '~~/server/utils/staffAuth'
+import { getPublicSiteUrl } from '~~/server/utils/siteUrl'
 import { normalizeCartItems } from '~~/shared/utils/cartQuantity'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -63,7 +64,7 @@ export default defineEventHandler(async (event) => {
   const supabase = useSupabaseAdmin()
   const { id: leadId } = await upsertCartPdfEmailLead(supabase, email)
 
-  const siteUrl = useRuntimeConfig().public.siteUrl || 'https://www.lgsubscribe.com'
+  const siteUrl = getPublicSiteUrl(event)
   const subject = 'ตารางชำระรายเดือน — LG Subscribe'
   const text = [
     'ขอบคุณที่สนใจบริการ LG Subscribe',
@@ -90,7 +91,8 @@ export default defineEventHandler(async (event) => {
   }
   catch (err) {
     const message = err instanceof Error ? err.message : 'ส่งอีเมลไม่สำเร็จ'
-    throw createError({ statusCode: 502, message })
+    // อย่าใช้ HTTP 502 — Cloudflare จะแทนที่ body ด้วย "error code: 502"
+    throw createError({ statusCode: 500, message })
   }
 
   await markCartPdfEmailSent(supabase, leadId)

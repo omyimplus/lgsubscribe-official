@@ -90,6 +90,7 @@ git push origin main
 
 ```env
 # บังคับ
+NUXT_PUBLIC_SITE_URL=https://lgsubscribe-official.com
 NUXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NUXT_PUBLIC_SUPABASE_ANON_KEY=...
 NUXT_SUPABASE_SERVICE_ROLE_KEY=...   # server only — ห้าม commit / ห้าม expose client
@@ -107,6 +108,13 @@ NUXT_PUBLIC_LINE_OA_ID=...
 # DISPLAY=:99
 # LG_SCRAPE_HEADFUL=1
 # LG_CHROME_PATH=/usr/bin/google-chrome-stable
+
+# ส่ง PDF ตารางผ่อน (Brevo SMTP) — ต้องครบทุกค่า + whitelist IP VPS ใน Brevo
+NUXT_SMTP_HOST=smtp-relay.brevo.com
+NUXT_SMTP_PORT=587
+NUXT_SMTP_USER=b062e6001@smtp-brevo.com
+NUXT_SMTP_PASS=...
+NUXT_SMTP_FROM=LG Subscribe <omyimplusoat@gmail.com>
 ```
 
 ใช้ **Supabase production** แยกจาก dev — อย่าใส่ key dev บน server จริง

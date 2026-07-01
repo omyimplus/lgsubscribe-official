@@ -1,4 +1,3 @@
-import { groupProducts } from '~~/shared/utils/productGroupDisplay'
 import { fetchPromotionWithProducts } from '~~/server/utils/promotionProducts'
 import { isPromotionLive } from '~~/server/utils/promotionDb'
 
@@ -24,10 +23,5 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'โปรโมชั่นไม่เปิดใช้งาน' })
   }
 
-  const groups = groupProducts(promotion.products ?? [])
-
-  return {
-    ...promotion,
-    groups,
-  }
+  return promotion
 })

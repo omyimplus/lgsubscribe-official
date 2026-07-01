@@ -6,6 +6,8 @@ import {
   cardPricePrefix,
   productHasPlanPricing,
 } from '~/composables/useProductPlanPricing'
+import { defaultPlanForProduct } from '~~/shared/utils/cartItemFromPlan'
+import { planHasGiftItems } from '~~/shared/utils/planGiftDisplay'
 
 const props = defineProps<{
   product: Product
@@ -24,6 +26,10 @@ const pricing = computed(() => props.product.plan_pricing)
 const monthlyPrice = computed(() => cardMonthlyPrice(pricing.value))
 const pricePrefix = computed(() => cardPricePrefix(pricing.value))
 const inCart = computed(() => cart.hasProduct(props.product.id))
+const defaultPlan = computed(() => defaultPlanForProduct(props.product))
+const defaultPlanGifts = computed(() =>
+  defaultPlan.value && planHasGiftItems(defaultPlan.value) ? defaultPlan.value.gift_items : [],
+)
 </script>
 
 <template>
@@ -43,6 +49,12 @@ const inCart = computed(() => cart.hasProduct(props.product.id))
       <p v-if="pricing?.display_price_note" class="mt-2 text-sm text-gray-600">
         {{ pricing.display_price_note }}
       </p>
+      <PlanGiftsList
+        v-if="defaultPlanGifts.length"
+        :gifts="defaultPlanGifts"
+        compact
+        class="mt-3"
+      />
       <span
         v-if="inCart"
         class="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800"

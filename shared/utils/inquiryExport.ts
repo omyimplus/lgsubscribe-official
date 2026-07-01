@@ -171,9 +171,11 @@ function formatItemBlock(item: InquiryItem, index: number) {
     `[${index + 1}] ${item.name ?? 'สินค้า'} (${item.sku ?? '—'})`,
     `  plan: ${item.plan_id ?? '—'} · policy: ${item.policy_code ?? '—'}`,
     `  สัญญา: ${formatInquiryContractSummary(item)}`,
-    item.display_price_note
-      ? `  ราคา: ${item.display_price_note}`
-      : `  ราคา/เดือน: ${formatBaht(item.display_monthly_price)} บ.`,
+    item.plan_title
+      ? `  แผน: ${item.plan_title}`
+      : item.display_price_note
+        ? `  ราคา: ${item.display_price_note}`
+        : `  ราคา/เดือน: ${formatBaht(item.display_monthly_price)} บ.`,
   ]
   if (item.billing_tiers?.length) {
     lines.push(`  ช่วงบิล: ${formatBillingTiers(item)}`)

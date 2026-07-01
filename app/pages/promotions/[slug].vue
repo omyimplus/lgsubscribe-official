@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { PromotionWithProducts } from '~~/shared/types/promotion'
-import type { ProductDisplayGroup } from '~~/shared/utils/productGroupDisplay'
 import { promotionBannerSrc } from '~~/shared/utils/promotionDisplay'
 import { promotionKeywords } from '~~/shared/utils/siteSeoPresets'
 
@@ -10,7 +9,7 @@ const route = useRoute()
 const slug = route.params.slug as string
 const { set: setBreadcrumb } = usePageBreadcrumb()
 
-type PromotionPage = PromotionWithProducts & { groups: ProductDisplayGroup[] }
+type PromotionPage = PromotionWithProducts
 
 const { data: promotion, pending, error } = await useFetch<PromotionPage>(
   () => `/api/public/promotions/${slug}`,
@@ -38,7 +37,6 @@ watch(
   },
   { immediate: true },
 )
-
 </script>
 
 <template>
@@ -64,18 +62,21 @@ watch(
         <p v-if="promotion.headline" class="mt-2 text-lg text-red-600">{{ promotion.headline }}</p>
         <p v-if="promotion.description" class="mt-3 max-w-3xl text-gray-600">{{ promotion.description }}</p>
 
-        <p class="mb-6 mt-8 text-sm text-gray-500">
-          {{ promotion.groups.length }} กลุ่ม · {{ promotion.products?.length ?? 0 }} รหัสสินค้า
+        <p class="mb-2 mt-8 text-sm text-gray-500">
+          {{ promotion.offers?.length ?? 0 }} ชิ้นในโปรนี้
+        </p>
+        <p class="mb-6 text-xs text-gray-400">
+          ราคาที่แสดงเป็นราคาตามโปรโมชั่น เงื่อนไขเป็นไปตามที่บริษัทกำหนด
         </p>
 
         <div
-          v-if="promotion.groups.length"
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          v-if="promotion.offers?.length"
+          class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
         >
-          <ProductGroupCard
-            v-for="g in promotion.groups"
-            :key="g.groupId ?? g.variants[0]!.id"
-            :group="g"
+          <PromotionOfferCard
+            v-for="offer in promotion.offers"
+            :key="offer.id"
+            :offer="offer"
           />
         </div>
         <p v-else class="py-12 text-center text-gray-500">ยังไม่มีสินค้าในโปรนี้</p>

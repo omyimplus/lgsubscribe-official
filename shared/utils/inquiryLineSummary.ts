@@ -6,6 +6,7 @@ import { inquirySourceLabel } from '~~/shared/utils/inquirySource'
 import { summarizeComboBillTotals } from '~~/shared/utils/comboPricing'
 import { formatBahtPlain } from '~~/shared/utils/moneyFormat'
 import { formatInquiryContractSummary } from '~~/shared/utils/planDisplay'
+import { planGiftDisplayLabel, planHasGiftItems } from '~~/shared/utils/planGiftDisplay'
 
 function formatBahtLine(n: number | null | undefined) {
   return formatBahtPlain(n)
@@ -68,7 +69,10 @@ export function buildLineSummary(
     const qty = getCartItemQuantity(item)
     lines.push(`- ${item.name ?? 'สินค้า'}${qty > 1 ? ` ×${qty}` : ''} (${item.sku ?? '—'})`)
     lines.push(`  สัญญา: ${formatInquiryContractSummary(item)}`)
-    if (item.display_price_note) {
+    if (item.plan_title) {
+      lines.push(`  แผน: ${item.plan_title}`)
+    }
+    else if (item.display_price_note) {
       lines.push(`  ราคา: ${item.display_price_note}`)
     }
     else {
@@ -95,6 +99,9 @@ export function buildLineSummary(
     }
     if (item.advance_note) {
       lines.push(`  หมายเหตุมัดจำ: ${item.advance_note}`)
+    }
+    if (planHasGiftItems(item) && item.gift_items?.length) {
+      lines.push(`  ของแถม: ${item.gift_items.map(g => planGiftDisplayLabel(g)).join(', ')}`)
     }
   }
 

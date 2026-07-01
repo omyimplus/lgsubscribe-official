@@ -11,7 +11,10 @@ import {
   totalNetAmount,
 } from '~~/shared/utils/planPricing'
 import { pickStorefrontPlans } from '~~/shared/utils/planDisplay'
+import { buildPlanPricingSummary, planToCardOption } from '~~/shared/utils/planCardOption'
 import { mapPlanRow } from '~~/server/utils/productPlansDb'
+import { attachGiftsToPlans } from '~~/server/utils/planGiftsDb'
+import { planGiftsToInquirySnapshots } from '~~/shared/utils/planGiftDisplay'
 
 type SupabaseAdmin = ReturnType<typeof useSupabaseAdmin>
 
@@ -23,54 +26,6 @@ const planSelect = `
 export interface StorefrontPlansBundle {
   plan_pricing: ProductPlanPricingSummary | null
   plans: ProductPlanCardOption[]
-}
-
-function planToCardOption(plan: ProductPlan): ProductPlanCardOption {
-  const tiers = plan.billing_tiers ?? []
-  const computed_total = tiers.length ? totalContractAmount(tiers) : null
-  return {
-    id: plan.id,
-    contract_label: plan.contract_label,
-    contract_years: plan.contract_years,
-    contract_months: plan.contract_months,
-    service_mode: plan.service_mode,
-    service_interval_months: plan.service_interval_months,
-    policy_code: plan.policy_code,
-    advance_amount: plan.advance_amount,
-    advance_note: plan.advance_note,
-    display_monthly_price: displayPriceForCard(tiers),
-    display_price_note: displayPriceNote(tiers),
-    computed_total,
-    computed_net_total: computed_total != null ? totalNetAmount(computed_total, plan.advance_amount) : null,
-    is_default: plan.is_default,
-    sort_order: plan.sort_order,
-    billing_tiers: tiers.map(t => ({
-      bill_from: t.bill_from,
-      bill_to: t.bill_to,
-      monthly_price: t.monthly_price,
-      note: t.note,
-      sort_order: t.sort_order,
-    })),
-  }
-}
-
-function buildPricingSummary(plan: ProductPlan, planCount: number, fromMonthlyPrice: number | null): ProductPlanPricingSummary {
-  const tiers = plan.billing_tiers ?? []
-  const computed_total = tiers.length ? totalContractAmount(tiers) : null
-  return {
-    plan_id: plan.id,
-    contract_label: plan.contract_label,
-    contract_years: plan.contract_years,
-    service_mode: plan.service_mode,
-    display_monthly_price: displayPriceForCard(tiers),
-    display_price_note: displayPriceNote(tiers),
-    computed_total,
-    computed_net_total: computed_total != null ? totalNetAmount(computed_total, plan.advance_amount) : null,
-    advance_amount: plan.advance_amount,
-    advance_note: plan.advance_note,
-    plan_count: planCount,
-    from_monthly_price: fromMonthlyPrice,
-  }
 }
 
 function pickDefaultPlan(
@@ -109,6 +64,9 @@ export async function fetchStorefrontPlansForProducts(
     plansByProduct.set(plan.product_id, list)
   }
 
+  const allPlans = [...plansByProduct.values()].flat()
+  await attachGiftsToPlans(supabase, allPlans)
+
   const defaultByProductId = new Map(products.map(p => [p.id, p.default_plan_id]))
   const result = new Map<string, StorefrontPlansBundle>()
 
@@ -128,7 +86,7 @@ export async function fetchStorefrontPlansForProducts(
 
     const defaultPlan = pickDefaultPlan(activePlans, defaultByProductId.get(productId) ?? null)
     const plan_pricing = defaultPlan
-      ? buildPricingSummary(defaultPlan, activePlans.length, fromMonthlyPrice)
+      ? buildPlanPricingSummary(defaultPlan, activePlans.length, fromMonthlyPrice)
       : null
 
     result.set(productId, { plan_pricing, plans: cardPlans })
@@ -166,6 +124,7 @@ export function planToInquirySnapshot(
     image_url: product.image_url,
     policy_code: plan.policy_code ?? '',
     contract_label: plan.contract_label,
+    plan_title: plan.plan_title ?? null,
     service_mode: plan.service_mode,
     service_interval_months: plan.service_interval_months ?? null,
     contract_years: plan.contract_years,
@@ -183,5 +142,7 @@ export function planToInquirySnapshot(
     computed_total,
     computed_net_total: computed_total != null ? totalNetAmount(computed_total, plan.advance_amount) : undefined,
     monthly_price: display_monthly_price,
+    has_gift: plan.has_gift,
+    gift_items: planGiftsToInquirySnapshots(plan.gift_items ?? []),
   }
 }

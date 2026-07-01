@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
-import type { PromotionInput, PromotionStatus, PromotionWithProducts } from '~~/shared/types/promotion'
+import type { PromotionInput, PromotionProductOfferEnriched, PromotionProductOfferInput, PromotionStatus, PromotionWithProducts } from '~~/shared/types/promotion'
 import type { MainCategory } from '~~/shared/types/main-category'
 import type { Category } from '~~/shared/types/category'
-import { groupProducts, type ProductDisplayGroup } from '~~/shared/utils/productGroupDisplay'
-import {
-  categoriesGroupedByMain,
-} from '~~/shared/utils/categoryDisplay'
+import type { OfferDraft } from '~/components/admin/promotion/PromotionOffersEditor.vue'
+import PromotionOffersEditor from '~/components/admin/promotion/PromotionOffersEditor.vue'
 import { getPromotionLiveStatus } from '~~/shared/utils/promotionDisplay'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -27,102 +25,71 @@ const { data: catalogProducts, pending: catalogPending } = await useFetch<Produc
 const { data: mainCategories } = await useFetch<MainCategory[]>('/api/main-categories', { default: () => [] })
 const { data: categories } = await useFetch<Category[]>('/api/categories', { default: () => [] })
 
-const filterCategoryId = ref('')
+const offerDrafts = ref<OfferDraft[]>([])
+const dirtyOffers = ref(false)
+const hydratingOffers = ref(false)
 
-const categoryPickerGroups = computed(() =>
-  categoriesGroupedByMain(mainCategories.value ?? [], categories.value ?? [], { onlyActive: true }),
-)
-
-function productCountByCategory(categoryId: string) {
-  return (catalogProducts.value ?? []).filter(p => p.category_id === categoryId).length
+function priceToInput(n: number | null | undefined) {
+  if (n == null || Number.isNaN(Number(n))) return ''
+  return String(n)
 }
 
-const categoryProducts = computed(() => {
-  if (!filterCategoryId.value) return []
-  return (catalogProducts.value ?? []).filter(p => p.category_id === filterCategoryId.value)
-})
-
-const pickerSearch = ref('')
-
-const selectedIds = ref<Set<string>>(new Set())
-const dirtyProducts = ref(false)
-
-watch(promotion, (p) => {
-  if (p && !dirtyProducts.value) {
-    selectedIds.value = new Set(p.product_ids)
+function offerFromApi(offer: PromotionProductOfferEnriched): OfferDraft {
+  return {
+    localId: offer.id,
+    product_id: offer.product_id,
+    title_override: offer.title_override ?? '',
+    description: offer.description ?? '',
+    has_gift: offer.has_gift,
+    gifts: (offer.gift_items ?? []).map(gift => ({
+      localId: `${offer.id}-${gift.product_id}-${gift.sort_order}`,
+      product_id: gift.product_id,
+      label: gift.label ?? '',
+    })),
+    installment_monthly: priceToInput(offer.installment_monthly),
+    installment_total: priceToInput(offer.installment_total),
   }
+}
+
+function parsePriceInput(value: string): number | null {
+  const trimmed = value.trim().replace(/,/g, '')
+  if (!trimmed) return null
+  const n = Number(trimmed)
+  return Number.isFinite(n) ? n : null
+}
+
+function draftToOfferInput(draft: OfferDraft, index: number): PromotionProductOfferInput {
+  return {
+    product_id: draft.product_id,
+    sort_order: index,
+    title_override: draft.title_override.trim() || null,
+    description: draft.description.trim() || null,
+    has_gift: draft.has_gift,
+    gift_items: draft.has_gift
+      ? draft.gifts
+          .filter(g => g.product_id)
+          .map((gift, giftIndex) => ({
+            product_id: gift.product_id,
+            label: gift.label.trim() || null,
+            sort_order: giftIndex,
+          }))
+      : [],
+    installment_monthly: parsePriceInput(draft.installment_monthly),
+    installment_total: parsePriceInput(draft.installment_total),
+  }
+}
+
+watch(promotion, async (p) => {
+  if (!p || dirtyOffers.value) return
+  hydratingOffers.value = true
+  offerDrafts.value = (p.offers ?? []).map(offerFromApi)
+  await nextTick()
+  hydratingOffers.value = false
 }, { immediate: true })
 
-watch(filterCategoryId, () => {
-  pickerSearch.value = ''
-})
-
-const displayGroups = computed(() => groupProducts(categoryProducts.value))
-
-const filteredGroups = computed(() => {
-  const q = pickerSearch.value.trim().toLowerCase()
-  if (!q) return displayGroups.value
-  return displayGroups.value.filter(g =>
-    g.displayName.toLowerCase().includes(q)
-    || g.variants.some(v =>
-      v.sku.toLowerCase().includes(q)
-      || v.name.toLowerCase().includes(q),
-    ),
-  )
-})
-
-const selectedCount = computed(() => selectedIds.value.size)
-
-const selectedInCategoryCount = computed(() =>
-  categoryProducts.value.filter(p => selectedIds.value.has(p.id)).length,
-)
-
-function isProductSelected(productId: string) {
-  return selectedIds.value.has(productId)
-}
-
-function isGroupFullySelected(group: ProductDisplayGroup) {
-  return group.variants.length > 0 && group.variants.every(v => selectedIds.value.has(v.id))
-}
-
-function isGroupPartiallySelected(group: ProductDisplayGroup) {
-  const n = group.variants.filter(v => selectedIds.value.has(v.id)).length
-  return n > 0 && n < group.variants.length
-}
-
-function toggleProduct(productId: string, checked: boolean) {
-  dirtyProducts.value = true
-  const next = new Set(selectedIds.value)
-  if (checked) next.add(productId)
-  else next.delete(productId)
-  selectedIds.value = next
-}
-
-function toggleGroup(group: ProductDisplayGroup, checked: boolean) {
-  dirtyProducts.value = true
-  const next = new Set(selectedIds.value)
-  for (const v of group.variants) {
-    if (checked) next.add(v.id)
-    else next.delete(v.id)
-  }
-  selectedIds.value = next
-}
-
-function selectAllInCategory() {
-  if (!filterCategoryId.value) return
-  dirtyProducts.value = true
-  const next = new Set(selectedIds.value)
-  for (const p of categoryProducts.value) next.add(p.id)
-  selectedIds.value = next
-}
-
-function clearSelectionInCategory() {
-  if (!filterCategoryId.value) return
-  dirtyProducts.value = true
-  const next = new Set(selectedIds.value)
-  for (const p of categoryProducts.value) next.delete(p.id)
-  selectedIds.value = next
-}
+watch(offerDrafts, () => {
+  if (!hydratingOffers.value) dirtyOffers.value = true
+}, { deep: true })
 
 const form = reactive({
   title: '',
@@ -159,6 +126,8 @@ const saving = ref(false)
 const quickStatusSaving = ref(false)
 const formError = ref('')
 
+const offerCount = computed(() => offerDrafts.value.length)
+
 const storefrontStatus = computed(() =>
   getPromotionLiveStatus(
     {
@@ -167,7 +136,7 @@ const storefrontStatus = computed(() =>
       starts_at: form.starts_at.trim() ? new Date(form.starts_at).toISOString() : null,
       ends_at: form.ends_at.trim() ? new Date(form.ends_at).toISOString() : null,
     },
-    { product_count: selectedCount.value },
+    { product_count: offerCount.value },
   ),
 )
 const uploadingBanner = ref(false)
@@ -223,6 +192,24 @@ function toIsoOrNull(local: string) {
   return new Date(local).toISOString()
 }
 
+function buildPromotionPayload(): PromotionInput {
+  return {
+    title: form.title.trim(),
+    slug: form.slug.trim(),
+    headline: form.headline.trim() || null,
+    description: form.description.trim() || null,
+    image_url: form.image_url.trim() || null,
+    starts_at: toIsoOrNull(form.starts_at),
+    ends_at: toIsoOrNull(form.ends_at),
+    status: form.status,
+    is_active: form.is_active,
+  }
+}
+
+function buildOffersPayload() {
+  return offerDrafts.value.map((draft, index) => draftToOfferInput(draft, index))
+}
+
 async function handleSave() {
   formError.value = ''
   if (!form.title.trim() || !form.slug.trim()) {
@@ -232,24 +219,12 @@ async function handleSave() {
 
   saving.value = true
   try {
-    const payload: PromotionInput = {
-      title: form.title.trim(),
-      slug: form.slug.trim(),
-      headline: form.headline.trim() || null,
-      description: form.description.trim() || null,
-      image_url: form.image_url.trim() || null,
-      starts_at: toIsoOrNull(form.starts_at),
-      ends_at: toIsoOrNull(form.ends_at),
-      status: form.status,
-      is_active: form.is_active,
-    }
-
-    await $fetch(`/api/promotions/${id}`, { method: 'PATCH', body: payload })
+    await $fetch(`/api/promotions/${id}`, { method: 'PATCH', body: buildPromotionPayload() })
     await $fetch(`/api/promotions/${id}/products`, {
       method: 'PUT',
-      body: { product_ids: [...selectedIds.value] },
+      body: { offers: buildOffersPayload() },
     })
-    dirtyProducts.value = false
+    dirtyOffers.value = false
     bannerDirty.value = false
     await refresh()
     bannerPreviewKey.value++
@@ -261,6 +236,38 @@ async function handleSave() {
   finally {
     saving.value = false
   }
+}
+
+async function saveStatusOnly(patch: Partial<PromotionInput>) {
+  quickStatusSaving.value = true
+  formError.value = ''
+  try {
+    await $fetch(`/api/promotions/${id}`, {
+      method: 'PATCH',
+      body: { ...buildPromotionPayload(), ...patch },
+    })
+    if (patch.status !== undefined) form.status = patch.status
+    if (patch.is_active !== undefined) form.is_active = patch.is_active
+    await refresh()
+  }
+  catch (err: any) {
+    formError.value = err?.data?.message ?? 'อัพเดทสถานะไม่สำเร็จ'
+  }
+  finally {
+    quickStatusSaving.value = false
+  }
+}
+
+async function publishOnStorefront() {
+  await saveStatusOnly({ status: 'published', is_active: true })
+}
+
+async function setDraft() {
+  await saveStatusOnly({ status: 'draft' })
+}
+
+async function toggleActive() {
+  await saveStatusOnly({ is_active: !form.is_active })
 }
 
 async function handleDelete() {
@@ -311,7 +318,7 @@ async function handleDelete() {
     <template v-else-if="promotion">
       <AdminPageHeader
         :title="promotion.title"
-        :description="`Slug: ${promotion.slug} · เลือกแล้ว ${selectedCount} รหัสสินค้า`"
+        :description="`Slug: ${promotion.slug} · ${offerCount} ชิ้นในหน้าโปร`"
       />
 
       <section
@@ -342,7 +349,7 @@ async function handleDelete() {
               <li v-for="reason in storefrontStatus.reasons" :key="reason">{{ reason }}</li>
             </ul>
             <p class="mt-2 text-xs text-gray-500">
-              ต้องเผยแพร่ + เปิดใช้งาน + อยู่ในช่วงวันที่ (ถ้ากำหนด) + มีสินค้าอย่างน้อย 1 รหัสสินค้า
+              ต้องเผยแพร่ + เปิดใช้งาน + อยู่ในช่วงวันที่ (ถ้ากำหนด) + มีชิ้นสินค้าอย่างน้อย 1 ชิ้น
             </p>
           </div>
           <div class="flex shrink-0 flex-wrap gap-2">
@@ -381,19 +388,20 @@ async function handleDelete() {
         </div>
       </section>
 
-      <form class="grid gap-6 lg:grid-cols-2" @submit.prevent="handleSave">
+      <form class="space-y-6" @submit.prevent="handleSave">
         <section class="space-y-4 rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm">
           <h2 class="text-sm font-semibold text-gray-800">ข้อมูลโปรโมชั่น</h2>
 
-          <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">ชื่อโปร</label>
-            <input v-model="form.title" type="text" required class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm">
-          </div>
-
-          <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Slug</label>
-            <input v-model="form.slug" type="text" required class="w-full rounded-xl border border-gray-200 px-3 py-2.5 font-mono text-sm">
-            <p class="mt-1 text-xs text-gray-500">/promotions/{{ form.slug }}</p>
+          <div class="grid gap-4 lg:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">ชื่อโปร</label>
+              <input v-model="form.title" type="text" required class="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm">
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Slug</label>
+              <input v-model="form.slug" type="text" required class="w-full rounded-xl border border-gray-200 px-3 py-2.5 font-mono text-sm">
+              <p class="mt-1 text-xs text-gray-500">/promotions/{{ form.slug }}</p>
+            </div>
           </div>
 
           <div>
@@ -417,10 +425,7 @@ async function handleDelete() {
                   alt="Banner preview"
                   class="h-full w-full object-cover"
                 >
-                <div
-                  v-else
-                  class="flex h-full items-center justify-center text-gray-300"
-                >
+                <div v-else class="flex h-full items-center justify-center text-gray-300">
                   <Icon name="heroicons:photo" class="h-10 w-10" />
                 </div>
                 <div
@@ -483,141 +488,26 @@ async function handleDelete() {
               <input v-model="form.is_active" type="checkbox" class="rounded border-gray-300">
               เปิดใช้งาน
             </label>
-            <p class="w-full text-xs text-gray-500">
-              ใช้ปุ่ม «เปิดหน้าร้าน»ด้านบนเพื่อเผยแพร่ทันทีโดยไม่ต้องกดบันทึกทั้งหมด
-            </p>
           </div>
         </section>
 
-        <section class="rounded-2xl border border-gray-200/80 bg-white shadow-sm">
-          <div class="border-b border-gray-100 p-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 class="text-sm font-semibold text-gray-800">เลือกสินค้า (รหัสสินค้า)</h2>
-                <p class="mt-0.5 text-xs text-gray-500">
-                  เลือกทั้งกลุ่มได้ — เอาบางขนาดออกด้วยการ uncheck variant
-                </p>
-              </div>
-              <span class="text-sm font-medium text-red-600">{{ selectedCount }} รหัสสินค้า</span>
-            </div>
-            <div class="mt-3 space-y-2">
-              <select
-                v-model="filterCategoryId"
-                class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm"
-              >
-                <option value="">— เลือกหมวดหมู่สินค้า —</option>
-                <optgroup v-for="g in categoryPickerGroups" :key="g.main.id" :label="g.main.name">
-                  <option
-                    v-for="c in g.categories"
-                    :key="c.id"
-                    :value="c.id"
-                    :disabled="!productCountByCategory(c.id)"
-                  >
-                    {{ c.name }}{{ productCountByCategory(c.id) ? ` (${productCountByCategory(c.id)} รหัสสินค้า)` : ' — ไม่มีสินค้า' }}
-                  </option>
-                </optgroup>
-              </select>
-              <div class="flex flex-wrap gap-2">
-                <div class="relative min-w-[180px] flex-1">
-                  <Icon name="heroicons:magnifying-glass" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <input
-                    v-model="pickerSearch"
-                    type="search"
-                    placeholder="ค้นหา รหัสสินค้า / ชื่อ..."
-                    class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm disabled:opacity-50"
-                    :disabled="!filterCategoryId"
-                  >
-                </div>
-                <button
-                  type="button"
-                  class="rounded-lg border border-gray-200 px-3 py-2 text-xs hover:bg-gray-50 disabled:opacity-40"
-                  :disabled="!filterCategoryId || !categoryProducts.length"
-                  @click="selectAllInCategory"
-                >
-                  เลือกทั้งหมดในหมวด
-                </button>
-                <button
-                  type="button"
-                  class="rounded-lg border border-gray-200 px-3 py-2 text-xs hover:bg-gray-50 disabled:opacity-40"
-                  :disabled="!filterCategoryId || !selectedInCategoryCount"
-                  @click="clearSelectionInCategory"
-                >
-                  ล้างในหมวด
-                </button>
-              </div>
-            </div>
-          </div>
+        <PromotionOffersEditor
+          v-model="offerDrafts"
+          :catalog-products="catalogProducts ?? []"
+          :catalog-pending="catalogPending"
+          :main-categories="mainCategories ?? []"
+          :categories="categories ?? []"
+        />
 
-          <div v-if="catalogPending" class="p-8 text-center text-sm text-gray-400">กำลังโหลดสินค้า...</div>
-          <div v-else-if="!filterCategoryId" class="p-8 text-center text-sm text-gray-500">
-            เลือกหมวดหมู่ด้านบนเพื่อดูรายการสินค้า
-          </div>
-          <div v-else-if="!categoryProducts.length" class="p-8 text-center text-sm text-gray-500">
-            ไม่มีสินค้าเผยแพร่ในหมวดนี้
-          </div>
-          <div v-else-if="!filteredGroups.length" class="p-8 text-center text-sm text-gray-500">ไม่พบสินค้าตามคำค้นหา</div>
-          <div v-else class="max-h-[520px] overflow-y-auto">
-            <p class="border-b border-gray-100 bg-gray-50/80 px-4 py-2 text-xs text-gray-500">
-              {{ filteredGroups.length }} กลุ่ม · {{ categoryProducts.length }} รหัสสินค้า ในหมวดนี้
-              <span v-if="selectedInCategoryCount">· เลือกในหมวด {{ selectedInCategoryCount }}</span>
-            </p>
-            <div
-              v-for="group in filteredGroups"
-              :key="group.groupId ?? group.variants[0]!.id"
-              class="border-b border-gray-100 last:border-b-0"
-            >
-              <div class="flex items-center gap-3 bg-slate-50/90 px-4 py-2.5">
-                <input
-                  type="checkbox"
-                  class="rounded border-gray-300"
-                  :checked="isGroupFullySelected(group)"
-                  :indeterminate="isGroupPartiallySelected(group)"
-                  @change="toggleGroup(group, ($event.target as HTMLInputElement).checked)"
-                >
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-semibold text-gray-900">{{ group.displayName }}</p>
-                  <p class="text-[10px] text-gray-400">
-                    {{ group.variants.length > 1 ? `${group.variants.length} ขนาด` : 'รหัสสินค้าเดี่ยว' }}
-                  </p>
-                </div>
-              </div>
-              <div class="divide-y divide-gray-50">
-                <label
-                  v-for="v in group.variants"
-                  :key="v.id"
-                  class="flex cursor-pointer items-center gap-3 px-4 py-2 pl-10 hover:bg-gray-50/80"
-                >
-                  <input
-                    type="checkbox"
-                    class="rounded border-gray-300"
-                    :checked="isProductSelected(v.id)"
-                    @change="toggleProduct(v.id, ($event.target as HTMLInputElement).checked)"
-                  >
-                  <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm text-gray-800">{{ v.name }}</p>
-                    <p class="font-mono text-xs text-gray-500">
-                      {{ v.sku }}
-                      <span v-if="v.variant_label" class="text-gray-400">· {{ v.variant_label }}</span>
-                    </p>
-                  </div>
-                  <span class="shrink-0 text-xs text-gray-600">{{ formatBaht(v.discounted_price ?? v.base_price) }}</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </section>
+        <p v-if="formError" class="text-sm text-red-600">{{ formError }}</p>
 
-        <p v-if="formError" class="lg:col-span-2 text-sm text-red-600">{{ formError }}</p>
-
-        <div class="lg:col-span-2">
-          <button
-            type="submit"
-            class="rounded-xl bg-red-500 px-6 py-3 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
-            :disabled="saving || uploadingBanner"
-          >
-            {{ saving ? 'กำลังบันทึก...' : 'บันทึกโปรโมชั่นและรายการสินค้า' }}
-          </button>
-        </div>
+        <button
+          type="submit"
+          class="rounded-xl bg-red-500 px-6 py-3 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60"
+          :disabled="saving || uploadingBanner"
+        >
+          {{ saving ? 'กำลังบันทึก...' : 'บันทึกโปรโมชั่น' }}
+        </button>
       </form>
     </template>
   </div>

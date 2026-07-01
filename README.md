@@ -16,13 +16,28 @@ nvm use
 
 ## Environment Variables
 
-Create `.env` in project root:
+Copy `.env.example` → `.env` in project root. รายการครบอยู่ใน `.env.example` และ **[DEPLOY.md](./DEPLOY.md)** (production)
+
+ขั้นต่ำสำหรับ dev:
 
 ```env
+NUXT_PUBLIC_SITE_URL=https://lgsubscribe-official.com
 NUXT_PUBLIC_SUPABASE_URL=
 NUXT_PUBLIC_SUPABASE_ANON_KEY=
 NUXT_SUPABASE_SERVICE_ROLE_KEY=
 ```
+
+ส่ง PDF ตารางผ่อนทางอีเมล (ลูกค้าในตะกร้า) — ตั้ง **Brevo SMTP** ใน `.env`:
+
+```env
+NUXT_SMTP_HOST=smtp-relay.brevo.com
+NUXT_SMTP_PORT=587
+NUXT_SMTP_USER=xxxx@smtp-brevo.com
+NUXT_SMTP_PASS=xsmtpsib-...
+NUXT_SMTP_FROM=LG Subscribe <verified-sender@example.com>
+```
+
+Brevo: whitelist IP เครื่อง dev / VPS ใน **Authorized IPs** · sender ต้อง verify ในแท็บ Senders
 
 ## Setup
 
@@ -40,16 +55,14 @@ App runs at `http://localhost:3000`.
 
 ## Database Migrations (Supabase)
 
-Run migrations in Supabase SQL editor in order from:
+รัน migration ตามลำดับเลขใน `supabase/migrations/` (บน Supabase SQL Editor)
 
-- `supabase/migrations/0001_categories.sql`
-- ...
-- `supabase/migrations/0011_customer_profiles.sql`
+ล่าสุดที่เกี่ยวกับฟีเจอร์ PDF อีเมล:
 
-Important latest migrations:
+- `0054_cart_installment_schedule_pdf_requests.sql` (หรือเวอร์ชันที่สร้าง `cart_pdf_email_leads`)
+- `0055_migrate_cart_pdf_email_leads.sql` — ย้ายข้อมูลจากตารางเก่า (ถ้ามี)
 
-- `0010_product_card_notes.sql` (product card note fields)
-- `0011_customer_profiles.sql` (customer profile/contact data)
+DB ใหม่: ใช้ `supabase/ALL_MIGRATIONS.sql` หรือ `node scripts/build-all-migrations.mjs` แล้วรันไฟล์รวม
 
 ## Build / Preview
 

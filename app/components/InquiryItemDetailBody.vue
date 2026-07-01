@@ -10,6 +10,7 @@ import {
   lineUnitMonthlyPrice,
 } from '~~/shared/utils/cartQuantity'
 import { inquiryItemContractLine, planShowsServiceInterval, serviceIntervalLabel, serviceModeLabels } from '~~/shared/utils/planDisplay'
+import { planHasGiftItems } from '~~/shared/utils/planGiftDisplay'
 
 const props = defineProps<{
   item: InquiryItem
@@ -59,6 +60,11 @@ const qty = computed(() => getCartItemQuantity(props.item))
       </dl>
     </div>
 
+    <PlanGiftsList
+      v-if="planHasGiftItems(item)"
+      :gifts="item.gift_items ?? []"
+    />
+
     <InterestCostSummary
       :items="[item]"
       :total-contract="lineContractTotal(item) ?? 0"
@@ -76,7 +82,10 @@ const qty = computed(() => getCartItemQuantity(props.item))
       <p v-if="qty > 1" class="mt-0.5 text-xs text-gray-500">
         {{ qty }} ชิ้น × {{ formatBaht(lineUnitMonthlyPrice(item)) }}
       </p>
-      <p v-if="item.display_price_note" class="mt-1 text-xs text-gray-600">
+      <p v-if="item.plan_title" class="mt-1 text-sm font-medium text-gray-800">
+        {{ item.plan_title }}
+      </p>
+      <p v-else-if="item.display_price_note" class="mt-1 text-xs text-gray-600">
         {{ item.display_price_note }}
       </p>
     </div>

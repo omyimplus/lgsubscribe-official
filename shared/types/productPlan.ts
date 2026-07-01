@@ -1,5 +1,21 @@
+import type { Product } from './product'
+
 export type ServiceMode = 'visit' | 'self' | 'none'
 export type SaleType = 'subscription'
+
+export interface PlanGift {
+  product_id: string
+  label: string | null
+  sort_order: number
+}
+
+export interface PlanGiftEnriched extends PlanGift {
+  product?: Pick<Product, 'id' | 'name' | 'sku' | 'image_url'> | null
+}
+
+export type PlanGiftInput = Omit<PlanGift, 'sort_order'> & {
+  sort_order?: number
+}
 
 export interface PlanBillingTier {
   id: string
@@ -24,6 +40,7 @@ export interface ProductPlan {
   product_id: string
   policy_code: string | null
   contract_label: string
+  plan_title: string | null
   contract_years: number
   contract_months: number
   service_mode: ServiceMode
@@ -39,6 +56,8 @@ export interface ProductPlan {
   created_at: string
   updated_at: string
   billing_tiers?: PlanBillingTier[]
+  has_gift: boolean
+  gift_items?: PlanGiftEnriched[]
   computed_total?: number
   computed_net_total?: number
   display_monthly_price?: number | null
@@ -48,6 +67,7 @@ export interface ProductPlan {
 export interface ProductPlanCardOption {
   id: string
   contract_label: string
+  plan_title: string | null
   contract_years: number
   contract_months: number
   service_mode: ServiceMode
@@ -62,12 +82,15 @@ export interface ProductPlanCardOption {
   is_default: boolean
   sort_order?: number
   billing_tiers: Pick<PlanBillingTier, 'bill_from' | 'bill_to' | 'monthly_price' | 'note' | 'sort_order'>[]
+  has_gift: boolean
+  gift_items: PlanGiftEnriched[]
 }
 
 /** สรุปราคา default plan สำหรับการ์ดสินค้า (PLP) */
 export interface ProductPlanPricingSummary {
   plan_id: string
   contract_label: string
+  plan_title: string | null
   contract_years: number
   service_mode: ServiceMode
   display_monthly_price: number | null
@@ -94,10 +117,13 @@ export interface CreatePlanInput {
   promo_price?: number | null
   advance_amount?: number | null
   advance_note?: string | null
+  plan_title?: string | null
   is_default?: boolean
   is_active?: boolean
   sort_order?: number
   billing_tiers: PlanBillingTierInput[]
+  has_gift?: boolean
+  gift_items?: PlanGiftInput[]
 }
 
 export interface UpdatePlanInput {
@@ -111,10 +137,13 @@ export interface UpdatePlanInput {
   promo_price?: number | null
   advance_amount?: number | null
   advance_note?: string | null
+  plan_title?: string | null
   is_default?: boolean
   is_active?: boolean
   sort_order?: number
   billing_tiers?: PlanBillingTierInput[]
+  has_gift?: boolean
+  gift_items?: PlanGiftInput[]
 }
 
 export interface ProductPlansResponse {

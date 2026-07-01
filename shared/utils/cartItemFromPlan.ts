@@ -1,6 +1,7 @@
 import type { InquiryItem } from '~~/shared/types/inquiry'
 import type { Product } from '~~/shared/types/product'
 import type { ProductPlan, ProductPlanCardOption } from '~~/shared/types/productPlan'
+import { planGiftsToInquirySnapshots } from '~~/shared/utils/planGiftDisplay'
 import { displayPriceForCard, displayPriceNote, totalContractAmount, totalNetAmount } from '~~/shared/utils/planPricing'
 
 /** แปลงสินค้า + แผนที่เลือก เป็นรายการสำหรับตารางผ่อน / ตะกร้า / คำขอ */
@@ -11,6 +12,7 @@ export function planToInquiryItem(
   const tiers = plan.billing_tiers ?? []
   const computed_total = tiers.length ? totalContractAmount(tiers) : undefined
   const display_monthly_price = displayPriceForCard(tiers) ?? 0
+  const gift_items = planGiftsToInquirySnapshots(plan.gift_items ?? [])
 
   return {
     product_id: product.id,
@@ -20,6 +22,7 @@ export function planToInquiryItem(
     image_url: product.image_url,
     policy_code: plan.policy_code ?? '',
     contract_label: plan.contract_label,
+    plan_title: plan.plan_title ?? null,
     service_mode: plan.service_mode,
     service_interval_months: plan.service_interval_months ?? null,
     contract_years: plan.contract_years,
@@ -37,6 +40,8 @@ export function planToInquiryItem(
     computed_total,
     computed_net_total: computed_total != null ? totalNetAmount(computed_total, plan.advance_amount) : undefined,
     monthly_price: display_monthly_price,
+    has_gift: plan.has_gift,
+    gift_items,
     quantity: 1,
   }
 }

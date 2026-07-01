@@ -2,6 +2,7 @@
 import type { InquiryItem } from '~~/shared/types/inquiry'
 import { lineAdvanceTotal, lineMonthlyTotal, lineUnitAdvanceAmount, lineUnitMonthlyPrice } from '~~/shared/utils/cartQuantity'
 import { inquiryItemContractLine } from '~~/shared/utils/planDisplay'
+import { planHasGiftItems } from '~~/shared/utils/planGiftDisplay'
 
 const cart = useInterestCart()
 const route = useRoute()
@@ -206,6 +207,12 @@ async function onDownloadPdf() {
                       <p class="mt-0.5 text-xs text-gray-600">
                         {{ inquiryItemContractLine(item) }}
                       </p>
+                      <PlanGiftsList
+                        v-if="planHasGiftItems(item)"
+                        :gifts="item.gift_items ?? []"
+                        compact
+                        class="mt-1.5"
+                      />
                       <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
                         <CartQuantityStepper
                           :quantity="cart.getQuantity(item.product_id, item.plan_id)"

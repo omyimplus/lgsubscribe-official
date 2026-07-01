@@ -18,6 +18,8 @@ const {
 } = ctx
 
 const selectedImage = ref('')
+const draggedIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
 
 watch(
   () => form.image_urls,
@@ -38,6 +40,45 @@ const galleryUrls = computed(() => {
   if (form.image_urls?.length) return form.image_urls
   return form.image_url ? [form.image_url] : []
 })
+
+function onThumbDragStart(index: number, e: DragEvent) {
+  draggedIndex.value = index
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(index))
+  }
+}
+
+function onThumbDragOver(index: number, e: DragEvent) {
+  e.preventDefault()
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
+  dragOverIndex.value = index
+}
+
+function onThumbDragLeave(index: number) {
+  if (dragOverIndex.value === index) dragOverIndex.value = null
+}
+
+function onThumbDrop(index: number, e: DragEvent) {
+  e.preventDefault()
+  const from = draggedIndex.value
+  if (from != null && from !== index) moveImage(from, index)
+  draggedIndex.value = null
+  dragOverIndex.value = null
+}
+
+function onThumbDragEnd() {
+  draggedIndex.value = null
+  dragOverIndex.value = null
+}
+
+function handleRemove(index: number) {
+  const url = galleryUrls.value[index]
+  removeImage(index)
+  if (selectedImage.value === url) {
+    selectedImage.value = galleryUrls.value[0] ?? ''
+  }
+}
 </script>
 
 <template>
@@ -54,17 +95,57 @@ const galleryUrls = computed(() => {
       </div>
     </div>
 
-    <div class="mb-4 flex flex-wrap gap-2">
-      <button
-        v-for="(url, idx) in galleryUrls"
-        :key="`${url}-${idx}`"
-        type="button"
-        class="overflow-hidden rounded-lg border p-1"
-        :class="selectedImage === url ? 'border-red-500' : 'border-gray-200'"
-        @click="selectedImage = url"
-      >
-        <img :src="url" class="h-16 w-16 object-contain" :alt="`${form.name}-${idx + 1}`">
-      </button>
+    <div v-if="galleryUrls.length" class="mb-4">
+      <p class="mb-2 text-xs text-gray-500">
+        ลากเพื่อเรียงลำดับ · รูปแรกคือรูปหลัก · คลิกรูปเพื่อดูตัวอย่าง
+      </p>
+      <div class="grid grid-cols-5 gap-2">
+        <div
+          v-for="(url, idx) in galleryUrls"
+          :key="`${url}-${idx}`"
+          class="group relative"
+          :class="dragOverIndex === idx && draggedIndex !== idx ? 'z-10' : ''"
+          draggable="true"
+          @dragstart="onThumbDragStart(idx, $event)"
+          @dragover="onThumbDragOver(idx, $event)"
+          @dragleave="onThumbDragLeave(idx)"
+          @drop="onThumbDrop(idx, $event)"
+          @dragend="onThumbDragEnd"
+        >
+          <button
+            type="button"
+            class="relative w-full overflow-hidden rounded-xl border-2 bg-white p-1 transition"
+            :class="[
+              selectedImage === url ? 'border-red-500 ring-2 ring-red-500/20' : 'border-gray-200',
+              dragOverIndex === idx && draggedIndex !== idx ? 'border-red-400 bg-red-50/40' : '',
+              draggedIndex === idx ? 'opacity-40' : '',
+            ]"
+            @click="selectedImage = url"
+          >
+            <img :src="url" class="aspect-square w-full object-contain" :alt="`${form.name}-${idx + 1}`">
+            <span
+              v-if="idx === 0"
+              class="absolute left-1 top-1 rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white"
+            >
+              หลัก
+            </span>
+            <span
+              class="absolute bottom-1 left-1 flex items-center gap-0.5 rounded bg-black/55 px-1.5 py-0.5 text-[10px] text-white opacity-0 transition group-hover:opacity-100"
+            >
+              <Icon name="heroicons:bars-3" class="h-3 w-3" />
+              ลาก
+            </span>
+          </button>
+          <button
+            type="button"
+            class="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full border border-red-200 bg-white text-red-500 shadow-sm opacity-0 transition hover:bg-red-50 group-hover:opacity-100"
+            title="ลบรูป"
+            @click.stop="handleRemove(idx)"
+          >
+            <Icon name="heroicons:x-mark" class="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
     </div>
 
     <div
@@ -88,31 +169,6 @@ const galleryUrls = computed(() => {
       <button type="button" :class="['mt-3', btnSecondaryClass]" :disabled="uploadingImage" @click="triggerFileInput">
         เลือกรูปภาพ
       </button>
-    </div>
-
-    <div v-if="form.image_urls?.length" class="mt-3 space-y-2">
-      <div
-        v-for="(url, idx) in form.image_urls"
-        :key="`${url}-${idx}`"
-        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white p-2 text-xs"
-      >
-        <span class="min-w-0 flex-1 truncate text-gray-500">{{ url }}</span>
-        <span v-if="idx === 0" class="font-semibold text-red-600">รูปหลัก</span>
-        <button type="button" class="rounded p-1 hover:bg-gray-100" :disabled="idx === 0" @click="moveImage(idx, idx - 1)">
-          <Icon name="heroicons:arrow-up" class="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          class="rounded p-1 hover:bg-gray-100"
-          :disabled="idx === form.image_urls.length - 1"
-          @click="moveImage(idx, idx + 1)"
-        >
-          <Icon name="heroicons:arrow-down" class="h-4 w-4" />
-        </button>
-        <button type="button" class="rounded p-1 text-red-500 hover:bg-red-50" @click="removeImage(idx)">
-          <Icon name="heroicons:trash" class="h-4 w-4" />
-        </button>
-      </div>
     </div>
   </section>
 </template>

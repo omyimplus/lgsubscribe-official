@@ -13,6 +13,11 @@ import {
   validateTiersContinuity,
 } from '~~/shared/utils/planPricing'
 import { normalizePlanServiceInterval } from '~~/shared/utils/planDisplay'
+import {
+  attachGiftsToPlans,
+  normalizePlanGiftInputs,
+  replacePlanGifts,
+} from '~~/server/utils/planGiftsDb'
 
 type SupabaseAdmin = ReturnType<typeof useSupabaseAdmin>
 
@@ -56,6 +61,7 @@ export function mapPlanRow(row: Record<string, unknown>): ProductPlan {
     product_id: row.product_id as string,
     policy_code: typeof row.policy_code === 'string' ? row.policy_code : null,
     contract_label: row.contract_label as string,
+    plan_title: typeof row.plan_title === 'string' ? row.plan_title : null,
     contract_years: Number(row.contract_years),
     contract_months: Number(row.contract_months),
     service_mode: row.service_mode as ProductPlan['service_mode'],
@@ -70,6 +76,8 @@ export function mapPlanRow(row: Record<string, unknown>): ProductPlan {
     sort_order: Number(row.sort_order ?? 0),
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
+    has_gift: Boolean(row.has_gift),
+    gift_items: [],
     billing_tiers,
   }
 
@@ -245,10 +253,13 @@ export async function fetchProductPlans(
   const { data, error } = await query
   if (error) throw createError({ statusCode: 500, message: error.message })
 
+  const plans = (data ?? []).map(row => mapPlanRow(row as Record<string, unknown>))
+  await attachGiftsToPlans(supabase, plans)
+
   return {
     product_id: productId,
     default_plan_id: product.default_plan_id as string | null,
-    plans: (data ?? []).map(row => mapPlanRow(row as Record<string, unknown>)),
+    plans,
   }
 }
 
@@ -266,7 +277,9 @@ export async function fetchProductPlanById(
 
   if (error) throw createError({ statusCode: 500, message: error.message })
   if (!data) return null
-  return mapPlanRow(data as Record<string, unknown>)
+  const plan = mapPlanRow(data as Record<string, unknown>)
+  await attachGiftsToPlans(supabase, [plan])
+  return plan
 }
 
 export async function createProductPlan(
@@ -280,6 +293,8 @@ export async function createProductPlan(
   const contractMonths = resolveContractMonths(input)
   const contractLabel = deriveContractLabel(input.contract_years, input.service_mode)
   const serviceIntervalMonths = normalizePlanServiceInterval(input.service_mode, input.service_interval_months)
+  const hasGift = Boolean(input.has_gift)
+  const giftItems = normalizePlanGiftInputs(hasGift, input.gift_items)
   const row = {
     product_id: productId,
     policy_code: input.policy_code?.trim() || null,
@@ -293,6 +308,8 @@ export async function createProductPlan(
     promo_price: null,
     advance_amount: input.advance_amount ?? null,
     advance_note: input.advance_note?.trim() || null,
+    plan_title: input.plan_title?.trim() || null,
+    has_gift: hasGift,
     is_default: false,
     is_active: input.is_active ?? true,
     sort_order: input.sort_order ?? 0,
@@ -307,6 +324,7 @@ export async function createProductPlan(
   if (error) throw createError({ statusCode: 400, message: toFriendlyPlanError(error.message) })
 
   await replacePlanTiers(supabase, created.id, input.billing_tiers)
+  await replacePlanGifts(supabase, created.id, giftItems)
   await reconcileDefaultPlanForProduct(supabase, productId)
 
   const plan = await fetchProductPlanById(supabase, productId, created.id)
@@ -336,14 +354,29 @@ export async function updateProductPlan(
     promo_price: null,
     advance_amount: input.advance_amount !== undefined ? input.advance_amount : existing.advance_amount,
     advance_note: input.advance_note !== undefined ? input.advance_note : existing.advance_note,
+    plan_title: input.plan_title !== undefined ? input.plan_title : existing.plan_title,
     is_active: input.is_active ?? existing.is_active,
     sort_order: input.sort_order ?? existing.sort_order,
     billing_tiers: input.billing_tiers ?? existing.billing_tiers ?? [],
+    has_gift: input.has_gift ?? existing.has_gift,
+    gift_items: input.gift_items,
   }
 
   validatePlanInput(merged)
   const contractLabel = deriveContractLabel(merged.contract_years, merged.service_mode)
   const serviceIntervalMonths = normalizePlanServiceInterval(merged.service_mode, merged.service_interval_months)
+  const shouldUpdateGifts = input.has_gift !== undefined || input.gift_items !== undefined
+  const hasGift = input.has_gift !== undefined ? Boolean(input.has_gift) : Boolean(existing.has_gift)
+  const giftItems = shouldUpdateGifts
+    ? normalizePlanGiftInputs(
+        hasGift,
+        input.gift_items ?? (existing.gift_items ?? []).map(gift => ({
+          product_id: gift.product_id,
+          label: gift.label,
+          sort_order: gift.sort_order,
+        })),
+      )
+    : []
 
   const patch = {
     policy_code: merged.policy_code?.trim() || null,
@@ -357,6 +390,8 @@ export async function updateProductPlan(
     promo_price: null,
     advance_amount: merged.advance_amount,
     advance_note: merged.advance_note?.trim() || null,
+    plan_title: merged.plan_title?.trim() || null,
+    ...(shouldUpdateGifts ? { has_gift: hasGift } : {}),
     is_active: merged.is_active,
     sort_order: merged.sort_order,
   }
@@ -371,6 +406,10 @@ export async function updateProductPlan(
 
   if (input.billing_tiers) {
     await replacePlanTiers(supabase, planId, input.billing_tiers)
+  }
+
+  if (shouldUpdateGifts) {
+    await replacePlanGifts(supabase, planId, giftItems)
   }
 
   await reconcileDefaultPlanForProduct(supabase, productId)

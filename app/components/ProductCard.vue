@@ -6,6 +6,8 @@ import {
   cardPricePrefix,
   productHasPlanPricing,
 } from '~/composables/useProductPlanPricing'
+import { defaultPlanForProduct } from '~~/shared/utils/cartItemFromPlan'
+import { planHasGiftItems } from '~~/shared/utils/planGiftDisplay'
 
 const props = defineProps<{
   product: Product
@@ -37,6 +39,10 @@ const priceNote = computed(() => pricing.value?.display_price_note)
 const inCart = computed(() => cart.hasProduct(props.product.id))
 const warrantyText = computed(() => productWarrantyLine(props.product))
 const promoText = computed(() => props.product.headline || 'ยิ่งซับมาก ยิ่งลดมาก!')
+const defaultPlan = computed(() => defaultPlanForProduct(props.product))
+const defaultPlanGifts = computed(() =>
+  defaultPlan.value && planHasGiftItems(defaultPlan.value) ? defaultPlan.value.gift_items : [],
+)
 
 async function copySku() {
   try {
@@ -135,6 +141,13 @@ function onAddedToCart() {
       <p v-else-if="hasPricing && pricing">{{ pricing.contract_label }}</p>
       <p>{{ warrantyText }}</p>
     </div>
+
+    <PlanGiftsList
+      v-if="defaultPlanGifts.length"
+      :gifts="defaultPlanGifts"
+      compact
+      class="mt-2"
+    />
 
     <component
       :is="product.purchase_only_url ? 'a' : 'span'"

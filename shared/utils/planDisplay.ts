@@ -94,20 +94,29 @@ export function findPlanByYearModeAndInterval(
     .find(p => p.service_interval_months === serviceIntervalMonths)
 }
 
+/** หัวข้อแผนสัญญา — admin กำหนดเอง */
+export function planDisplayTitle(
+  plan: Pick<ProductPlanCardOption, 'plan_title'>,
+): string | null {
+  const title = plan.plan_title?.trim()
+  return title || null
+}
+
 /** ป้ายเลือกแผนเมื่อมีหลายแผนปี/บริการเดียวกัน (เช่น 5Y สองโปร / รอบบริการต่างกัน) */
-export function planVariantOptionLabel(plan: ProductPlanCardOption): string {
+export function planVariantOptionLabel(plan: ProductPlanCardOption, index?: number): string {
+  const title = plan.plan_title?.trim()
+  if (title) return title
   if (planShowsServiceInterval(plan)) {
     return serviceIntervalLabel(plan.service_interval_months!)
   }
-  const note = plan.display_price_note?.trim()
-  if (note) return note
-  const advance = plan.advance_note?.trim()
-  if (advance) return advance
   const policy = plan.policy_code?.trim()
   if (policy) return policy
+  const advance = plan.advance_note?.trim()
+  if (advance) return advance
   if (plan.display_monthly_price != null) {
     return `${plan.display_monthly_price.toLocaleString('th-TH')} บ./เดือน`
   }
+  if (index != null) return `แผนที่ ${index + 1}`
   return plan.contract_label
 }
 

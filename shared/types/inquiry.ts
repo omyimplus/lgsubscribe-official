@@ -41,6 +41,14 @@ export type InquiryBillingTierSnapshot = {
   note?: string | null
 }
 
+export type InquiryPlanGiftSnapshot = {
+  product_id: string
+  label: string | null
+  name?: string | null
+  sku?: string | null
+  image_url?: string | null
+}
+
 export type InquiryItem = {
   product_id: string
   plan_id: string
@@ -51,6 +59,7 @@ export type InquiryItem = {
   image_url: string | null
   policy_code: string
   contract_label: string
+  plan_title?: string | null
   service_mode: ServiceMode
   service_interval_months: number | null
   contract_years: number
@@ -62,6 +71,8 @@ export type InquiryItem = {
   display_price_note: string | null
   computed_total?: number
   computed_net_total?: number
+  has_gift?: boolean
+  gift_items?: InquiryPlanGiftSnapshot[]
   /** จำนวนชิ้นในรายการ (default 1) */
   quantity?: number
 }

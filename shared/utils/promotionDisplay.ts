@@ -31,7 +31,7 @@ export function getPromotionLiveStatus(
   if (p.ends_at && new Date(p.ends_at).getTime() < now.getTime()) {
     reasons.push('เลยช่วงวันสิ้นสุดแล้ว')
   }
-  if (opts?.product_count === 0) reasons.push('ยังไม่เลือกสินค้าในโปร')
+  if (opts?.product_count === 0) reasons.push('ยังไม่มีชิ้นสินค้าในหน้าโปร')
 
   const live = isPromotionLive(p, now) && (opts?.product_count ?? 1) > 0
   return { live, reasons }

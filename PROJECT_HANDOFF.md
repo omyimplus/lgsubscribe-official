@@ -38,6 +38,9 @@ npm run dev   # http://localhost:3000
 ### Customer (Frontend)
 - Register / Login (`/auth/register`, `/auth/login`) — ยืนยันอีเมลอัตโนมัติผ่าน admin API
 - โปรไฟล์: `customer_profiles` + `/api/me/profile`
+- ตะกร้า → **ดาวน์โหลด PDF ตารางผ่อน** (admin ดาวน์โหลดตรง / ลูกค้ากรอกอีเมลรับ PDF)
+- API: `POST /api/public/cart-installment-schedule-pdf` · อีเมลผ่าน **Brevo SMTP** (`NUXT_SMTP_*`)
+- Admin รายการอีเมลลูกค้า: `/admin/cart-pdf-email-leads` · ตาราง `cart_pdf_email_leads`
 
 ### Import LG.com (Draft-first)
 - ตาราง: `import_batches`, `import_products` + SQL `promote_import_batch`
@@ -182,16 +185,18 @@ LG ใช้ **Akamai Bot Manager**. การรัน Playwright แบบ **h
 | `PRODUCT_DETAIL_EDITOR_FLOW.md` | หน้า editor ราย field |
 | `LG_SUBSCRIPTION_SOURCE_URLS.md` | URL หมวด subscription ทุกประเภท |
 | `TV_IMPORT_DRYRUN_NOTES.md` | บันทึก dry-run เก่า |
-| `respon_tvs.md` | ตัวอย่าง response `retrieveProductList` (ไม่มีราคา 649 บนการ์ด) |
+| `DEPLOY.md` | Deploy VPS, env production, Brevo SMTP, PM2 |
 
 ---
 
 ## Env / รันโปรเจกต์
 
-- Copy `.env.example` → `.env` (Supabase URL, keys)
+- Copy `.env.example` → `.env` (Supabase, `NUXT_PUBLIC_SITE_URL`, Line, SMTP)
+- โดเมนจริง: `https://lgsubscribe-official.com` — ใช้ใน OG/sitemap/ลิงก์อีเมล PDF
 - Node 22+: `nvm use`
 - Dev: `npm run dev` → http://localhost:3000
 - Admin login ต้องมี user role `admin` หรือ `employee` ใน Supabase Auth metadata
+- Deploy production: **[DEPLOY.md](./DEPLOY.md)**
 
 ---
 
@@ -222,4 +227,4 @@ scripts/                # playwright tests
 
 ---
 
-*อัปเดตล่าสุด: พฤษภาคม 2026 — หลังแก้ DOM-first card scraping + ลบ hardcoded URL fallback*
+*อัปเดตล่าสุด: มิถุนายน 2026 — เพิ่ม PDF ตารางผ่อน + อีเมล Brevo, แก้ site URL canonical*

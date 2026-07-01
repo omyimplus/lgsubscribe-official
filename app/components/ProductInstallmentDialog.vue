@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
-import type { ProductPlanCardOption } from '~~/shared/types/productPlan'
+import type { ProductPlanCardOption, ProductPlansResponse } from '~~/shared/types/productPlan'
+import { planToCardOption } from '~~/shared/utils/planCardOption'
 import { planToInquiryItem } from '~~/shared/utils/cartItemFromPlan'
 import {
   CART_ITEM_QUANTITY_MAX,
@@ -24,12 +25,15 @@ const emit = defineEmits<{
 const cart = useInterestCart()
 const dialogRef = ref<HTMLDialogElement | null>(null)
 const selectedPlan = ref<ProductPlanCardOption | null>(null)
+const livePlans = ref<ProductPlanCardOption[] | null>(null)
+const plansLoading = ref(false)
+const plansFetchKey = ref(0)
 const pickerQuantity = ref(1)
 const justAdded = ref(false)
 const scheduleOpen = ref(false)
 
 
-const plans = computed(() => props.product.plans ?? [])
+const plans = computed(() => livePlans.value ?? props.product.plans ?? [])
 
 const inCartWithSelection = computed(() =>
   selectedPlan.value
@@ -63,8 +67,24 @@ function decrementPickerQuantity() {
 watch(selectedPlan, () => syncPickerQuantity())
 
 watch(() => props.open, (open) => {
-  if (open) syncPickerQuantity()
+  if (open) {
+    syncPickerQuantity()
+    void refreshPlans()
+  }
 })
+
+async function refreshPlans() {
+  plansLoading.value = true
+  try {
+    const data = await $fetch<ProductPlansResponse>(`/api/products/${props.product.id}/plans`)
+    livePlans.value = (data.plans ?? []).map(planToCardOption)
+    plansFetchKey.value += 1
+  } catch {
+    livePlans.value = null
+  } finally {
+    plansLoading.value = false
+  }
+}
 
 const pickerPreviewItem = computed(() => {
   const plan = selectedPlan.value
@@ -177,9 +197,10 @@ function addToCart() {
       </div>
 
       <div class="installment-dialog__body px-4 py-4 sm:px-5">
+        <p v-if="plansLoading" class="py-4 text-center text-sm text-gray-400">กำลังโหลดแผนสัญญา...</p>
         <ProductPlanPicker
-          v-if="plans.length"
-          :key="product.id"
+          v-else-if="plans.length"
+          :key="`${product.id}-${plansFetchKey}`"
           :plans="plans"
           :product-name="product.name"
           :default-plan-id="product.plan_pricing?.plan_id"
@@ -217,6 +238,12 @@ function addToCart() {
             </tbody>
           </table>
         </div>
+
+        <PlanGiftsList
+          v-if="selectedPlan?.has_gift && selectedPlan.gift_items?.length"
+          :gifts="selectedPlan.gift_items"
+          class="mt-4"
+        />
 
         <div
           v-if="selectedPlan"

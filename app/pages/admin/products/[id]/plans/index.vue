@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
+import type { MainCategory } from '~~/shared/types/main-category'
+import type { Category } from '~~/shared/types/category'
 import type {
   CreatePlanInput,
   PlanBillingTierInput,
@@ -8,6 +10,7 @@ import type {
   ServiceMode,
   UpdatePlanInput,
 } from '~~/shared/types/productPlan'
+import PromotionGiftProductPicker from '~/components/admin/promotion/PromotionGiftProductPicker.vue'
 import { formatBaht } from '~/composables/useProductPricing'
 import { totalContractAmount, totalNetAmount } from '~~/shared/utils/planPricing'
 import { normalizePlanServiceInterval, planShowsServiceInterval } from '~~/shared/utils/planDisplay'
@@ -20,6 +23,19 @@ const productId = route.params.id as string
 const { data: product } = await useFetch<Product>(() => `/api/products/${productId}`, {
   key: `admin-product-header-${productId}`,
 })
+
+const { data: catalogProducts } = await useFetch<Product[]>('/api/products', {
+  query: { status: 'published' },
+  default: () => [],
+})
+const { data: mainCategories } = await useFetch<MainCategory[]>('/api/main-categories', { default: () => [] })
+const { data: categories } = await useFetch<Category[]>('/api/categories', { default: () => [] })
+
+type GiftDraft = {
+  localId: string
+  product_id: string
+  label: string
+}
 
 const { data: plansData, pending, error: fetchError, refresh } = await useFetch<ProductPlansResponse>(
   () => `/api/admin/products/${productId}/plans`,
@@ -50,15 +66,26 @@ function emptyForm(): CreatePlanInput {
     promo_price: null,
     advance_amount: null,
     advance_note: null,
+    plan_title: null,
     is_active: true,
     sort_order: 0,
     billing_tiers: [emptyTier()],
+    has_gift: false,
+  }
+}
+
+function emptyGift(): GiftDraft {
+  return {
+    localId: crypto.randomUUID(),
+    product_id: '',
+    label: '',
   }
 }
 
 const modalOpen = ref(false)
 const editingPlanId = ref<string | null>(null)
 const form = reactive(emptyForm())
+const planGifts = ref<GiftDraft[]>([])
 const formError = ref('')
 const saving = ref(false)
 
@@ -100,6 +127,7 @@ function tiersSummary(plan: ProductPlan) {
 function openCreate() {
   editingPlanId.value = null
   Object.assign(form, emptyForm())
+  planGifts.value = []
   form.sort_order = plansData.value?.plans.length ?? 0
   syncLastTierEnd()
   formError.value = ''
@@ -119,8 +147,10 @@ function openEdit(plan: ProductPlan) {
     promo_price: null,
     advance_amount: plan.advance_amount,
     advance_note: plan.advance_note,
+    plan_title: plan.plan_title,
     is_active: plan.is_active,
     sort_order: plan.sort_order,
+    has_gift: plan.has_gift,
     billing_tiers: (plan.billing_tiers ?? []).map(t => ({
       bill_from: t.bill_from,
       bill_to: t.bill_to,
@@ -129,9 +159,27 @@ function openEdit(plan: ProductPlan) {
       sort_order: t.sort_order,
     })),
   })
+  planGifts.value = (plan.gift_items ?? []).map(gift => ({
+    localId: crypto.randomUUID(),
+    product_id: gift.product_id,
+    label: gift.label ?? '',
+  }))
   if (!form.billing_tiers.length) form.billing_tiers = [emptyTier()]
   formError.value = ''
   modalOpen.value = true
+}
+
+function onHasGiftChange(checked: boolean) {
+  form.has_gift = checked
+  if (!checked) planGifts.value = []
+}
+
+function addGift() {
+  planGifts.value = [...planGifts.value, emptyGift()]
+}
+
+function removeGift(localId: string) {
+  planGifts.value = planGifts.value.filter(g => g.localId !== localId)
 }
 
 function addTier() {
@@ -163,6 +211,16 @@ async function savePlan() {
       contract_months: contractMonthsComputed.value,
       service_interval_months: normalizePlanServiceInterval(form.service_mode, form.service_interval_months),
       billing_tiers: form.billing_tiers.map((t, i) => ({ ...t, sort_order: i })),
+      has_gift: form.has_gift,
+      gift_items: form.has_gift
+        ? planGifts.value
+            .filter(g => g.product_id)
+            .map((gift, index) => ({
+              product_id: gift.product_id,
+              label: gift.label.trim() || null,
+              sort_order: index,
+            }))
+        : [],
     }
 
     if (editingPlanId.value) {
@@ -256,6 +314,7 @@ async function removePlan(plan: ProductPlan) {
             <th class="px-4 py-3">ช่วงบิล</th>
             <th class="px-4 py-3">รวมค่างวด</th>
             <th class="px-4 py-3">มัดจำ</th>
+            <th class="px-4 py-3">ของแถม</th>
             <th class="px-4 py-3">ยอดสุทธิ</th>
             <th class="px-4 py-3">สถานะ</th>
             <th class="px-4 py-3" />
@@ -263,7 +322,7 @@ async function removePlan(plan: ProductPlan) {
         </thead>
         <tbody>
           <tr v-if="!plansData?.plans.length">
-            <td colspan="8" class="px-4 py-10 text-center text-gray-400">ยังไม่มีแผนสัญญา</td>
+            <td colspan="9" class="px-4 py-10 text-center text-gray-400">ยังไม่มีแผนสัญญา</td>
           </tr>
           <tr
             v-for="plan in plansData?.plans ?? []"
@@ -271,7 +330,8 @@ async function removePlan(plan: ProductPlan) {
             class="border-b border-gray-50 hover:bg-gray-50/50"
           >
             <td class="px-4 py-3">
-              <p class="font-medium text-gray-900">{{ plan.contract_label }}</p>
+              <p class="font-medium text-gray-900">{{ plan.plan_title || plan.contract_label }}</p>
+              <p v-if="plan.plan_title" class="text-xs text-gray-500">{{ plan.contract_label }}</p>
               <p class="text-xs text-gray-500">
                 {{ plan.contract_years }} ปี · {{ plan.contract_months }} บิล · ลำดับ {{ plan.sort_order }}
               </p>
@@ -289,6 +349,10 @@ async function removePlan(plan: ProductPlan) {
             <td class="px-4 py-3 text-xs text-gray-700">
               <div>{{ formatBaht(plan.advance_amount ?? 0) }}</div>
               <div v-if="plan.advance_note" class="text-gray-500">{{ plan.advance_note }}</div>
+            </td>
+            <td class="px-4 py-3 text-xs text-gray-700">
+              <span v-if="plan.has_gift && plan.gift_items?.length">{{ plan.gift_items.length }} ชิ้น</span>
+              <span v-else class="text-gray-400">—</span>
             </td>
             <td class="px-4 py-3 font-semibold text-red-700">
               {{ formatBaht(plan.computed_net_total ?? ((plan.computed_total ?? 0) + (plan.advance_amount ?? 0))) }}
@@ -328,6 +392,12 @@ async function removePlan(plan: ProductPlan) {
           </h2>
 
           <form class="mt-4 space-y-6" @submit.prevent="savePlan">
+            <div>
+              <label class="mb-1 block text-xs font-medium text-gray-600">หัวข้อแผนสัญญา</label>
+              <input v-model="form.plan_title" placeholder="เช่น ผ่อน 0% 6 เดือนแรก" :class="inputClass">
+              <p class="mt-1 text-xs text-gray-500">แสดงตอนลูกค้าเลือกแผน (แทนหมายเหตุช่วงบิลแรก)</p>
+            </div>
+
             <div class="grid gap-4 sm:grid-cols-2">
               <div>
                 <label class="mb-1 block text-xs font-medium text-gray-600">ระยะสัญญา (ปี) *</label>
@@ -427,6 +497,64 @@ async function removePlan(plan: ProductPlan) {
                   <span class="font-bold text-red-700">{{ formatBaht(computedNetTotal) }}</span>
                 </div>
               </div>
+            </section>
+
+            <section class="space-y-3 rounded-xl border border-amber-100 bg-amber-50/40 p-4">
+              <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-800">
+                <input
+                  :checked="form.has_gift"
+                  type="checkbox"
+                  class="rounded border-gray-300"
+                  @change="onHasGiftChange(($event.target as HTMLInputElement).checked)"
+                >
+                มีของแถมในแผนนี้
+              </label>
+
+              <template v-if="form.has_gift">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-xs font-semibold text-amber-900">รายการของแถม</p>
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-white px-2.5 py-1.5 text-xs font-medium text-amber-900 hover:bg-amber-50"
+                    @click="addGift"
+                  >
+                    <Icon name="heroicons:plus" class="h-3.5 w-3.5" />
+                    เพิ่มของแถม
+                  </button>
+                </div>
+
+                <p v-if="!planGifts.length" class="text-xs text-amber-800/80">
+                  ยังไม่มีของแถม — กด «เพิ่มของแถม» แล้วเลือกหมวดหมู่ → สินค้า
+                </p>
+
+                <div
+                  v-for="(gift, giftIndex) in planGifts"
+                  :key="gift.localId"
+                  class="space-y-3 rounded-xl border border-amber-200/70 bg-white/80 p-3"
+                >
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-xs font-medium text-gray-700">ของแถมชิ้นที่ {{ giftIndex + 1 }}</p>
+                    <button type="button" class="text-xs text-red-500 hover:underline" @click="removeGift(gift.localId)">
+                      ลบ
+                    </button>
+                  </div>
+                  <PromotionGiftProductPicker
+                    v-model="gift.product_id"
+                    :catalog-products="catalogProducts ?? []"
+                    :main-categories="mainCategories ?? []"
+                    :categories="categories ?? []"
+                  />
+                  <div>
+                    <label class="mb-1 block text-xs font-medium text-gray-600">ข้อความแสดง (optional)</label>
+                    <input
+                      v-model="gift.label"
+                      type="text"
+                      placeholder="เช่น แถม Soundbar XX"
+                      :class="inputClass"
+                    >
+                  </div>
+                </div>
+              </template>
             </section>
 
             <label class="flex items-center gap-2 text-sm">

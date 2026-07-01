@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Product } from '~~/shared/types/product'
+import type { Product, ProductStatus } from '~~/shared/types/product'
 import type { MainCategory } from '~~/shared/types/main-category'
 import type { Category } from '~~/shared/types/category'
 import { groupProducts } from '~~/shared/utils/productGroupDisplay'
@@ -83,6 +83,12 @@ const listProducts = computed(() =>
   filteredGroups.value.flatMap(g => g.variants),
 )
 
+function giftStatusLabel(status: ProductStatus | undefined) {
+  if (status === 'draft') return 'แบบร่าง'
+  if (status === 'pending') return 'รอตรวจ'
+  return null
+}
+
 function selectProduct(productId: string) {
   selectedId.value = productId
 }
@@ -102,7 +108,15 @@ function clearSelection() {
     >
       <div class="min-w-0">
         <p class="truncate text-sm font-medium text-gray-900">{{ selectedProduct.name }}</p>
-        <p class="font-mono text-xs text-gray-500">{{ selectedProduct.sku }}</p>
+        <p class="font-mono text-xs text-gray-500">
+          {{ selectedProduct.sku }}
+          <span
+            v-if="giftStatusLabel(selectedProduct.status)"
+            class="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] font-medium text-amber-800"
+          >
+            {{ giftStatusLabel(selectedProduct.status) }}
+          </span>
+        </p>
       </div>
       <button
         type="button"
@@ -159,7 +173,15 @@ function clearSelection() {
           </span>
           <span class="min-w-0 flex-1">
             <span class="block truncate font-medium text-gray-900">{{ p.name }}</span>
-            <span class="font-mono text-xs text-gray-500">{{ p.sku }}</span>
+            <span class="font-mono text-xs text-gray-500">
+              {{ p.sku }}
+              <span
+                v-if="giftStatusLabel(p.status)"
+                class="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] font-medium text-amber-800"
+              >
+                {{ giftStatusLabel(p.status) }}
+              </span>
+            </span>
           </span>
         </button>
       </div>

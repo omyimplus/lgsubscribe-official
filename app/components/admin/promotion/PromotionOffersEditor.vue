@@ -25,11 +25,15 @@ export type OfferDraft = {
 
 const props = defineProps<{
   catalogProducts: Product[]
+  /** รายการสินค้าสำหรับเลือกของแถม — รวมแบบร่าง */
+  giftCatalogProducts?: Product[]
   catalogPending?: boolean
   mainCategories: MainCategory[]
   categories: Category[]
   modelValue: OfferDraft[]
 }>()
+
+const giftProducts = computed(() => props.giftCatalogProducts ?? props.catalogProducts)
 
 const emit = defineEmits<{
   'update:modelValue': [offers: OfferDraft[]]
@@ -274,7 +278,7 @@ function removeGift(offer: OfferDraft, giftLocalId: string) {
             </div>
             <PromotionGiftProductPicker
               v-model="gift.product_id"
-              :catalog-products="catalogProducts"
+              :catalog-products="giftProducts"
               :catalog-pending="catalogPending"
               :main-categories="mainCategories"
               :categories="categories"

@@ -22,6 +22,11 @@ const { data: catalogProducts, pending: catalogPending } = await useFetch<Produc
   default: () => [],
 })
 
+/** ของแถมอาจเป็นสินค้าแบบร่าง — ไม่ขายหน้าเว็บ */
+const { data: giftCatalogProducts } = await useFetch<Product[]>('/api/products', {
+  default: () => [],
+})
+
 const { data: mainCategories } = await useFetch<MainCategory[]>('/api/main-categories', { default: () => [] })
 const { data: categories } = await useFetch<Category[]>('/api/categories', { default: () => [] })
 
@@ -494,6 +499,7 @@ async function handleDelete() {
         <PromotionOffersEditor
           v-model="offerDrafts"
           :catalog-products="catalogProducts ?? []"
+          :gift-catalog-products="giftCatalogProducts ?? []"
           :catalog-pending="catalogPending"
           :main-categories="mainCategories ?? []"
           :categories="categories ?? []"

@@ -24,8 +24,8 @@ const { data: product } = await useFetch<Product>(() => `/api/products/${product
   key: `admin-product-header-${productId}`,
 })
 
-const { data: catalogProducts } = await useFetch<Product[]>('/api/products', {
-  query: { status: 'published' },
+/** สินค้าสำหรับเลือกของแถม — รวมแบบร่าง (ไม่ขายหน้าเว็บ) */
+const { data: giftCatalogProducts } = await useFetch<Product[]>('/api/products', {
   default: () => [],
 })
 const { data: mainCategories } = await useFetch<MainCategory[]>('/api/main-categories', { default: () => [] })
@@ -540,7 +540,7 @@ async function removePlan(plan: ProductPlan) {
                   </div>
                   <PromotionGiftProductPicker
                     v-model="gift.product_id"
-                    :catalog-products="catalogProducts ?? []"
+                    :catalog-products="giftCatalogProducts ?? []"
                     :main-categories="mainCategories ?? []"
                     :categories="categories ?? []"
                   />

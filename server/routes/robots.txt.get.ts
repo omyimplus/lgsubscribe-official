@@ -12,7 +12,8 @@ export default defineEventHandler((event) => {
     'Disallow: /admin',
     'Disallow: /auth',
     'Disallow: /account',
-    'Disallow: /subscribe/inquiry',
+    'Disallow: /subscribe',
+    'Disallow: /api',
     '',
     `Sitemap: ${siteUrl}/sitemap.xml`,
   ].join('\n')

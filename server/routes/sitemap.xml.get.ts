@@ -1,5 +1,6 @@
 import { getPublicSiteUrl } from '~~/server/utils/siteUrl'
 import { SITE_PUBLIC_ROUTES } from '~~/shared/utils/siteSeo'
+import { SUBSCRIBE_TERMS_DOCS } from '~~/shared/utils/subscribeTermsContent'
 
 function xmlEscape(value: string): string {
   return value
@@ -19,6 +20,10 @@ export default defineEventHandler(async (event) => {
   const siteUrl = getPublicSiteUrl(event)
   const today = new Date().toISOString().slice(0, 10)
   const urls: string[] = SITE_PUBLIC_ROUTES.map(path => urlEntry(`${siteUrl}${path}`, today))
+
+  for (const doc of SUBSCRIBE_TERMS_DOCS) {
+    urls.push(urlEntry(`${siteUrl}/installment/${doc.slug}`, today))
+  }
 
   try {
     const supabase = useSupabaseAdmin()

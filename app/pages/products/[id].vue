@@ -12,6 +12,7 @@ import {
   primaryProductImageUrl,
   productGalleryUrls,
 } from '~~/shared/utils/productHeroImage'
+import { productToGtmItem } from '~~/shared/utils/gtmEvents'
 
 definePageMeta({ layout: 'default', showHero: false })
 
@@ -92,6 +93,9 @@ async function copySku() {
   catch { /* ignore */ }
 }
 
+const { trackViewItem } = useGtmEvent()
+const trackedViewItemId = ref<string | null>(null)
+
 watch(product, (p) => {
   if (!p) return
   selectedImage.value = primaryProductImageUrl(p)
@@ -99,6 +103,10 @@ watch(product, (p) => {
     { label: 'สินค้าทั้งหมด', to: '/products' },
     { label: p.name },
   ])
+  if (trackedViewItemId.value !== p.id) {
+    trackedViewItemId.value = p.id
+    trackViewItem(productToGtmItem(p))
+  }
 }, { immediate: true })
 
 const siteUrl = useSiteUrl()

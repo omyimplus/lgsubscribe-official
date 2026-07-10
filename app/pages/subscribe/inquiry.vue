@@ -35,11 +35,19 @@ function openItemDetail(item: InquiryItem) {
 }
 
 const { lineOaUrl } = useLineOa()
+const { trackBeginInquiry, trackGenerateLead } = useGtmEvent()
 const cartReady = ref(false)
+const trackedBeginInquiry = ref(false)
 
 onMounted(() => {
   cartReady.value = true
 })
+
+watch([cartReady, () => cart.items.value], ([ready, cartItems]) => {
+  if (!ready || trackedBeginInquiry.value || !cartItems.length) return
+  trackedBeginInquiry.value = true
+  trackBeginInquiry(cartItems)
+}, { immediate: true })
 
 async function handleFormSubmit(payload: SubscriptionInquiryInput) {
   error.value = ''
@@ -71,6 +79,11 @@ async function handleFormSubmit(payload: SubscriptionInquiryInput) {
     })
 
     success.value = res
+    trackGenerateLead({
+      inquiryId: res.id,
+      itemCount: cart.items.value.length,
+      items: cart.items.value,
+    })
     cart.clear()
   }
   catch (err: any) {

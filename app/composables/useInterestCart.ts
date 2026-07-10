@@ -38,6 +38,7 @@ function saveToStorage(items: InterestCartItem[]) {
 }
 
 export function useInterestCart() {
+  const { trackAddToCart } = useGtmEvent()
   const items = useState<InterestCartItem[]>('interest-cart', () => [])
   const isOpen = useState('interest-cart-open', () => false)
 
@@ -128,13 +129,16 @@ export function useInterestCart() {
         CART_ITEM_QUANTITY_MAX,
         getCartItemQuantity(current) + getCartItemQuantity(next),
       )
+      const merged = { ...current, ...next, quantity: mergedQty }
       items.value = items.value.map((line, i) =>
-        i === index ? { ...line, ...next, quantity: mergedQty } : line,
+        i === index ? merged : line,
       )
+      trackAddToCart(merged)
       return true
     }
 
     items.value = [...items.value, next]
+    trackAddToCart(next)
     return true
   }
 

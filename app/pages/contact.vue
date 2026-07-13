@@ -93,7 +93,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
     </section>
 
     <main class="index-container py-10 sm:py-12">
-      <!-- ซ้าย: ช่องทางติดต่อ | ขวา: QR Line Official -->
+      <!-- ซ้าย: ช่องทางติดต่อ | ขวา: QR Line -->
       <div class="grid gap-6 lg:grid-cols-2 lg:gap-8 lg:items-stretch">
         <div class="flex flex-col gap-6">
           <article class="product-storefront-card flex flex-col p-6 sm:p-8">
@@ -143,7 +143,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-xs font-semibold uppercase tracking-wide text-[#06C755]">
-                  Line Official
+                  Line
                 </p>
                 <h2 class="mt-0.5 text-lg font-bold text-gray-900 sm:text-xl">
                   ทักแชทสะดวกที่สุด
@@ -183,13 +183,13 @@ useSiteSeoFromPreset(SEO_CONTACT, {
           class="product-storefront-card flex flex-col items-center justify-center p-6 text-center sm:p-8 lg:min-h-full"
         >
           <p class="text-xs font-semibold uppercase tracking-wide text-[#06C755]">
-            Line Official Account
+            บัญชี Line
           </p>
           <h2 class="mt-1 text-lg font-bold text-gray-900 sm:text-xl">
             สแกน QR Code
           </h2>
           <p class="mt-2 max-w-xs text-sm leading-relaxed text-gray-600">
-            เปิดแอป Line แล้วสแกนเพื่อเพิ่มเพื่อน LG Subscribe Official
+            เปิดแอป Line แล้วสแกนเพื่อเพิ่มเพื่อน LG Subscribe
           </p>
 
           <div
@@ -198,7 +198,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
             <img
               v-if="useStaticQr"
               :src="lineQrImage"
-              alt="QR Code Line Official LG Subscribe"
+              alt="QR Code Line LG Subscribe"
               width="240"
               height="240"
               class="h-auto w-full max-w-[240px] object-contain"
@@ -207,7 +207,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
             <img
               v-else-if="qrDataUrl"
               :src="qrDataUrl"
-              alt="QR Code Line Official LG Subscribe"
+              alt="QR Code Line LG Subscribe"
               width="240"
               height="240"
               class="h-auto w-full max-w-[240px] object-contain"
@@ -236,7 +236,7 @@ useSiteSeoFromPreset(SEO_CONTACT, {
             {{ lineOaIdDisplay }}
           </p>
           <p class="mt-1 text-xs text-gray-500 sm:text-sm">
-            Line Official Account
+            บัญชี Line
           </p>
           <a
             v-if="lineOaUrl"

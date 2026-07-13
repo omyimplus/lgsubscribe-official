@@ -49,7 +49,7 @@ const { open, dismiss } = useLineQrPromoDialog()
 
               <div class="px-6 pb-6 pt-8 text-center">
                 <h2 id="line-qr-promo-title" class="text-lg font-bold text-gray-900 sm:text-xl">
-                  เพิ่มเพื่อน Line Official
+                  เพิ่มเพื่อน Line
                 </h2>
                 <p v-if="lineOaIdDisplay" class="mt-1 text-sm text-gray-500">
                   {{ lineOaIdDisplay }}
@@ -58,7 +58,7 @@ const { open, dismiss } = useLineQrPromoDialog()
                 <div class="mx-auto mt-5 max-w-[240px] overflow-hidden rounded-xl border border-gray-100 bg-gray-50 p-3">
                   <img
                     :src="LINE_QR_IMAGE_PATH"
-                    alt="QR Code เพิ่มเพื่อน Line Official"
+                    alt="QR Code เพิ่มเพื่อน Line LG Subscribe"
                     class="mx-auto block w-full rounded-lg"
                     width="240"
                     height="240"

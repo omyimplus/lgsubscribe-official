@@ -1,6 +1,6 @@
 export const CORPORATE_PAGE_PATH = '/corporate'
 
-/** ปุ่ม CTA หลัก — เปิด Line Official โดยตรง */
+/** ปุ่ม CTA หลัก — เปิด Line โดยตรง */
 export const CORPORATE_LINE_CTA_LABEL = 'แอดไลน์สอบถาม'
 
 export type CorporateBenefit = {

@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
     '',
     `ดูสินค้าเพิ่มเติม: ${siteUrl}/products`,
     '',
-    'หากมีคำถาม ติดต่อเจ้าหน้าที่ผ่าน Line Official Account บนเว็บไซต์',
+    'หากมีคำถาม ติดต่อเจ้าหน้าที่ผ่านบัญชี Line บนเว็บไซต์',
   ].join('\n')
 
   try {

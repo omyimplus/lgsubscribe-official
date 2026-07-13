@@ -152,7 +152,7 @@ const helpLinks = [
     <div class="border-t border-gray-100 bg-[#f3f3f3]">
       <div class="index-container py-4">
         <p class="text-center text-xs text-gray-500 sm:text-left">
-          © {{ new Date().getFullYear() }} LG Subscribe-Official. All Rights Reserved.
+          © {{ new Date().getFullYear() }} LG Subscribe. All Rights Reserved.
         </p>
       </div>
     </div>

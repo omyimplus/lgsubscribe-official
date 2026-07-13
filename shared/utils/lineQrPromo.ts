@@ -1,6 +1,6 @@
 import { SITE_LINE_QR_IMAGE } from './siteContact'
 
-/** QR โปรโมท Line Official — หลังโหลดหน้า */
+/** QR โปรโมท Line — หลังโหลดหน้า */
 export const LINE_QR_IMAGE_PATH = SITE_LINE_QR_IMAGE
 
 export const LINE_QR_PROMO_DISMISS_KEY = 'lg-subscribe-line-qr-promo-dismissed'

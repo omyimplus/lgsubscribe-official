@@ -63,7 +63,7 @@ export function buildOrganizationJsonLd(siteUrl: string): JsonLd {
     '@type': 'Organization',
     '@id': organizationId(siteUrl),
     name: SITE_NAME,
-    alternateName: ['LG Subscribe Official', 'LG Subscription Thailand'],
+    alternateName: ['LG Subscription Thailand', 'LG Subscribe Shop Cosmo Bazaar'],
     url: siteUrl,
     description: SITE_DEFAULT_DESCRIPTION,
     logo: {

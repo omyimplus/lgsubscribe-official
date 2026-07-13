@@ -1,17 +1,14 @@
 import { formatLineOaIdDisplay, resolveLineOaUrl } from '~~/shared/utils/lineOa'
-
-import { SITE_LINE_QR_IMAGE } from '~~/shared/utils/siteContact'
+import { SITE_LINE_OA_ID, SITE_LINE_QR_IMAGE } from '~~/shared/utils/siteContact'
 
 function useLineOaConfig() {
   const config = useRuntimeConfig()
 
   const lineOaUrl = computed(() =>
-    resolveLineOaUrl(config.public.lineOaUrl, config.public.lineOaId),
+    resolveLineOaUrl(config.public.lineOaUrl, SITE_LINE_OA_ID),
   )
 
-  const lineOaIdDisplay = computed(() =>
-    formatLineOaIdDisplay(config.public.lineOaId),
-  )
+  const lineOaIdDisplay = computed(() => formatLineOaIdDisplay(SITE_LINE_OA_ID))
 
   return { lineOaUrl, lineOaIdDisplay, config }
 }

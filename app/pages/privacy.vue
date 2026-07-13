@@ -31,7 +31,7 @@ useSiteSeoFromPreset(SEO_PRIVACY, {
         อัปเดตล่าสุด: {{ PRIVACY_POLICY_UPDATED }}
       </p>
       <p class="mt-4 text-sm leading-relaxed text-gray-600 sm:text-base">
-        นโยบายนี้ใช้กับเว็บไซต์ LG Subscribe Official ครอบคลุมการคุ้มครองข้อมูลส่วนบุคคลตาม PDPA และนโยบายการใช้คุกกี้
+        นโยบายนี้ใช้กับเว็บไซต์ LG Subscribe ครอบคลุมการคุ้มครองข้อมูลส่วนบุคคลตาม PDPA และนโยบายการใช้คุกกี้
       </p>
     </header>
 
@@ -50,7 +50,7 @@ useSiteSeoFromPreset(SEO_PRIVACY, {
           class="mt-3 text-sm leading-relaxed text-gray-700 sm:text-base"
         >
           <template v-if="section.title.startsWith('11.') && i === section.paragraphs.length - 1">
-            หากมีคำถามเกี่ยวกับนโยบายความเป็นส่วนตัวหรือการใช้คุกกี้ โปรดติดต่อ LG Subscribe Official ผ่าน
+            หากมีคำถามเกี่ยวกับนโยบายความเป็นส่วนตัวหรือการใช้คุกกี้ โปรดติดต่อ LG Subscribe ผ่าน
             <NuxtLink to="/contact" class="font-medium text-[#ea1917] hover:underline">หน้าติดต่อเรา</NuxtLink>
           </template>
           <template v-else>

@@ -67,8 +67,9 @@ export default defineNuxtConfig({
       gtmId: process.env.NUXT_PUBLIC_GTM_ID || '',
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL || '',
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || '',
+      // หน้าร้านเท่านั้น — อย่าผูกกับ OA หลังบ้าน (@subhome)
       lineOaUrl: process.env.NUXT_PUBLIC_LINE_OA_URL || SITE_LINE_OA_URL,
-      lineOaId: process.env.NUXT_PUBLIC_LINE_OA_ID || SITE_LINE_OA_ID,
+      lineOaId: SITE_LINE_OA_ID,
       lineOaQrImage: process.env.NUXT_PUBLIC_LINE_OA_QR_IMAGE || SITE_LINE_QR_IMAGE,
     },
   },

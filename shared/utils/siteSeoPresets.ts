@@ -112,7 +112,7 @@ export const SEO_CORPORATE = preset(
 
 export const SEO_CONTACT = preset(
   'ติดต่อเรา',
-  'ติดต่อ LG Subscribe Official — โทร 062-5969446, 089-3546442 หรือ Line @LGSub.Official บริการ 24 ชั่วโมง',
+  'ติดต่อ LG Subscribe — โทร 062-5969446, 089-3546442 หรือ Line @LGSub.Official บริการ 24 ชั่วโมง',
   [
     'ติดต่อ LG Subscribe',
     'LG Subscribe เบอร์โทร',
@@ -154,7 +154,7 @@ export const SEO_INSTALLMENT = preset(
 
 export const SEO_PRIVACY = preset(
   'นโยบายความเป็นส่วนตัว',
-  'นโยบายความเป็นส่วนตัวและการใช้คุกกี้ LG Subscribe Official — การเก็บ ใช้ และคุ้มครองข้อมูลส่วนบุคคลตาม PDPA',
+  'นโยบายความเป็นส่วนตัวและการใช้คุกกี้ LG Subscribe — การเก็บ ใช้ และคุ้มครองข้อมูลส่วนบุคคลตาม PDPA',
   [
     'นโยบายความเป็นส่วนตัว',
     'นโยบายคุกกี้',

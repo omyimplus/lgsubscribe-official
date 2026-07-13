@@ -1,4 +1,4 @@
-# LG Subscribe Official
+# LG Subscribe
 
 Nuxt 4 + Supabase project for LG Subscribe website and backend office.
 

@@ -65,7 +65,7 @@ async function copyWebhookUrl() {
 <template>
   <div class="space-y-6">
     <AdminPageHeader
-      title="Line Official Account"
+      title="Line OA"
       description="แจ้งเตือนทีมงานเมื่อมีคำขอสนใจผ่อนใหม่ — รูปแบบเดียวกับ wp-property (ใส่ User ID ใน .env)"
     >
       <template #actions>
@@ -147,9 +147,10 @@ async function copyWebhookUrl() {
     </section>
 
     <section class="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-sm">
-      <h3 class="text-sm font-semibold text-gray-900">ลิงก์ Line OA (หน้าร้าน)</h3>
+      <h3 class="text-sm font-semibold text-gray-900">ลิงก์ Line OA (หน้าร้าน — ลูกค้า)</h3>
       <p class="mt-1 text-sm text-gray-500">
-        จาก <code class="text-xs">NUXT_PUBLIC_LINE_OA_URL</code> — ปุ่มเปิด Line หลังส่งคำขอสำเร็จ
+        <code class="text-xs">@LGSub.Official</code> จาก
+        <code class="text-xs">NUXT_PUBLIC_LINE_OA_URL</code> — ปุ่มเปิด Line หลังส่งคำขอสำเร็จ
       </p>
       <p class="mt-2 text-sm" :class="status?.lineOaUrl ? 'text-emerald-700' : 'text-amber-700'">
         {{ status?.lineOaUrl ? status.lineOaUrl : 'ยังไม่ได้ตั้งค่า' }}
@@ -157,9 +158,9 @@ async function copyWebhookUrl() {
     </section>
 
     <section class="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-6">
-      <h3 class="text-sm font-semibold text-emerald-900">วิธีตั้งผู้รับแจ้งเตือน (พนักงาน)</h3>
+      <h3 class="text-sm font-semibold text-emerald-900">วิธีตั้งผู้รับแจ้งเตือน (หลังบ้าน @subhome)</h3>
       <ol class="mt-2 list-inside list-decimal space-y-1 text-sm text-emerald-900/90">
-        <li>เปิด Webhook URL ด้านบนใน OA Manager (ต้องเป็น HTTPS)</li>
+        <li>เปิด Webhook URL ด้านบนใน OA Manager ของ <strong>@subhome</strong> (ต้องเป็น HTTPS)</li>
         <li>พนักงาน Add friend <strong>@subhome</strong> จากมือถือ</li>
         <li>Bot จะส่ง User ID กลับมา — copy ไปใส่ <code>NUXT_LINE_NOTIFY_USER_ID</code> ใน <code>.env</code></li>
         <li>หลายคน: คั่นด้วย comma เช่น <code>Uaaa,Ubbb</code> แล้ว restart server</li>

@@ -43,7 +43,7 @@ useSiteSeoFromPreset(SEO_CORPORATE, {
             สนใจสมัคร LG Subscribe สำหรับองค์กร?
           </h2>
           <p class="mt-3 text-sm leading-relaxed text-gray-600 sm:text-base">
-            แอด Line Official แล้วแจ้งชื่อบริษัทและความต้องการ ทีมงานจะติดต่อกลับเพื่อให้คำปรึกษาแผนรายเดือนที่เหมาะกับธุรกิจของคุณ
+            แอด Line แล้วแจ้งชื่อบริษัทและความต้องการ ทีมงานจะติดต่อกลับเพื่อให้คำปรึกษาแผนรายเดือนที่เหมาะกับธุรกิจของคุณ
           </p>
           <div class="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a

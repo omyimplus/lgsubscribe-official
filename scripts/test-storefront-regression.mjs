@@ -316,7 +316,7 @@ async function testSessionConstants() {
 
   const siteContact = readFileSync(resolve(root, 'shared/utils/siteContact.ts'), 'utf8')
   assert('SITE_BUSINESS_HOURS 24h', siteContact.includes("SITE_BUSINESS_HOURS = '24 ชั่วโมง'"))
-  assert('SITE_OFFICE_COMPANY_NAME', siteContact.includes('บริษัท LG อิเล็กทรอนิกส์ ไทยแลนด์'))
+  assert('SITE_OFFICE_COMPANY_NAME', siteContact.includes('บริษัท แอลจี อีเลคทรอนิคส์ (ประเทศไทย) จำกัด'))
 
   const trustPage = readFileSync(resolve(root, 'shared/types/trustPage.ts'), 'utf8')
   assert('TRUST_KAPOOK_CERT_IMAGE path', trustPage.includes("'/images/kapook-cer.webp'"))

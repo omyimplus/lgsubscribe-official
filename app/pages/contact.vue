@@ -15,8 +15,8 @@ const {
   phones,
   phonesDisplay,
   businessHours,
-  officeAddress,
-  officeCompanyName,
+  storeName,
+  storeAddress,
   lineOaUrl,
   lineOaIdDisplay,
   lineQrImage,
@@ -261,10 +261,10 @@ useSiteSeoFromPreset(SEO_CONTACT, {
             </div>
             <div class="min-w-0 flex-1">
               <h2 class="text-lg font-bold text-gray-900 sm:text-xl">
-                {{ officeCompanyName }}
+                {{ storeName }}
               </h2>
               <p class="mt-3 text-sm leading-relaxed text-gray-700 sm:text-base">
-                {{ officeAddress }}
+                {{ storeAddress }}
               </p>
             </div>
           </div>

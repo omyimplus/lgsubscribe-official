@@ -3,6 +3,7 @@ import {
   SITE_FACEBOOK_URL,
   SITE_LINE_OA_URL,
   SITE_PHONES,
+  SITE_STORE_NAME,
   SITE_TIKTOK_URL,
 } from '~~/shared/utils/siteContact'
 import { SITE_DEFAULT_DESCRIPTION, SITE_DEFAULT_OG_IMAGE, SITE_NAME, resolveSiteUrl } from '~~/shared/utils/siteSeo'
@@ -32,10 +33,10 @@ function siteLogoUrl(siteUrl: string) {
 function sitePostalAddress() {
   return {
     '@type': 'PostalAddress',
-    streetAddress: 'เลขที่ 195 อาคารวัน แบงค็อก ทาวเวอร์ 4 ห้องเลขที่ 2301-2314 ชั้น 23 ถนนวิทยุ',
-    addressLocality: 'ลุมพินี',
-    addressRegion: 'กรุงเทพมหานคร',
-    postalCode: '10330',
+    streetAddress: 'อาคารคอสโม บาซาร์, LG Subscribe Shop ชั้น 2, ถนนป๊อปปูล่า 3',
+    addressLocality: 'อำเภอปากเกร็ด',
+    addressRegion: 'นนทบุรี',
+    postalCode: '11120',
     addressCountry: 'TH',
   }
 }
@@ -140,7 +141,7 @@ export function buildLocalBusinessJsonLd(siteUrl: string): JsonLd {
   return {
     '@type': 'LocalBusiness',
     '@id': `${siteUrl}/contact#localbusiness`,
-    name: SITE_NAME,
+    name: SITE_STORE_NAME,
     description: SITE_DEFAULT_DESCRIPTION,
     url: `${siteUrl}/contact`,
     image: siteLogoUrl(siteUrl),

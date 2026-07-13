@@ -208,7 +208,7 @@ async function testFilesAndRoutes() {
     SITE_OFFICE_COMPANY_NAME,
   } = await importShared('shared/utils/siteContact.ts')
   assert('SITE_BUSINESS_HOURS', SITE_BUSINESS_HOURS === '24 ชั่วโมง')
-  assert('SITE_OFFICE_COMPANY_NAME', SITE_OFFICE_COMPANY_NAME.includes('LG อิเล็กทรอนิกส์'))
+  assert('SITE_OFFICE_COMPANY_NAME', SITE_OFFICE_COMPANY_NAME.includes('แอลจี อีเลคทรอนิคส์'))
 
   const indexHtml = readFileSync(resolve(ROOT, 'app/pages/index.vue'), 'utf8')
   assert('index has CorporateSubscribeSection', indexHtml.includes('CorporateSubscribeSection'))

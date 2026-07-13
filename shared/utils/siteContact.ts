@@ -23,10 +23,26 @@ export const SITE_TIKTOK_URL = 'https://www.tiktok.com/@LG_Subscription'
 
 export const SITE_BUSINESS_HOURS = '24 ชั่วโมง'
 
-export const SITE_OFFICE_COMPANY_NAME = 'บริษัท LG อิเล็กทรอนิกส์ ไทยแลนด์'
+export const SITE_OFFICE_COMPANY_NAME = 'บริษัท แอลจี อีเลคทรอนิคส์ (ประเทศไทย) จำกัด'
+
+export const SITE_OFFICE_COMPANY_NAME_EN = 'LG ELECTRONICS (THAILAND) CO., LTD.'
 
 export const SITE_OFFICE_ADDRESS =
-  'เลขที่ 195 อาคารวัน แบงค็อก ทาวเวอร์ 4 ห้องเลขที่ 2301-2314 ชั้น 23 ถนนวิทยุ แขวงลุมพินี เขตปทุมวัน กรุงเทพมหานคร 10330'
+  '195 อาคารวัน แบงค็อก ทาวเวอร์ 4 ห้องเลขที่ 2301-2314 ชั้น 23 ถนนวิทยุ ลุมพินี เขตปทุมวัน กรุงเทพมหานคร'
+
+/** ที่อยู่ร้านตัวแทน (ไม่ใช่สำนักงานบริษัท LG) */
+export const SITE_STORE_NAME = 'LG Subscribe Shop Cosmo Bazaar เมืองทองธานี'
+
+export const SITE_STORE_ADDRESS =
+  'อาคารคอสโม บาซาร์, LG Subscribe Shop ชั้น 2, ถนนป๊อปปูล่า 3 อำเภอปากเกร็ด นนทบุรี 11120'
+
+/** ข้อมูลตัวแทนแต่งตั้ง — แสดงบนหน้าแรกเพื่อความโปร่งใส */
+export const SITE_AUTHORIZED_AGENT = {
+  operatorName: 'นางสาวพันธ์ทิพย์ ชัยสิริสัมพันธ์',
+  roleTitle: 'ผู้จัดการฝ่ายขาย LG Subscribe',
+  salesCode: 'LSM063',
+  agentCode: 'LGF226128',
+} as const
 
 export type SiteSocialLink = {
   label: string

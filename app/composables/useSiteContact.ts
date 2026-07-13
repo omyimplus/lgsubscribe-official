@@ -8,6 +8,8 @@ import {
   SITE_PHONES,
   SITE_PHONES_DISPLAY,
   SITE_SOCIAL_LINKS,
+  SITE_STORE_ADDRESS,
+  SITE_STORE_NAME,
   SITE_TIKTOK_HANDLE,
   SITE_TIKTOK_URL,
 } from '~~/shared/utils/siteContact'
@@ -31,6 +33,8 @@ export function useSiteContact() {
     phones: SITE_PHONES,
     phonesDisplay: SITE_PHONES_DISPLAY,
     businessHours: SITE_BUSINESS_HOURS,
+    storeName: SITE_STORE_NAME,
+    storeAddress: SITE_STORE_ADDRESS,
     officeCompanyName: SITE_OFFICE_COMPANY_NAME,
     officeAddress: SITE_OFFICE_ADDRESS,
     lineOaUrl,

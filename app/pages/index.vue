@@ -76,5 +76,6 @@ const featuredGroups = computed(() => groupProducts(featuredProducts.value ?? []
     <HomeArticles />
     <HomeLpCareersSection />
     <HomePaymentBanks />
+    <HomeAuthorizedAgentNotice />
   </main>
 </template>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const {
   phones,
-  officeAddress,
+  storeName,
+  storeAddress,
   lineOaUrl,
   lineOaIdDisplay,
   socialLinks,
@@ -95,8 +96,11 @@ const helpLinks = [
             </h3>
             <ul class="mt-4 space-y-3 text-sm leading-relaxed text-gray-600">
               <li>
-                <p>
-                  {{ officeAddress }}
+                <p class="font-medium text-gray-900">
+                  {{ storeName }}
+                </p>
+                <p class="mt-1">
+                  {{ storeAddress }}
                 </p>
               </li>
               <li v-for="phone in phones" :key="phone.tel">

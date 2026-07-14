@@ -6,6 +6,7 @@ import { SEO_CAREERS } from '~~/shared/utils/siteSeoPresets'
 import LpApplicationForm from '~/components/careers/LpApplicationForm.vue'
 import LpCareersSlideShow from '~/components/careers/LpCareersSlideShow.vue'
 import LpCareersYoutube from '~/components/careers/LpCareersYoutube.vue'
+import LpSaleConferenceGallery from '~/components/careers/LpSaleConferenceGallery.vue'
 
 definePageMeta({
   layout: 'default',
@@ -70,6 +71,7 @@ async function handleSubmit(payload: LpApplicationInput) {
       :watch-url="careersVideo.watch_url"
     />
     <LpCareersSlideShow v-if="hasSlides" :images="careersPage?.slide_images ?? []" />
+    <LpSaleConferenceGallery />
 
     <main class="index-container max-w-3xl py-8 sm:py-12">
       <template v-if="success">

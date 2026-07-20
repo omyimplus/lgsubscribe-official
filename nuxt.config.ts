@@ -24,6 +24,9 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/admin/**': { ssr: false },
+    // Search Console พบ 404 จากคน/บอทเดา URL หน้าแรกเป็น /home
+    '/home': { redirect: { to: '/', statusCode: 301 } },
+    '/home/': { redirect: { to: '/', statusCode: 301 } },
   },
 
   nitro: {
